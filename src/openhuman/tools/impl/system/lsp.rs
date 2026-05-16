@@ -9,7 +9,7 @@
 //! 1. The schema is stable: prompts and downstream callers can be
 //!    written against `{ language, kind, file, line, character, symbol }`
 //!    without churn when the real backend lands.
-//! 2. The gate is observable: with `OPENHUMAN_LSP_ENABLED=1` set the
+//! 2. The gate is observable: with `EVERSILVER_LSP_ENABLED=1` set the
 //!    tool registers; without it, it does not — so agents don't see a
 //!    method that will always fail.
 //! 3. When enabled but no backend is wired, the tool returns a clear
@@ -20,7 +20,7 @@ use async_trait::async_trait;
 use serde_json::json;
 
 /// Env var that gates LSP tool registration.
-pub const LSP_ENABLED_ENV: &str = "OPENHUMAN_LSP_ENABLED";
+pub const LSP_ENABLED_ENV: &str = "EVERSILVER_LSP_ENABLED";
 
 /// Returns true when the LSP capability gate is on. Accepts `1`, `true`,
 /// `yes` (case-insensitive). Anything else (including unset) is off.
@@ -57,7 +57,7 @@ impl Tool for LspTool {
     fn description(&self) -> &str {
         "Query a Language Server for code intelligence (definition, references, \
          hover, completion). Capability-gated: only registered when \
-         OPENHUMAN_LSP_ENABLED=1. The server-spawning backend is a follow-up \
+         EVERSILVER_LSP_ENABLED=1. The server-spawning backend is a follow-up \
          — calls today return a `not yet implemented` error so callers can \
          feature-detect."
     }

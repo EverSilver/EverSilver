@@ -633,14 +633,14 @@ async fn harness_invokes_composio_action_tool_against_fake_backend() {
     // Post-#1710-Wave-4, `ComposioActionTool::execute` reloads config via
     // `load_config_with_timeout()` per call, so the injected `Arc<Config>`
     // only routes to the fake backend if it is the live on-disk config.
-    // Hold `TEST_ENV_LOCK` and point `OPENHUMAN_WORKSPACE` at the
+    // Hold `TEST_ENV_LOCK` and point `EVERSILVER_WORKSPACE` at the
     // persisted fake-backend workspace.
     let _env_guard = TEST_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
 
     let backend = spawn_fake_composio_backend(ComposioFixture::realistic()).await;
     let (config, workspace_root) = backend.config_persisted().await;
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", &workspace_root);
+        std::env::set_var("EVERSILVER_WORKSPACE", &workspace_root);
     }
 
     let tool = ComposioActionTool::new(
@@ -696,7 +696,7 @@ async fn harness_invokes_composio_action_tool_against_fake_backend() {
     assert_eq!(exec.2["arguments"]["recipient_email"], "alice@example.com");
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -843,7 +843,7 @@ async fn orchestrator_prompt_drives_composio_call_via_delegation_chain() {
 
     // Post-#1710-Wave-4, `ComposioActionTool::execute` reloads config via
     // `load_config_with_timeout()` per call. Hold `TEST_ENV_LOCK` and
-    // point `OPENHUMAN_WORKSPACE` at the persisted fake-backend
+    // point `EVERSILVER_WORKSPACE` at the persisted fake-backend
     // workspace so the tool routes to the fake backend.
     let _env_guard = TEST_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
 
@@ -888,7 +888,7 @@ async fn orchestrator_prompt_drives_composio_call_via_delegation_chain() {
     let backend = spawn_fake_composio_backend(ComposioFixture::realistic()).await;
     let (composio_config, workspace_root) = backend.config_persisted().await;
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", &workspace_root);
+        std::env::set_var("EVERSILVER_WORKSPACE", &workspace_root);
     }
     let gmail_action_tool: Box<dyn Tool> = Box::new(ComposioActionTool::new(
         composio_config,
@@ -1002,6 +1002,6 @@ async fn orchestrator_prompt_drives_composio_call_via_delegation_chain() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }

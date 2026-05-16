@@ -483,7 +483,7 @@ impl FakeComposioBackend {
     /// factory (`create_composio_client`) — resolves to a backend
     /// `ComposioClient` pointing at this fake backend, **and persist it**
     /// to `config_path` on disk, returning the workspace dir to point
-    /// `OPENHUMAN_WORKSPACE` at.
+    /// `EVERSILVER_WORKSPACE` at.
     ///
     /// Post-#1710-Wave-4, factory-routed tools
     /// ([`crate::openhuman::composio::ComposioActionTool`],
@@ -492,12 +492,12 @@ impl FakeComposioBackend {
     /// using the injected `Arc<Config>` — so the injected config only
     /// influences routing if it is the live on-disk config the loader
     /// resolves. Callers must hold `crate::openhuman::config::TEST_ENV_LOCK`
-    /// and `std::env::set_var("OPENHUMAN_WORKSPACE", &workspace_root)`
+    /// and `std::env::set_var("EVERSILVER_WORKSPACE", &workspace_root)`
     /// (the returned path's parent) so the loader reads this config.
     ///
     /// Returns `(Arc<Config>, workspace_root)` where `workspace_root` is
     /// the tempdir the config + auth-profile live in (the value to set
-    /// `OPENHUMAN_WORKSPACE` to). The tempdir is leaked so it stays
+    /// `EVERSILVER_WORKSPACE` to). The tempdir is leaked so it stays
     /// valid for the test's lifetime.
     pub async fn config_persisted(
         &self,
@@ -527,7 +527,7 @@ impl FakeComposioBackend {
         )
         .expect("store fake app-session token for FakeComposioBackend::config_persisted");
         // Persist so `load_config_with_timeout()` (resolving the workspace
-        // from `OPENHUMAN_WORKSPACE`) reads exactly this config.
+        // from `EVERSILVER_WORKSPACE`) reads exactly this config.
         config
             .save()
             .await

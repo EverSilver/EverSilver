@@ -33,10 +33,10 @@ pub fn new_provider(
     // server other than Ollama (e.g. llama-server for Gemma 4 E2B, which
     // Ollama's embedded llama.cpp cannot load yet as of April 2026).
     //
-    // `OPENHUMAN_LOCAL_INFERENCE_URL` — full `/v1` base URL of the local
+    // `EVERSILVER_LOCAL_INFERENCE_URL` — full `/v1` base URL of the local
     // OpenAI-compat server. When set, health is probed via `GET {base}/models`
     // instead of Ollama's `/api/tags`.
-    let override_base = std::env::var("OPENHUMAN_LOCAL_INFERENCE_URL")
+    let override_base = std::env::var("EVERSILVER_LOCAL_INFERENCE_URL")
         .ok()
         .map(|s| s.trim().trim_end_matches('/').to_string())
         .filter(|s| !s.is_empty());
@@ -239,12 +239,12 @@ mod tests {
 
     #[test]
     fn factory_env_override_url_takes_precedence_over_base_url() {
-        // OPENHUMAN_LOCAL_INFERENCE_URL env var must override config.base_url.
+        // EVERSILVER_LOCAL_INFERENCE_URL env var must override config.base_url.
         // This is tested by ensuring construction succeeds when the env var
         // is set — a real URL check would require a running server.
         let _guard = crate::openhuman::local_ai::local_ai_test_guard();
         unsafe {
-            std::env::set_var("OPENHUMAN_LOCAL_INFERENCE_URL", "http://127.0.0.1:9999/v1");
+            std::env::set_var("EVERSILVER_LOCAL_INFERENCE_URL", "http://127.0.0.1:9999/v1");
         }
         let mut cfg = LocalAiConfig::default();
         cfg.runtime_enabled = true;
@@ -252,7 +252,7 @@ mod tests {
         // Should construct without panic — env override is recognised.
         let _p = make_provider(&cfg);
         unsafe {
-            std::env::remove_var("OPENHUMAN_LOCAL_INFERENCE_URL");
+            std::env::remove_var("EVERSILVER_LOCAL_INFERENCE_URL");
         }
     }
 }

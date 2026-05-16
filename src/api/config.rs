@@ -1,13 +1,13 @@
-//! Base URL and defaults for the TinyHumans / AlphaHuman hosted API.
+//! Base URL and defaults for the Eversilver / AlphaHuman hosted API.
 
 /// Default API host when `config.api_url` is unset or blank and no env override is set.
-pub const DEFAULT_API_BASE_URL: &str = "https://api.tinyhumans.ai";
+pub const DEFAULT_API_BASE_URL: &str = "https://api.eversilver.local";
 /// Default staging API host when the app environment is explicitly `staging`.
-pub const DEFAULT_STAGING_API_BASE_URL: &str = "https://staging-api.tinyhumans.ai";
+pub const DEFAULT_STAGING_API_BASE_URL: &str = "https://staging-api.eversilver.local";
 /// Primary app-environment selector used by the core and desktop app.
-pub const APP_ENV_VAR: &str = "OPENHUMAN_APP_ENV";
+pub const APP_ENV_VAR: &str = "EVERSILVER_APP_ENV";
 /// Vite-exposed app-environment selector used by the frontend bundle.
-pub const VITE_APP_ENV_VAR: &str = "VITE_OPENHUMAN_APP_ENV";
+pub const VITE_APP_ENV_VAR: &str = "VITE_EVERSILVER_APP_ENV";
 
 /// Resolves the hosted API base URL (no path suffix).
 ///
@@ -17,10 +17,10 @@ pub const VITE_APP_ENV_VAR: &str = "VITE_OPENHUMAN_APP_ENV";
 /// 3. `BACKEND_URL` / `VITE_BACKEND_URL` baked in at compile time via `option_env!`
 /// 4. Environment-aware default: `app_env_from_env()` == `staging` →
 ///    [`DEFAULT_STAGING_API_BASE_URL`], otherwise [`DEFAULT_API_BASE_URL`]
-/// Default path the OpenHuman backend exposes for its OpenAI-compatible
+/// Default path the Eversilver backend exposes for its OpenAI-compatible
 /// inference proxy. Joined onto [`effective_api_url`] when the user has not
 /// configured a custom `inference_url`.
-pub const OPENHUMAN_INFERENCE_PATH: &str = "/openai/v1/chat/completions";
+pub const EVERSILVER_INFERENCE_PATH: &str = "/openai/v1/chat/completions";
 
 /// Resolves the LLM inference endpoint to call.
 ///
@@ -28,7 +28,7 @@ pub const OPENHUMAN_INFERENCE_PATH: &str = "/openai/v1/chat/completions";
 /// 1. `config.inference_url` when set (user pointed inference at a custom
 ///    OpenAI-compatible endpoint — e.g. `https://api.openai.com/v1/chat/completions`).
 /// 2. Otherwise `effective_api_url(api_url)` joined with `/openai/v1/chat/completions`
-///    via the safe [`api_url`] helper, so inference flows through the OpenHuman
+///    via the safe [`api_url`] helper, so inference flows through the Eversilver
 ///    backend's OpenAI-compat proxy.
 ///
 /// This split is what keeps account/auth/billing calls (always `effective_api_url`)
@@ -48,7 +48,7 @@ pub fn effective_inference_url(
     }
     api_url(
         &effective_api_url(api_url_override),
-        OPENHUMAN_INFERENCE_PATH,
+        EVERSILVER_INFERENCE_PATH,
     )
 }
 
@@ -69,7 +69,7 @@ pub fn effective_api_url(api_url: &Option<String>) -> String {
 /// Used by [`effective_backend_api_url`] to avoid concatenating
 /// backend-integration paths (e.g. `/agent-integrations/composio/toolkits`)
 /// onto a user-set local-AI URL — see the Sentry cluster
-/// `OPENHUMAN-TAURI-51 / -80 / -7Z` where Ollama users had every integration
+/// `EVERSILVER-TAURI-51 / -80 / -7Z` where Ollama users had every integration
 /// request 404 because `config.api_url` was reused as both the chat base AND
 /// the integrations base.
 ///
@@ -145,14 +145,14 @@ pub fn looks_like_local_ai_endpoint(url: &str) -> bool {
     port_signals_llm || path_signals_llm
 }
 
-fn looks_like_openhuman_backend_endpoint(url: &str) -> bool {
+fn looks_like_eversilver_backend_endpoint(url: &str) -> bool {
     let trimmed = url.trim();
     let redacted_url = redact_url_for_log(trimmed);
     let parsed = match url::Url::parse(trimmed) {
         Ok(parsed) => {
             tracing::trace!(
                 api_url = %redacted_url,
-                "[api/config] parsed api_url while checking OpenHuman backend classification"
+                "[api/config] parsed api_url while checking Eversilver backend classification"
             );
             parsed
         }
@@ -160,7 +160,7 @@ fn looks_like_openhuman_backend_endpoint(url: &str) -> bool {
             tracing::trace!(
                 api_url = %redacted_url,
                 error = %error,
-                "[api/config] api_url parse failed while checking OpenHuman backend classification"
+                "[api/config] api_url parse failed while checking Eversilver backend classification"
             );
             return false;
         }
@@ -168,21 +168,21 @@ fn looks_like_openhuman_backend_endpoint(url: &str) -> bool {
     let Some(host) = parsed.host_str().map(str::to_ascii_lowercase) else {
         tracing::trace!(
             api_url = %redacted_url,
-            "[api/config] api_url has no host; not classified as OpenHuman backend"
+            "[api/config] api_url has no host; not classified as Eversilver backend"
         );
         return false;
     };
-    let is_openhuman_backend = matches!(
+    let is_eversilver_backend = matches!(
         host.as_str(),
-        "api.tinyhumans.ai" | "staging-api.tinyhumans.ai"
+        "api.eversilver.local" | "staging-api.eversilver.local"
     );
     tracing::debug!(
         api_url = %redacted_url,
         host = %host,
-        is_openhuman_backend,
-        "[api/config] OpenHuman backend classification complete"
+        is_eversilver_backend,
+        "[api/config] Eversilver backend classification complete"
     );
-    is_openhuman_backend
+    is_eversilver_backend
 }
 
 /// Resolves the API base URL for **all hosted-backend calls** (billing,
@@ -195,7 +195,7 @@ fn looks_like_openhuman_backend_endpoint(url: &str) -> bool {
 /// the hosted API instead of being concatenated onto the user's local
 /// Ollama/vLLM endpoint (which only knows about chat completions and
 /// 404s every other path — see the Sentry cluster
-/// `OPENHUMAN-TAURI-51 / -80 / -7Z`).
+/// `EVERSILVER-TAURI-51 / -80 / -7Z`).
 ///
 /// Logs a one-shot `warn!` the first time the fallback fires so users
 /// can see the diagnostic in their core sidecar logs.
@@ -203,14 +203,14 @@ pub fn effective_backend_api_url(api_url: &Option<String>) -> String {
     if let Some(u) = api_url.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         let redacted_url = redact_url_for_log(u);
         let is_local_ai = looks_like_local_ai_endpoint(u);
-        let is_openhuman_backend = looks_like_openhuman_backend_endpoint(u);
+        let is_eversilver_backend = looks_like_eversilver_backend_endpoint(u);
         tracing::debug!(
             api_url = %redacted_url,
             is_local_ai,
-            is_openhuman_backend,
+            is_eversilver_backend,
             "[api/config] evaluating backend api_url override"
         );
-        if is_local_ai && !is_openhuman_backend {
+        if is_local_ai && !is_eversilver_backend {
             tracing::debug!(
                 api_url = %redacted_url,
                 "[api/config] backend api_url override classified as local AI; falling back to backend default chain"
@@ -236,7 +236,7 @@ pub fn effective_backend_api_url(api_url: &Option<String>) -> String {
 /// Normalize a configured backend override to its host root.
 ///
 /// Users may have `config.api_url` populated with an inference endpoint such
-/// as `https://api.tinyhumans.ai/openai/v1/chat/completions`. Backend
+/// as `https://api.eversilver.local/openai/v1/chat/completions`. Backend
 /// callers append domain-specific paths, so the LLM-specific path must not
 /// survive into the backend base.
 fn normalize_backend_api_base_url(url: &str) -> String {
@@ -301,7 +301,7 @@ pub fn normalize_api_base_url(url: &str) -> String {
 /// - Empty `path` → normalized `base` (no trailing slash).
 /// - `path` starting with `/` → replaces any path on `base` (RFC 3986
 ///   absolute-path reference). This is the case that protects us from a
-///   misconfigured `api_url` like `https://api.tinyhumans.ai/openai/v1/chat/completions`
+///   misconfigured `api_url` like `https://api.eversilver.local/openai/v1/chat/completions`
 ///   silently corrupting every `/agent-integrations/...` call.
 /// - If `base` fails to parse as a URL, falls back to slash-safe concat
 ///   so callers always get a usable string.
@@ -402,8 +402,8 @@ pub fn app_env_from_env() -> Option<String> {
 #[cfg(not(test))]
 fn compile_time_app_env_values() -> [Option<&'static str>; 2] {
     [
-        option_env!("OPENHUMAN_APP_ENV"),
-        option_env!("VITE_OPENHUMAN_APP_ENV"),
+        option_env!("EVERSILVER_APP_ENV"),
+        option_env!("VITE_EVERSILVER_APP_ENV"),
     ]
 }
 
@@ -486,16 +486,16 @@ mod tests {
     #[test]
     fn api_url_empty_path_returns_normalized_base() {
         assert_eq!(
-            api_url("https://api.tinyhumans.ai", ""),
-            "https://api.tinyhumans.ai"
+            api_url("https://api.eversilver.local", ""),
+            "https://api.eversilver.local"
         );
         assert_eq!(
-            api_url("https://api.tinyhumans.ai/", ""),
-            "https://api.tinyhumans.ai"
+            api_url("https://api.eversilver.local/", ""),
+            "https://api.eversilver.local"
         );
         assert_eq!(
-            api_url("  https://api.tinyhumans.ai/  ", ""),
-            "https://api.tinyhumans.ai"
+            api_url("  https://api.eversilver.local/  ", ""),
+            "https://api.eversilver.local"
         );
     }
 
@@ -505,10 +505,10 @@ mod tests {
         // must not corrupt /agent-integrations/* calls.
         assert_eq!(
             api_url(
-                "https://api.tinyhumans.ai/openai/v1/chat/completions",
+                "https://api.eversilver.local/openai/v1/chat/completions",
                 "/agent-integrations/composio/toolkits"
             ),
-            "https://api.tinyhumans.ai/agent-integrations/composio/toolkits"
+            "https://api.eversilver.local/agent-integrations/composio/toolkits"
         );
     }
 
@@ -516,17 +516,17 @@ mod tests {
     fn api_url_clean_base_joins_cleanly() {
         assert_eq!(
             api_url(
-                "https://api.tinyhumans.ai",
+                "https://api.eversilver.local",
                 "/agent-integrations/composio/toolkits"
             ),
-            "https://api.tinyhumans.ai/agent-integrations/composio/toolkits"
+            "https://api.eversilver.local/agent-integrations/composio/toolkits"
         );
         assert_eq!(
             api_url(
-                "https://api.tinyhumans.ai/",
+                "https://api.eversilver.local/",
                 "/agent-integrations/composio/toolkits"
             ),
-            "https://api.tinyhumans.ai/agent-integrations/composio/toolkits"
+            "https://api.eversilver.local/agent-integrations/composio/toolkits"
         );
     }
 
@@ -534,10 +534,10 @@ mod tests {
     fn api_url_preserves_query_string_on_path() {
         assert_eq!(
             api_url(
-                "https://api.tinyhumans.ai",
+                "https://api.eversilver.local",
                 "/agent-integrations/composio/tools?toolkits=gmail"
             ),
-            "https://api.tinyhumans.ai/agent-integrations/composio/tools?toolkits=gmail"
+            "https://api.eversilver.local/agent-integrations/composio/tools?toolkits=gmail"
         );
     }
 
@@ -604,13 +604,13 @@ mod tests {
         let _guard = env_lock();
         let key = "BACKEND_URL";
         let prev = std::env::var(key).ok();
-        std::env::set_var(key, "https://staging-api.tinyhumans.ai/");
+        std::env::set_var(key, "https://staging-api.eversilver.local/");
         let result = api_base_from_env();
         match prev {
             Some(v) => std::env::set_var(key, v),
             None => std::env::remove_var(key),
         }
-        assert_eq!(result.as_deref(), Some("https://staging-api.tinyhumans.ai"));
+        assert_eq!(result.as_deref(), Some("https://staging-api.eversilver.local"));
     }
 
     #[test]
@@ -619,7 +619,7 @@ mod tests {
         let prev_primary = std::env::var("BACKEND_URL").ok();
         let prev_secondary = std::env::var("VITE_BACKEND_URL").ok();
         std::env::set_var("BACKEND_URL", ""); // empty — must not block secondary
-        std::env::set_var("VITE_BACKEND_URL", "https://staging-api.tinyhumans.ai/");
+        std::env::set_var("VITE_BACKEND_URL", "https://staging-api.eversilver.local/");
         let result = api_base_from_env();
         match prev_primary {
             Some(v) => std::env::set_var("BACKEND_URL", v),
@@ -629,7 +629,7 @@ mod tests {
             Some(v) => std::env::set_var("VITE_BACKEND_URL", v),
             None => std::env::remove_var("VITE_BACKEND_URL"),
         }
-        assert_eq!(result.as_deref(), Some("https://staging-api.tinyhumans.ai"));
+        assert_eq!(result.as_deref(), Some("https://staging-api.eversilver.local"));
     }
 
     // ── looks_like_local_ai_endpoint ───────────────────────────────────
@@ -693,9 +693,9 @@ mod tests {
 
     #[test]
     fn looks_like_local_ai_rejects_real_backends() {
-        assert!(!looks_like_local_ai_endpoint("https://api.tinyhumans.ai"));
+        assert!(!looks_like_local_ai_endpoint("https://api.eversilver.local"));
         assert!(!looks_like_local_ai_endpoint(
-            "https://staging-api.tinyhumans.ai"
+            "https://staging-api.eversilver.local"
         ));
         // OpenAI public API — uses /v1 as a version prefix but no
         // chat-completions path on its own; we must NOT misclassify it.
@@ -708,17 +708,17 @@ mod tests {
     }
 
     #[test]
-    fn openhuman_backend_endpoint_detection_accepts_hosted_api_paths() {
-        assert!(looks_like_openhuman_backend_endpoint(
-            "https://api.tinyhumans.ai/openai/v1/chat/completions"
+    fn eversilver_backend_endpoint_detection_accepts_hosted_api_paths() {
+        assert!(looks_like_eversilver_backend_endpoint(
+            "https://api.eversilver.local/openai/v1/chat/completions"
         ));
-        assert!(looks_like_openhuman_backend_endpoint(
-            "https://staging-api.tinyhumans.ai/openai/v1/chat/completions"
+        assert!(looks_like_eversilver_backend_endpoint(
+            "https://staging-api.eversilver.local/openai/v1/chat/completions"
         ));
-        assert!(!looks_like_openhuman_backend_endpoint(
+        assert!(!looks_like_eversilver_backend_endpoint(
             "https://openrouter.ai/api/v1/chat/completions"
         ));
-        assert!(!looks_like_openhuman_backend_endpoint(
+        assert!(!looks_like_eversilver_backend_endpoint(
             "http://localhost:1234/v1/chat/completions"
         ));
     }
@@ -778,32 +778,32 @@ mod tests {
     #[test]
     fn normalize_api_base_url_strips_single_trailing_slash() {
         assert_eq!(
-            normalize_api_base_url("https://api.tinyhumans.ai/"),
-            "https://api.tinyhumans.ai"
+            normalize_api_base_url("https://api.eversilver.local/"),
+            "https://api.eversilver.local"
         );
     }
 
     #[test]
     fn normalize_api_base_url_strips_multiple_trailing_slashes() {
         assert_eq!(
-            normalize_api_base_url("https://api.tinyhumans.ai///"),
-            "https://api.tinyhumans.ai"
+            normalize_api_base_url("https://api.eversilver.local///"),
+            "https://api.eversilver.local"
         );
     }
 
     #[test]
     fn normalize_api_base_url_trims_leading_and_trailing_whitespace() {
         assert_eq!(
-            normalize_api_base_url("  https://api.tinyhumans.ai  "),
-            "https://api.tinyhumans.ai"
+            normalize_api_base_url("  https://api.eversilver.local  "),
+            "https://api.eversilver.local"
         );
     }
 
     #[test]
     fn normalize_api_base_url_trims_whitespace_and_trailing_slash_together() {
         assert_eq!(
-            normalize_api_base_url("  https://api.tinyhumans.ai/  "),
-            "https://api.tinyhumans.ai"
+            normalize_api_base_url("  https://api.eversilver.local/  "),
+            "https://api.eversilver.local"
         );
     }
 
@@ -813,8 +813,8 @@ mod tests {
         // trailing-slash removal — callers that set a sub-path base (unusual)
         // should still get what they provided.
         assert_eq!(
-            normalize_api_base_url("https://api.tinyhumans.ai/v2"),
-            "https://api.tinyhumans.ai/v2"
+            normalize_api_base_url("https://api.eversilver.local/v2"),
+            "https://api.eversilver.local/v2"
         );
     }
 
@@ -842,7 +842,7 @@ mod tests {
         // path per RFC 3986 — the base's last segment is dropped. This is
         // documented behaviour; this test pins it so regressions are
         // visible.
-        let result = api_url("https://api.tinyhumans.ai", "relative");
+        let result = api_url("https://api.eversilver.local", "relative");
         // url::Url::join of a relative path onto a base with no trailing
         // segment simply appends — but the exact RFC 3986 result depends on
         // whether the base has a trailing slash. We just assert the call
@@ -853,8 +853,8 @@ mod tests {
     #[test]
     fn api_url_multiple_trailing_slashes_on_base_are_stripped() {
         assert_eq!(
-            api_url("https://api.tinyhumans.ai///", "/v1/foo"),
-            "https://api.tinyhumans.ai/v1/foo"
+            api_url("https://api.eversilver.local///", "/v1/foo"),
+            "https://api.eversilver.local/v1/foo"
         );
     }
 
@@ -873,20 +873,20 @@ mod tests {
 
         let cases = [
             Case {
-                api_url: "https://api.tinyhumans.ai/openai/v1/chat/completions",
-                expected: "https://api.tinyhumans.ai".to_string(),
+                api_url: "https://api.eversilver.local/openai/v1/chat/completions",
+                expected: "https://api.eversilver.local".to_string(),
             },
             Case {
                 api_url: "http://localhost:11434/v1/chat/completions",
                 expected: fallback_backend.clone(),
             },
             Case {
-                api_url: "https://api.tinyhumans.ai",
-                expected: "https://api.tinyhumans.ai".to_string(),
+                api_url: "https://api.eversilver.local",
+                expected: "https://api.eversilver.local".to_string(),
             },
             Case {
-                api_url: "https://api.tinyhumans.ai/openai/v1/",
-                expected: "https://api.tinyhumans.ai".to_string(),
+                api_url: "https://api.eversilver.local/openai/v1/",
+                expected: "https://api.eversilver.local".to_string(),
             },
             Case {
                 api_url: "https://openrouter.ai/api/v1/chat/completions",
@@ -919,21 +919,21 @@ mod tests {
     fn integrations_url_falls_back_to_env_when_override_is_local_ai() {
         let _guard = env_lock();
         let _env = EnvSnapshot::clear_backend_env();
-        std::env::set_var("BACKEND_URL", "https://staging-api.tinyhumans.ai/");
+        std::env::set_var("BACKEND_URL", "https://staging-api.eversilver.local/");
 
         let result = effective_backend_api_url(&Some(
             "http://127.0.0.1:8080/v1/chat/completions".to_string(),
         ));
 
-        assert_eq!(result, "https://staging-api.tinyhumans.ai");
+        assert_eq!(result, "https://staging-api.eversilver.local");
     }
 
     #[test]
     fn integrations_url_keeps_real_backend_override() {
         // User explicitly set a real backend host — must be respected.
         let result =
-            effective_backend_api_url(&Some("https://staging-api.tinyhumans.ai/".to_string()));
-        assert_eq!(result, "https://staging-api.tinyhumans.ai");
+            effective_backend_api_url(&Some("https://staging-api.eversilver.local/".to_string()));
+        assert_eq!(result, "https://staging-api.eversilver.local");
     }
 
     #[test]

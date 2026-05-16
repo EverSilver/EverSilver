@@ -5,7 +5,7 @@
 //! default MVP model and logs a warning. `effective_chat_model_id` intentionally
 //! bypasses that allowlist for LM Studio so user-managed model IDs are passed
 //! through unchanged; the generic `effective_*` helpers still enforce the MVP
-//! tier restriction for OpenHuman-managed Ollama assets.
+//! tier restriction for Eversilver-managed Ollama assets.
 
 use crate::openhuman::config::Config;
 use crate::openhuman::local_ai::provider::{provider_from_config, LocalAiProvider};

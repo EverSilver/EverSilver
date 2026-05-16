@@ -69,7 +69,7 @@ fn whatsapp_parse_valid_text_message() {
                         "timestamp": "1699999999",
                         "type": "text",
                         "text": {
-                            "body": "Hello OpenHuman!"
+                            "body": "Hello Eversilver!"
                         }
                     }]
                 },
@@ -81,7 +81,7 @@ fn whatsapp_parse_valid_text_message() {
     let msgs = ch.parse_webhook_payload(&payload);
     assert_eq!(msgs.len(), 1);
     assert_eq!(msgs[0].sender, "+1234567890");
-    assert_eq!(msgs[0].content, "Hello OpenHuman!");
+    assert_eq!(msgs[0].content, "Hello Eversilver!");
     assert_eq!(msgs[0].channel, "whatsapp");
     assert_eq!(msgs[0].timestamp, 1_699_999_999);
 }

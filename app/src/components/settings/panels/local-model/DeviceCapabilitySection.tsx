@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import {
   type ApplyPresetResult,
-  openhumanLocalAiApplyPreset,
+  eversilverLocalAiApplyPreset,
   type PresetsResponse,
 } from '../../../../utils/tauriCommands';
 
@@ -70,7 +70,7 @@ const DeviceCapabilitySection = ({
     setApplying(tierId);
     setApplyError('');
     try {
-      const result = await openhumanLocalAiApplyPreset(tierId);
+      const result = await eversilverLocalAiApplyPreset(tierId);
       setApplySuccess(result);
       onPresetApplied?.(result);
     } catch (err) {

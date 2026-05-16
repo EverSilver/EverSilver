@@ -21,16 +21,16 @@ pub(crate) fn config_root_dir(config: &Config) -> PathBuf {
 /// Default callers see the shared `~/.openhuman/` root, which avoids
 /// duplicating multi-GB model files across users on a single machine.
 ///
-/// When `OPENHUMAN_WORKSPACE` is **explicitly** set (test/dev parallel
+/// When `EVERSILVER_WORKSPACE` is **explicitly** set (test/dev parallel
 /// sessions, multi-workspace deployments, isolated CI runs), the
 /// shared-root contract no longer applies — those callers want full
 /// isolation, including their own copy of any installed binaries. Honor
 /// the override by returning the workspace dir directly.
 fn shared_root_dir(config: &Config) -> PathBuf {
-    if std::env::var_os("OPENHUMAN_WORKSPACE").is_some() {
+    if std::env::var_os("EVERSILVER_WORKSPACE").is_some() {
         return config_root_dir(config);
     }
-    crate::openhuman::config::default_root_openhuman_dir()
+    crate::openhuman::config::default_root_eversilver_dir()
         .unwrap_or_else(|_| config_root_dir(config))
 }
 
@@ -101,7 +101,7 @@ pub(crate) fn resolve_whisper_binary() -> Option<PathBuf> {
     // means a user who just clicked Install in the VoicePanel doesn't
     // have to also export WHISPER_BIN. Falls back to the env+PATH form
     // for advanced users who pin a custom binary.
-    if let Ok(shared) = crate::openhuman::config::default_root_openhuman_dir() {
+    if let Ok(shared) = crate::openhuman::config::default_root_eversilver_dir() {
         let root = shared.join("bin").join("whisper");
         let bin_name = if cfg!(windows) {
             "whisper-cli.exe"
@@ -163,7 +163,7 @@ pub(crate) fn resolve_whisper_binary_with_config(config: &Config) -> Option<Path
 pub(crate) fn resolve_piper_binary() -> Option<PathBuf> {
     // Precedence: workspace install > env override > PATH lookup. See
     // the `resolve_whisper_binary` comment above for the rationale.
-    if let Ok(shared) = crate::openhuman::config::default_root_openhuman_dir() {
+    if let Ok(shared) = crate::openhuman::config::default_root_eversilver_dir() {
         let root = shared.join("bin").join("piper");
         let bin_name = if cfg!(windows) { "piper.exe" } else { "piper" };
         for candidate in [

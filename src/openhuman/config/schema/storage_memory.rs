@@ -82,7 +82,7 @@ fn default_true() -> bool {
 }
 
 fn default_embedding_provider() -> String {
-    // Default to the OpenHuman backend (Voyage-backed `embedding-v1`) so a
+    // Default to the Eversilver backend (Voyage-backed `embedding-v1`) so a
     // fresh install works without requiring a local Ollama daemon. Users
     // who want fully-local embeddings can flip this to "ollama" in
     // `config.toml` or enable `local_ai.usage.embeddings = true`, which is
@@ -147,7 +147,7 @@ impl std::fmt::Debug for MemoryConfig {
 /// summariser) should use.
 ///
 /// - `Cloud` (default): route through `providers::router` against the
-///   OpenHuman backend with the `summarization-v1` model. No local Ollama
+///   Eversilver backend with the `summarization-v1` model. No local Ollama
 ///   required.
 /// - `Local`: keep using the legacy Ollama-direct path (the
 ///   `llm_extractor_endpoint` / `llm_summariser_endpoint` config). Useful
@@ -158,7 +158,7 @@ impl std::fmt::Debug for MemoryConfig {
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum LlmBackend {
-    /// Route through the OpenHuman backend (default).
+    /// Route through the Eversilver backend (default).
     Cloud,
     /// Use the local Ollama path configured via `llm_extractor_*` /
     /// `llm_summariser_*`.
@@ -195,7 +195,7 @@ fn default_llm_backend() -> LlmBackend {
 }
 
 /// Default model identifier to use when `llm_backend = "cloud"`. Routed
-/// through the OpenHuman backend; keep in sync with the backend's
+/// through the Eversilver backend; keep in sync with the backend's
 /// summariser model registry.
 pub const DEFAULT_CLOUD_LLM_MODEL: &str = "summarization-v1";
 
@@ -214,18 +214,18 @@ fn default_cloud_llm_model() -> Option<String> {
 /// - `false`: fall back to the inert zero-vector embedder and warn.
 ///
 /// Env overrides apply in [`super::load`]:
-/// - `OPENHUMAN_MEMORY_EMBED_ENDPOINT`
-/// - `OPENHUMAN_MEMORY_EMBED_MODEL`
-/// - `OPENHUMAN_MEMORY_EMBED_TIMEOUT_MS`
-/// - `OPENHUMAN_MEMORY_EXTRACT_ENDPOINT`
-/// - `OPENHUMAN_MEMORY_EXTRACT_MODEL`
-/// - `OPENHUMAN_MEMORY_EXTRACT_TIMEOUT_MS`
-/// - `OPENHUMAN_MEMORY_SUMMARISE_ENDPOINT`
-/// - `OPENHUMAN_MEMORY_SUMMARISE_MODEL`
-/// - `OPENHUMAN_MEMORY_SUMMARISE_TIMEOUT_MS`
-/// - `OPENHUMAN_MEMORY_TREE_CONTENT_DIR` (Phase MD-content)
-/// - `OPENHUMAN_MEMORY_TREE_LLM_BACKEND` (cloud|local)
-/// - `OPENHUMAN_MEMORY_TREE_CLOUD_LLM_MODEL`
+/// - `EVERSILVER_MEMORY_EMBED_ENDPOINT`
+/// - `EVERSILVER_MEMORY_EMBED_MODEL`
+/// - `EVERSILVER_MEMORY_EMBED_TIMEOUT_MS`
+/// - `EVERSILVER_MEMORY_EXTRACT_ENDPOINT`
+/// - `EVERSILVER_MEMORY_EXTRACT_MODEL`
+/// - `EVERSILVER_MEMORY_EXTRACT_TIMEOUT_MS`
+/// - `EVERSILVER_MEMORY_SUMMARISE_ENDPOINT`
+/// - `EVERSILVER_MEMORY_SUMMARISE_MODEL`
+/// - `EVERSILVER_MEMORY_SUMMARISE_TIMEOUT_MS`
+/// - `EVERSILVER_MEMORY_TREE_CONTENT_DIR` (Phase MD-content)
+/// - `EVERSILVER_MEMORY_TREE_LLM_BACKEND` (cloud|local)
+/// - `EVERSILVER_MEMORY_TREE_CLOUD_LLM_MODEL`
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]
 pub struct MemoryTreeConfig {
@@ -297,7 +297,7 @@ pub struct MemoryTreeConfig {
     /// - `Some(path)` → use that path verbatim.
     /// - `None` → default `<workspace_dir>/memory_tree/content/`.
     ///
-    /// Env override: `OPENHUMAN_MEMORY_TREE_CONTENT_DIR` (empty string = fall
+    /// Env override: `EVERSILVER_MEMORY_TREE_CONTENT_DIR` (empty string = fall
     /// back to default, consistent with other memory_tree env vars).
     #[serde(default = "default_memory_tree_content_dir")]
     pub content_dir: Option<PathBuf>,
@@ -305,7 +305,7 @@ pub struct MemoryTreeConfig {
     /// Backend selector for the memory_tree's LLM calls (extractor +
     /// summariser). Defaults to [`LlmBackend::Cloud`] so a fresh install
     /// works without requiring a local Ollama daemon. Set to
-    /// [`LlmBackend::Local`] (or `OPENHUMAN_MEMORY_TREE_LLM_BACKEND=local`) to
+    /// [`LlmBackend::Local`] (or `EVERSILVER_MEMORY_TREE_LLM_BACKEND=local`) to
     /// keep the legacy Ollama-direct path.
     ///
     /// The embedder is unaffected by this setting — `OllamaEmbedder` (bge-m3)
@@ -314,10 +314,10 @@ pub struct MemoryTreeConfig {
     pub llm_backend: LlmBackend,
 
     /// Model identifier used when `llm_backend = "cloud"`. Routed through the
-    /// OpenHuman backend's chat-completions surface.
+    /// Eversilver backend's chat-completions surface.
     ///
     /// Defaults to [`DEFAULT_CLOUD_LLM_MODEL`] (`summarization-v1`).
-    /// Env override: `OPENHUMAN_MEMORY_TREE_CLOUD_LLM_MODEL`.
+    /// Env override: `EVERSILVER_MEMORY_TREE_CLOUD_LLM_MODEL`.
     #[serde(default = "default_cloud_llm_model")]
     pub cloud_llm_model: Option<String>,
 }
@@ -326,7 +326,7 @@ pub struct MemoryTreeConfig {
 /// embeddings stay on the inert zero-vector path rather than suddenly
 /// attempting to reach a local Ollama daemon they haven't configured.
 /// Operators enable the Ollama path by setting either `embedding_endpoint`
-/// in TOML or the `OPENHUMAN_MEMORY_EMBED_ENDPOINT` env var.
+/// in TOML or the `EVERSILVER_MEMORY_EMBED_ENDPOINT` env var.
 fn default_memory_tree_embedding_endpoint() -> Option<String> {
     None
 }
@@ -360,7 +360,7 @@ fn default_memory_tree_embedding_strict() -> bool {
 /// correct but didn't run any LLM at all. With a default endpoint in
 /// place, the only signal needed to enable a local LLM seal is a
 /// non-empty `_model`. Override via TOML or
-/// `OPENHUMAN_MEMORY_TREE_LLM_*_ENDPOINT` to point at a different
+/// `EVERSILVER_MEMORY_TREE_LLM_*_ENDPOINT` to point at a different
 /// Ollama host.
 fn default_memory_tree_llm_endpoint() -> Option<String> {
     Some("http://localhost:11434".to_string())
@@ -395,7 +395,7 @@ fn default_memory_tree_content_dir() -> Option<PathBuf> {
 /// better than the InertSummariser concat fallback.
 ///
 /// Override via `memory_tree.llm_summariser_model` /
-/// `llm_extractor_model` in TOML (or `OPENHUMAN_MEMORY_TREE_LLM_*_MODEL`
+/// `llm_extractor_model` in TOML (or `EVERSILVER_MEMORY_TREE_LLM_*_MODEL`
 /// env vars) to scale up (`gemma3:12b-it-qat`, `llama3.1:8b`) or down
 /// (`gemma3:1b-it-qat`) for the host's headroom. The frontend
 /// `ModelCatalog` lists the curated picks the UI offers as

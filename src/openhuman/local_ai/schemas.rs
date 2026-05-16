@@ -329,7 +329,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
             function: "shutdown_owned",
             description:
                 "Gate off the local AI runtime. Kills the Ollama daemon only \
-                 if OpenHuman spawned it (external daemons are left running). \
+                 if Eversilver spawned it (external daemons are left running). \
                  Forces status to \"disabled\" so the UI flips immediately.",
             inputs: vec![],
             outputs: vec![json_output("status", "Local AI status after shutdown.")],

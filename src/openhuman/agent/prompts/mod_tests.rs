@@ -60,7 +60,7 @@ fn prompt_builder_assembles_sections() {
 #[test]
 fn identity_section_creates_missing_workspace_files() {
     let workspace =
-        std::env::temp_dir().join(format!("openhuman_prompt_create_{}", uuid::Uuid::new_v4()));
+        std::env::temp_dir().join(format!("eversilver_prompt_create_{}", uuid::Uuid::new_v4()));
     std::fs::create_dir_all(&workspace).unwrap();
 
     let tools: Vec<Box<dyn Tool>> = vec![];
@@ -94,7 +94,7 @@ fn identity_section_creates_missing_workspace_files() {
     }
     let soul = std::fs::read_to_string(workspace.join("SOUL.md")).unwrap();
     assert!(
-        soul.starts_with("# OpenHuman"),
+        soul.starts_with("# Eversilver"),
         "SOUL.md should be seeded from src/openhuman/agent/prompts/SOUL.md"
     );
 
@@ -422,7 +422,7 @@ fn user_memory_section_returns_empty_when_no_summaries() {
 #[test]
 fn render_subagent_system_prompt_renders_workspace_tail() {
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_subagent_{}",
+        "eversilver_prompt_subagent_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -477,7 +477,7 @@ fn subagent_render_options_invert_definition_flags() {
 #[test]
 fn render_subagent_system_prompt_honors_identity_safety_and_skills_flags() {
     let workspace =
-        std::env::temp_dir().join(format!("openhuman_prompt_opts_{}", uuid::Uuid::new_v4()));
+        std::env::temp_dir().join(format!("eversilver_prompt_opts_{}", uuid::Uuid::new_v4()));
     std::fs::create_dir_all(&workspace).unwrap();
     std::fs::write(workspace.join("SOUL.md"), "# Soul\nContext").unwrap();
     std::fs::write(workspace.join("IDENTITY.md"), "# Identity\nContext").unwrap();
@@ -547,7 +547,7 @@ fn render_subagent_system_prompt_injects_profile_md_even_when_identity_omitted()
     // is gated on its own `include_profile` flag so the welcome path
     // can opt in without pulling SOUL/IDENTITY back in.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_profile_nosoul_{}",
+        "eversilver_prompt_profile_nosoul_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -610,7 +610,7 @@ fn render_subagent_system_prompt_skips_profile_md_when_include_profile_false() {
     // otherwise every sub-agent pays the token cost of onboarding
     // enrichment output that is irrelevant to their task.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_profile_opt_out_{}",
+        "eversilver_prompt_profile_opt_out_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -650,7 +650,7 @@ fn render_subagent_system_prompt_injects_profile_md_when_identity_included() {
     // When identity is on, PROFILE.md must still be injected alongside
     // SOUL/IDENTITY — the split must not regress the non-welcome path.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_profile_with_identity_{}",
+        "eversilver_prompt_profile_with_identity_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -693,7 +693,7 @@ fn render_subagent_system_prompt_silently_skips_missing_profile_md() {
     // an orphan "### PROFILE.md" header — the subagent prompt stays
     // focused on tools.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_profile_missing_{}",
+        "eversilver_prompt_profile_missing_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -732,7 +732,7 @@ fn welcome_agent_definition_flags_still_load_profile_md() {
     // If someone flips `omit_profile` back to its default (true), this
     // test breaks.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_welcome_flags_{}",
+        "eversilver_prompt_welcome_flags_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -784,7 +784,7 @@ fn narrow_subagent_definition_flags_skip_profile_md() {
     // injected even when present on disk — the narrow runner is
     // task-focused and should not pay the token cost.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_narrow_flags_{}",
+        "eversilver_prompt_narrow_flags_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -827,7 +827,7 @@ fn render_subagent_system_prompt_injects_memory_md_when_enabled() {
     // Opt-in agents with `omit_memory_md = false` must see MEMORY.md
     // (archivist-curated long-term memory) in their rendered prompt.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_memory_on_{}",
+        "eversilver_prompt_memory_on_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -873,7 +873,7 @@ fn render_subagent_system_prompt_skips_memory_md_when_disabled() {
     // Narrow specialists with `omit_memory_md = true` (the default)
     // must NOT see MEMORY.md even when it exists on disk.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_memory_off_{}",
+        "eversilver_prompt_memory_off_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -915,7 +915,7 @@ fn profile_md_and_memory_md_are_capped_at_user_file_max_chars() {
     // (~1000 tokens each) so the system prompt footprint stays
     // bounded. Test both files at once to pin the shared budget.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_user_cap_{}",
+        "eversilver_prompt_user_cap_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -967,7 +967,7 @@ fn rendered_subagent_system_prompt_is_byte_stable_across_repeat_calls() {
     // bytes differ and the backend's automatic prefix cache busts.
     // This test pins the invariant end-to-end.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_byte_stable_{}",
+        "eversilver_prompt_byte_stable_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -1030,7 +1030,7 @@ fn for_subagent_builder_injects_user_files_even_when_identity_omitted() {
     // opted in via PromptContext) and pins that the rendered prompt
     // contains both files.
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_for_subagent_user_files_{}",
+        "eversilver_prompt_for_subagent_user_files_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();
@@ -1119,7 +1119,7 @@ fn for_subagent_builder_injects_user_files_even_when_identity_omitted() {
 #[test]
 fn sync_workspace_file_updates_hash_and_inject_workspace_file_truncates() {
     let workspace = std::env::temp_dir().join(format!(
-        "openhuman_prompt_workspace_{}",
+        "eversilver_prompt_workspace_{}",
         uuid::Uuid::new_v4()
     ));
     std::fs::create_dir_all(&workspace).unwrap();

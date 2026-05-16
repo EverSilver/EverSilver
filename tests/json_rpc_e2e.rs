@@ -1,6 +1,6 @@
 //! HTTP JSON-RPC integration tests against a real axum stack and a mock upstream API.
 //!
-//! Isolates config under a temp `HOME` so auth profiles and the OpenHuman provider resolve
+//! Isolates config under a temp `HOME` so auth profiles and the Eversilver provider resolve
 //! the same state directory. Run with: `cargo test --test json_rpc_e2e`
 
 use std::net::SocketAddr;
@@ -15,9 +15,9 @@ use futures_util::StreamExt;
 use serde_json::{json, Value};
 use tempfile::tempdir;
 
-use openhuman_core::core::auth::{init_rpc_token, CORE_TOKEN_ENV_VAR};
-use openhuman_core::core::jsonrpc::build_core_http_router;
-use openhuman_core::openhuman::memory::all_memory_tree_registered_controllers;
+use eversilver_core::core::auth::{init_rpc_token, CORE_TOKEN_ENV_VAR};
+use eversilver_core::core::jsonrpc::build_core_http_router;
+use eversilver_core::openhuman::memory::all_memory_tree_registered_controllers;
 
 const TEST_RPC_TOKEN: &str = "json-rpc-e2e-local-token";
 static JSON_RPC_AUTH_INIT: OnceLock<()> = OnceLock::new();
@@ -56,7 +56,7 @@ impl Drop for EnvVarGuard {
     }
 }
 
-/// Serializes tests in this binary: `HOME` / `OPENHUMAN_WORKSPACE` / backend URL overrides are
+/// Serializes tests in this binary: `HOME` / `EVERSILVER_WORKSPACE` / backend URL overrides are
 /// process-global, so parallel tests would clobber each other and hit the wrong `config.toml` or
 /// inherited `VITE_BACKEND_URL`.
 static JSON_RPC_E2E_ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
@@ -606,7 +606,7 @@ fn extract_string_outcome(result: &Value) -> String {
     panic!("expected string or {{result: string}}, got {result}");
 }
 
-fn write_min_config(openhuman_dir: &Path, api_origin: &str) {
+fn write_min_config(eversilver_dir: &Path, api_origin: &str) {
     // `chat_onboarding_completed = true` bypasses the welcome agent so that
     // `channel_web_chat` in tests routes straight to the orchestrator. Without
     // this, the first chat turn goes through the welcome flow whose tool
@@ -628,23 +628,23 @@ encrypt = false
         std::fs::write(&path, cfg).expect("write config");
     }
 
-    write_config_file(openhuman_dir, &cfg);
+    write_config_file(eversilver_dir, &cfg);
 
     // Runtime config resolution is user-scoped before login, so tests that seed
     // the root `~/.openhuman` directory also need the equivalent pre-login
     // config under `~/.openhuman/users/local`.
-    if openhuman_dir
+    if eversilver_dir
         .file_name()
         .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
     {
-        write_config_file(&openhuman_dir.join("users").join("local"), &cfg);
+        write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
 
-    let _: openhuman_core::openhuman::config::Config =
+    let _: eversilver_core::openhuman::config::Config =
         toml::from_str(&cfg).expect("config toml must match Config schema");
 }
 
-fn write_min_config_with_local_ai_disabled(openhuman_dir: &Path, api_origin: &str) {
+fn write_min_config_with_local_ai_disabled(eversilver_dir: &Path, api_origin: &str) {
     let cfg = format!(
         r#"api_url = "{api_origin}"
 default_model = "e2e-mock-model"
@@ -664,16 +664,16 @@ enabled = false
         std::fs::write(&path, cfg).expect("write config");
     }
 
-    write_config_file(openhuman_dir, &cfg);
+    write_config_file(eversilver_dir, &cfg);
 
-    if openhuman_dir
+    if eversilver_dir
         .file_name()
         .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
     {
-        write_config_file(&openhuman_dir.join("users").join("local"), &cfg);
+        write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
 
-    let _: openhuman_core::openhuman::config::Config =
+    let _: eversilver_core::openhuman::config::Config =
         toml::from_str(&cfg).expect("config toml must match Config schema");
 }
 
@@ -694,10 +694,10 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     // Always use the in-process Axum mock for /settings + /openai so this test does not pick up
     // BACKEND_URL/VITE_BACKEND_URL from the developer shell (e.g. mock-api that returns 401 for
     // the synthetic JWT used below).
@@ -707,12 +707,12 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
 
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     // Pre-create the user-scoped config directory so that when store_session
     // activates user "e2e-user" and reloads config, it finds the correct
     // api_url and secrets.encrypt=false (rather than defaults).
-    let user_scoped_dir = openhuman_home.join("users").join("e2e-user");
+    let user_scoped_dir = eversilver_home.join("users").join("e2e-user");
     write_min_config(&user_scoped_dir, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -826,18 +826,18 @@ async fn json_rpc_prompt_injection_is_rejected_before_model_call() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_url_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _api_url_guard = EnvVarGuard::unset("OPENHUMAN_API_URL");
+    let _api_url_guard = EnvVarGuard::unset("EVERSILVER_API_URL");
 
     let (api_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let api_origin = format!("http://{api_addr}");
-    write_min_config(openhuman_home.as_path(), &api_origin);
-    let user_scoped_dir = openhuman_home.join("users").join("e2e-user");
+    write_min_config(eversilver_home.as_path(), &api_origin);
+    let user_scoped_dir = eversilver_home.join("users").join("e2e-user");
     write_min_config(&user_scoped_dir, &api_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -919,17 +919,17 @@ async fn json_rpc_thread_labels_create_and_update() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_url_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _api_url_guard = EnvVarGuard::unset("OPENHUMAN_API_URL");
+    let _api_url_guard = EnvVarGuard::unset("EVERSILVER_API_URL");
 
     let (api_addr, api_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let api_origin = format!("http://{api_addr}");
-    write_min_config(openhuman_home.as_path(), &api_origin);
+    write_min_config(eversilver_home.as_path(), &api_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{rpc_addr}");
@@ -1024,17 +1024,17 @@ async fn json_rpc_thread_not_found_errors_are_structured() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_url_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _api_url_guard = EnvVarGuard::unset("OPENHUMAN_API_URL");
+    let _api_url_guard = EnvVarGuard::unset("EVERSILVER_API_URL");
 
     let (api_addr, api_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let api_origin = format!("http://{api_addr}");
-    write_min_config(openhuman_home.as_path(), &api_origin);
+    write_min_config(eversilver_home.as_path(), &api_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{rpc_addr}");
@@ -1091,17 +1091,17 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_url_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _api_url_guard = EnvVarGuard::unset("OPENHUMAN_API_URL");
+    let _api_url_guard = EnvVarGuard::unset("EVERSILVER_API_URL");
 
     let (api_addr, api_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let api_origin = format!("http://{api_addr}");
-    write_min_config(openhuman_home.as_path(), &api_origin);
+    write_min_config(eversilver_home.as_path(), &api_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{rpc_addr}");
@@ -1126,21 +1126,21 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     // Drop a snapshot directly through the store — this is exactly what
     // the web-channel progress mirror does mid-turn.
     let workspace_dir = {
-        let cfg = openhuman_core::openhuman::config::Config::load_or_init()
+        let cfg = eversilver_core::openhuman::config::Config::load_or_init()
             .await
             .expect("load config");
         cfg.workspace_dir
     };
-    let mut state = openhuman_core::openhuman::threads::turn_state::TurnState::started(
+    let mut state = eversilver_core::openhuman::threads::turn_state::TurnState::started(
         "thread-turn-1",
         "req-turn-1",
         25,
         chrono::Utc::now().to_rfc3339(),
     );
-    state.lifecycle = openhuman_core::openhuman::threads::turn_state::TurnLifecycle::Streaming;
+    state.lifecycle = eversilver_core::openhuman::threads::turn_state::TurnLifecycle::Streaming;
     state.iteration = 2;
     state.streaming_text = "partial".into();
-    openhuman_core::openhuman::threads::turn_state::store::put(workspace_dir.clone(), &state)
+    eversilver_core::openhuman::threads::turn_state::store::put(workspace_dir.clone(), &state)
         .expect("seed snapshot");
 
     // get → present
@@ -1227,19 +1227,19 @@ async fn json_rpc_memory_sync_and_learn() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _embed_strict_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_STRICT", "false");
-    let _embed_endpoint_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_ENDPOINT", "");
-    let _embed_model_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_MODEL", "");
+    let _embed_strict_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_STRICT", "false");
+    let _embed_endpoint_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_ENDPOINT", "");
+    let _embed_model_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_MODEL", "");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{rpc_addr}");
@@ -1350,10 +1350,10 @@ async fn json_rpc_memory_tree_end_to_end() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
     // Phase 4 (#710): disable strict embedding so ingest falls back to the
@@ -1361,13 +1361,13 @@ async fn json_rpc_memory_tree_end_to_end() {
     // CI has no local Ollama; without this the `memory_tree_ingest` call
     // would fail with `embed chunk_id=<id> during ingest` before writing
     // any chunks.
-    let _embed_strict_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_STRICT", "false");
-    let _embed_endpoint_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_ENDPOINT", "");
-    let _embed_model_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_MODEL", "");
+    let _embed_strict_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_STRICT", "false");
+    let _embed_endpoint_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_ENDPOINT", "");
+    let _embed_model_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_MODEL", "");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let controllers = all_memory_tree_registered_controllers();
     // Sampled methods this test exercises end-to-end. Don't pin
@@ -1532,18 +1532,18 @@ async fn json_rpc_web_chat_routing_cases_use_expected_backend_models() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
 
-    write_min_config_with_local_ai_disabled(&openhuman_home, &mock_origin);
-    let user_scoped_dir = openhuman_home.join("users").join("e2e-user");
+    write_min_config_with_local_ai_disabled(&eversilver_home, &mock_origin);
+    let user_scoped_dir = eversilver_home.join("users").join("e2e-user");
     write_min_config_with_local_ai_disabled(&user_scoped_dir, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -1644,16 +1644,16 @@ async fn json_rpc_rejects_non_object_params_with_clear_error() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -1685,16 +1685,16 @@ async fn json_rpc_screen_intelligence_capture_test_returns_stable_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -1767,16 +1767,16 @@ async fn json_rpc_screen_intelligence_status_returns_stable_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -1861,16 +1861,16 @@ async fn json_rpc_app_state_snapshot_returns_runtime_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -1946,16 +1946,16 @@ async fn json_rpc_wallet_setup_round_trips_status() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -2051,20 +2051,20 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _evm_provider_guard = EnvVarGuard::unset("OPENHUMAN_WALLET_RPC_EVM");
-    let _btc_provider_guard = EnvVarGuard::unset("OPENHUMAN_WALLET_RPC_BTC");
-    let _sol_provider_guard = EnvVarGuard::unset("OPENHUMAN_WALLET_RPC_SOLANA");
-    let _tron_provider_guard = EnvVarGuard::unset("OPENHUMAN_WALLET_RPC_TRON");
+    let _evm_provider_guard = EnvVarGuard::unset("EVERSILVER_WALLET_RPC_EVM");
+    let _btc_provider_guard = EnvVarGuard::unset("EVERSILVER_WALLET_RPC_BTC");
+    let _sol_provider_guard = EnvVarGuard::unset("EVERSILVER_WALLET_RPC_SOLANA");
+    let _tron_provider_guard = EnvVarGuard::unset("EVERSILVER_WALLET_RPC_TRON");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -2213,10 +2213,10 @@ async fn json_rpc_app_state_snapshot_chat_onboarding_defaults_false() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
@@ -2235,11 +2235,11 @@ default_temperature = 0.7
 encrypt = false
 "#
     );
-    std::fs::create_dir_all(&openhuman_home).expect("mkdir openhuman");
-    std::fs::write(openhuman_home.join("config.toml"), &cfg).expect("write config");
-    std::fs::create_dir_all(openhuman_home.join("users").join("local")).expect("mkdir users/local");
+    std::fs::create_dir_all(&eversilver_home).expect("mkdir openhuman");
+    std::fs::write(eversilver_home.join("config.toml"), &cfg).expect("write config");
+    std::fs::create_dir_all(eversilver_home.join("users").join("local")).expect("mkdir users/local");
     std::fs::write(
-        openhuman_home
+        eversilver_home
             .join("users")
             .join("local")
             .join("config.toml"),
@@ -2270,16 +2270,16 @@ async fn json_rpc_screen_intelligence_vision_recent_returns_empty_without_sessio
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -2315,16 +2315,16 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config_with_local_ai_disabled(&openhuman_home, &mock_origin);
+    write_min_config_with_local_ai_disabled(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -2549,17 +2549,17 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _tier_guard = EnvVarGuard::unset("OPENHUMAN_LOCAL_AI_TIER");
+    let _tier_guard = EnvVarGuard::unset("EVERSILVER_LOCAL_AI_TIER");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -2683,19 +2683,19 @@ async fn json_rpc_local_ai_lm_studio_config_diagnostics_and_prompt() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
-    let _tier_guard = EnvVarGuard::unset("OPENHUMAN_LOCAL_AI_TIER");
-    let _lm_env_guard = EnvVarGuard::unset("OPENHUMAN_LM_STUDIO_BASE_URL");
+    let _tier_guard = EnvVarGuard::unset("EVERSILVER_LOCAL_AI_TIER");
+    let _lm_env_guard = EnvVarGuard::unset("EVERSILVER_LM_STUDIO_BASE_URL");
     let _lm_alias_env_guard = EnvVarGuard::unset("LM_STUDIO_BASE_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let lm_app = Router::new()
         .route(
@@ -2842,19 +2842,19 @@ async fn billing_rpc_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     // Pre-create the user-scoped config so store_session finds correct settings.
-    let user_scoped_dir = openhuman_home.join("users").join("e2e-user");
+    let user_scoped_dir = eversilver_home.join("users").join("e2e-user");
     write_min_config(&user_scoped_dir, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -2992,19 +2992,19 @@ async fn team_rpc_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     // Pre-create the user-scoped config so store_session finds correct settings.
-    let user_scoped_dir = openhuman_home.join("users").join("e2e-user");
+    let user_scoped_dir = eversilver_home.join("users").join("e2e-user");
     write_min_config(&user_scoped_dir, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -3123,16 +3123,16 @@ async fn about_app_rpc_list_lookup_and_search() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -3232,10 +3232,10 @@ async fn voice_status_returns_availability() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
     let _whisper_guard = EnvVarGuard::unset("WHISPER_BIN");
@@ -3243,7 +3243,7 @@ async fn voice_status_returns_availability() {
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -3293,16 +3293,16 @@ async fn notification_settings_roundtrip_and_disabled_ingest_skip() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -3384,10 +3384,10 @@ async fn credentials_crud_roundtrip() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
@@ -3395,7 +3395,7 @@ async fn credentials_crud_roundtrip() {
     // well-formed, even though provider-credential calls don't hit the network.
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -3531,7 +3531,7 @@ async fn skills_uninstall_rpc_e2e() {
     let home = tmp.path();
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
 
     let skills_root = home.join(".openhuman").join("skills");
     std::fs::create_dir_all(&skills_root).expect("mkdir skills root");
@@ -3773,12 +3773,12 @@ async fn rpc_update_apply_can_be_disabled_by_config_policy() {
     ensure_test_rpc_auth();
 
     let tmp = tempdir().expect("tempdir");
-    let _workspace_guard = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace_guard = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
 
-    let mut config = openhuman_core::openhuman::config::Config {
+    let mut config = eversilver_core::openhuman::config::Config {
         workspace_dir: tmp.path().join("workspace"),
         config_path: tmp.path().join("config.toml"),
-        ..openhuman_core::openhuman::config::Config::default()
+        ..eversilver_core::openhuman::config::Config::default()
     };
     config.update.rpc_mutations_enabled = false;
     config
@@ -3842,16 +3842,16 @@ async fn channels_status_reflects_managed_dm_credential_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -3942,22 +3942,22 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     // Init the whatsapp_data global before the router handles any requests.
     // Reset first so we attach to *this* test's tempdir even if a sibling
     // test left a stale handle pointing at an already-dropped tempdir.
-    openhuman_core::openhuman::whatsapp_data::global::reset_for_tests();
-    openhuman_core::openhuman::whatsapp_data::global::init(openhuman_home.clone())
+    eversilver_core::openhuman::whatsapp_data::global::reset_for_tests();
+    eversilver_core::openhuman::whatsapp_data::global::init(eversilver_home.clone())
         .expect("whatsapp_data global init");
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -4212,23 +4212,23 @@ async fn whatsapp_memory_doc_ingest_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
     // Disable strict embedding so ingest falls back to the Inert
     // (zero-vector) embedder when no Ollama endpoint is reachable. CI
     // has no local Ollama; without this the memory_doc_ingest call
     // would fail at the chunk-embedding step.
-    let _embed_strict_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_STRICT", "false");
-    let _embed_endpoint_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_ENDPOINT", "");
-    let _embed_model_guard = EnvVarGuard::set("OPENHUMAN_MEMORY_EMBED_MODEL", "");
+    let _embed_strict_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_STRICT", "false");
+    let _embed_endpoint_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_ENDPOINT", "");
+    let _embed_model_guard = EnvVarGuard::set("EVERSILVER_MEMORY_EMBED_MODEL", "");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -4331,16 +4331,16 @@ async fn voice_cloud_transcribe_registered_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
     let (mock_addr, mock_join) = serve_on_ephemeral(mock_upstream_router()).await;
     let mock_origin = format!("http://{}", mock_addr);
-    write_min_config(&openhuman_home, &mock_origin);
+    write_min_config(&eversilver_home, &mock_origin);
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
     let rpc_base = format!("http://{}", rpc_addr);
@@ -4401,7 +4401,7 @@ async fn json_rpc_meet_join_call_validates_and_returns_request_id() {
     let home = tmp.path();
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
@@ -4489,7 +4489,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
     let home = tmp.path();
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
-    let _workspace_guard = EnvVarGuard::unset("OPENHUMAN_WORKSPACE");
+    let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
     let _backend_url_guard = EnvVarGuard::unset("BACKEND_URL");
     let _vite_backend_guard = EnvVarGuard::unset("VITE_BACKEND_URL");
 
@@ -4648,26 +4648,26 @@ async fn json_rpc_meet_agent_session_lifecycle() {
 ///    the read-only boundary the issue requires.
 #[tokio::test(flavor = "multi_thread")]
 async fn whatsapp_data_agent_tools_e2e_1341() {
-    use openhuman_core::openhuman::tools::traits::Tool;
-    use openhuman_core::openhuman::tools::{
+    use eversilver_core::openhuman::tools::traits::Tool;
+    use eversilver_core::openhuman::tools::{
         WhatsAppDataListChatsTool, WhatsAppDataListMessagesTool, WhatsAppDataSearchMessagesTool,
     };
-    use openhuman_core::openhuman::whatsapp_data::{
+    use eversilver_core::openhuman::whatsapp_data::{
         all_whatsapp_data_controller_schemas, global as wa_global, ops as wa_ops,
         types::{ChatMeta, IngestMessage, IngestRequest},
     };
 
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
-    let openhuman_home = tmp.path().join(".openhuman");
-    std::fs::create_dir_all(&openhuman_home).expect("create openhuman home");
+    let eversilver_home = tmp.path().join(".openhuman");
+    std::fs::create_dir_all(&eversilver_home).expect("create openhuman home");
 
     // The whatsapp_data global store is process-wide. Reset before init so
     // we attach to *this* test's tempdir even if a sibling test already
     // initialised the global to a tempdir that has since been dropped (which
     // would leave the SQLite handle pointing at an unlinked file).
     wa_global::reset_for_tests();
-    wa_global::init(openhuman_home.clone()).expect("whatsapp_data global init");
+    wa_global::init(eversilver_home.clone()).expect("whatsapp_data global init");
 
     // ── 1. Ingest fixture data through the same path the scanner uses ─────
     let now_ts = chrono::Utc::now().timestamp();
@@ -4730,7 +4730,7 @@ async fn whatsapp_data_agent_tools_e2e_1341() {
     .expect("ingest");
 
     // Helper: parse a successful Tool response back into JSON.
-    fn parse_tool_output(result: openhuman_core::openhuman::skills::types::ToolResult) -> Value {
+    fn parse_tool_output(result: eversilver_core::openhuman::skills::types::ToolResult) -> Value {
         assert!(!result.is_error, "tool returned error: {result:?}");
         serde_json::from_str(&result.output()).expect("tool output is valid JSON")
     }

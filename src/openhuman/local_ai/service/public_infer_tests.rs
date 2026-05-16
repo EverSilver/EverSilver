@@ -57,7 +57,7 @@ async fn inference_hits_ollama_generate_and_returns_response() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = enabled_config();
@@ -69,7 +69,7 @@ async fn inference_hits_ollama_generate_and_returns_response() {
     assert_eq!(reply, "hello from mock");
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -83,7 +83,7 @@ async fn inference_errors_on_non_success_status() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = enabled_config();
@@ -92,7 +92,7 @@ async fn inference_errors_on_non_success_status() {
     assert!(err.contains("500"));
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -112,7 +112,7 @@ async fn inference_errors_on_empty_response_when_allow_empty_false() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = enabled_config();
@@ -123,7 +123,7 @@ async fn inference_errors_on_empty_response_when_allow_empty_false() {
     let res = service.inference(&config, "", "hi", None, false).await;
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 
     let err = res.expect_err("whitespace response must be rejected when allow_empty=false");
@@ -302,7 +302,7 @@ async fn inline_complete_interactive_does_not_block_on_held_permit() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = enabled_config();
@@ -318,7 +318,7 @@ async fn inline_complete_interactive_does_not_block_on_held_permit() {
     .await;
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 
     let inner = result.expect("interactive variant must NOT block on held permit");
@@ -358,7 +358,7 @@ async fn gated_inline_complete_blocks_on_held_permit() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = enabled_config();
@@ -388,6 +388,6 @@ async fn gated_inline_complete_blocks_on_held_permit() {
     assert!(!resolved.is_empty() || resolved.is_empty()); // sanity — value depends on sanitiser
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }

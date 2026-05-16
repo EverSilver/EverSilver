@@ -185,9 +185,9 @@ async fn get_403_propagates_backend_error_envelope_message() {
     assert!(msg.contains("403"), "expected status code, got: {msg}");
 }
 
-// ── OPENHUMAN-TAURI-BC regression: wire format pins to classifier ─
+// ── EVERSILVER-TAURI-BC regression: wire format pins to classifier ─
 
-/// Regression guard for OPENHUMAN-TAURI-BC: the exact bail message
+/// Regression guard for EVERSILVER-TAURI-BC: the exact bail message
 /// `IntegrationClient::post` builds for a 4xx user-input failure must
 /// classify as `BackendUserError` so the observability layer routes
 /// the report through a warn breadcrumb instead of a Sentry event.
@@ -237,7 +237,7 @@ async fn post_400_user_input_failure_classifies_as_backend_user_error() {
     assert_eq!(
         expected_error_kind(&msg),
         Some(ExpectedErrorKind::ProviderUserState),
-        "OPENHUMAN-TAURI-BC: propagated 400 must classify as ProviderUserState (more \
+        "EVERSILVER-TAURI-BC: propagated 400 must classify as ProviderUserState (more \
          specific than BackendUserError, takes precedence per #1472 wave E); got: {msg}"
     );
 }

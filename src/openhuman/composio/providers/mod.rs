@@ -14,7 +14,7 @@
 //!
 //! Providers are pure Rust — there is no JS sandbox involved. They are
 //! the native counterpart to the QuickJS skill bundles in
-//! `tinyhumansai/openhuman-skills`, but specialized for Composio's API
+//! `eversilver/openhuman-skills`, but specialized for Composio's API
 //! surface and run inside the core process directly.
 //!
 //! ## Registry & dispatch

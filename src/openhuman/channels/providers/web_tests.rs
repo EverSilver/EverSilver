@@ -120,13 +120,13 @@ async fn start_chat_emits_sanitized_chat_error_on_inference_failure() {
 #[test]
 fn detects_backend_budget_exhaustion_error() {
     assert!(is_inference_budget_exceeded_error(
-        "OpenHuman API error (402 Payment Required): Budget exceeded — add credits to continue."
+        "Eversilver API error (402 Payment Required): Budget exceeded — add credits to continue."
     ));
     assert!(is_inference_budget_exceeded_error(
         "provider error: budget exceeded, please add credits"
     ));
     assert!(!is_inference_budget_exceeded_error(
-        "OpenHuman API error (500): Internal server error"
+        "Eversilver API error (500): Internal server error"
     ));
 }
 

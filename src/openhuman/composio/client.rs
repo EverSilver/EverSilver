@@ -488,7 +488,7 @@ impl ComposioClient {
             );
             let status_str = status.as_u16().to_string();
             // Mirrors the integrations post()/get() sites — see
-            // OPENHUMAN-TAURI-BC. 4xx user-input / auth-state shapes
+            // EVERSILVER-TAURI-BC. 4xx user-input / auth-state shapes
             // demote via the observability classifier; 5xx and
             // non-transient 4xx still surface as actionable events.
             crate::core::observability::report_error_or_expected(
@@ -512,7 +512,7 @@ impl ComposioClient {
             // Mirrors the integrations envelope-error sites — route through
             // the observability classifier so user-state envelope failures
             // (composio "Toolkit X is not enabled" / "Trigger type …
-            // not found" / "Missing required fields: …" — OPENHUMAN-TAURI-3R
+            // not found" / "Missing required fields: …" — EVERSILVER-TAURI-3R
             // / -3S / -34 / -97) demote to a breadcrumb instead of firing
             // a Sentry event. Genuine backend bugs still surface.
             crate::core::observability::report_error_or_expected(
@@ -592,7 +592,7 @@ const MODE_DIRECT_PAT: &str = COMPOSIO_MODE_DIRECT;
 /// Tagged variant returned by [`create_composio_client`].
 ///
 /// `Backend` wraps the existing backend-proxied [`ComposioClient`]
-/// (calls `api.tinyhumans.ai/agent-integrations/composio/*`).
+/// (calls `api.eversilver.local/agent-integrations/composio/*`).
 ///
 /// `Direct` wraps the existing direct-mode HTTP wrapper from
 /// `tools/impl/network/composio.rs` that calls

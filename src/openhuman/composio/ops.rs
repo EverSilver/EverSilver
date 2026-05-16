@@ -81,7 +81,7 @@ fn resolve_client(config: &Config) -> OpResult<ComposioClient> {
 /// payloads, envelope errors) still surface.
 ///
 /// `failure="non_2xx"` is the default tag because that is the dominant
-/// shape in the leak set (OPENHUMAN-TAURI-35 / -2H: backend 502 from
+/// shape in the leak set (EVERSILVER-TAURI-35 / -2H: backend 502 from
 /// `Backend returned …`). When the message contains a recognized
 /// transport phrase (`operation timed out`, `connection refused`, `tls
 /// handshake eof`, …), we tag `failure="transport"` instead so the
@@ -142,7 +142,7 @@ fn classify_composio_failure_tag(rendered: &str) -> &'static str {
 ///
 /// Surfacing the status as a Sentry tag gives the `before_send` filter's
 /// transient-status branch (`is_transient_integrations_failure`) a precise
-/// signal to drop the dominant 5xx leak shape (OPENHUMAN-TAURI-35 / -2H)
+/// signal to drop the dominant 5xx leak shape (EVERSILVER-TAURI-35 / -2H)
 /// without also dropping genuine 4xx bug-shape failures that share the
 /// `failure="non_2xx"` tag.
 fn extract_backend_returned_status(rendered: &str) -> Option<String> {
@@ -159,7 +159,7 @@ pub async fn composio_list_toolkits(
 ) -> OpResult<RpcOutcome<ComposioToolkitsResponse>> {
     tracing::debug!("[composio] rpc list_toolkits");
     // Route through the mode-aware factory so direct-mode users do NOT
-    // silently fall through to the backend tinyhumans tenant's allowlist.
+    // silently fall through to the backend eversilver tenant's allowlist.
     // [composio-direct] In direct mode we don't expose a toolkit
     // allowlist at all — the user's personal Composio account governs
     // what's available. Returning an empty list signals "no curated
@@ -204,7 +204,7 @@ pub async fn composio_list_connections(
 ) -> OpResult<RpcOutcome<ComposioConnectionsResponse>> {
     tracing::debug!("[composio] rpc list_connections");
     // Route through the mode-aware factory so direct-mode users do NOT
-    // accidentally see the tinyhumans-tenant connections from the
+    // accidentally see the eversilver-tenant connections from the
     // backend-proxied path. Mixing the two tenants is the bug behind the
     // user-reported "I switched to Direct and my old integrations are
     // still showing" symptom (#1710).
@@ -223,7 +223,7 @@ pub async fn composio_list_connections(
             // direct mode: once the user completes the Composio-hosted
             // flow, the UI's 5 s `composio_list_connections` poll picks
             // up the new ACTIVE row from THEIR tenant (not the
-            // tinyhumans tenant) and flips the Settings badge to
+            // eversilver tenant) and flips the Settings badge to
             // Connected (#1710).
             tracing::info!(
                 "[composio-direct] list_connections: fetching v3 \
@@ -277,8 +277,8 @@ pub async fn composio_authorize(
     tracing::debug!(toolkit = %toolkit, has_extra_params = extra_params.is_some(), "[composio] rpc authorize");
     // Route through the mode-aware factory so direct-mode users get a
     // hosted Composio OAuth URL for THEIR personal tenant — not the
-    // backend tinyhumans tenant's OAuth proxy (#1710). The pre-factory
-    // path hard-routed through `staging-api.tinyhumans.ai`, so a user
+    // backend eversilver tenant's OAuth proxy (#1710). The pre-factory
+    // path hard-routed through `staging-api.eversilver.local`, so a user
     // toggled into Direct mode would silently complete OAuth against
     // the wrong tenant and never see the new connection in their
     // own Composio account.
@@ -422,7 +422,7 @@ pub async fn composio_list_tools(
 ) -> OpResult<RpcOutcome<ComposioToolsResponse>> {
     tracing::debug!(?toolkits, "[composio] rpc list_tools");
     // Route through the mode-aware factory. In direct mode the backend
-    // tool catalogue (which is shaped by the tinyhumans-tenant
+    // tool catalogue (which is shaped by the eversilver-tenant
     // allowlist + curated whitelist) does NOT apply — the user's
     // personal Composio account governs discovery via app.composio.dev.
     // Mirrors the empty-response short-circuit in `composio_list_toolkits`
@@ -491,7 +491,7 @@ pub async fn composio_list_tools(
                 .map_err(|e| format!("[composio-direct] list_tools failed: {e:#}"))?;
             // Apply the same curated-whitelist + user-scope filter the
             // backend path runs — schemas may be tenant-agnostic but
-            // OpenHuman's curation policy isn't, and direct-mode users
+            // Eversilver's curation policy isn't, and direct-mode users
             // should benefit from the same safety net (e.g. dangerous
             // destructive actions hidden by default).
             let before = resp.tools.len();
@@ -516,7 +516,7 @@ pub async fn composio_list_tools(
     }
 }
 
-/// Apply OpenHuman's curated-whitelist + user-scope visibility filter to
+/// Apply Eversilver's curated-whitelist + user-scope visibility filter to
 /// a fresh `ComposioToolsResponse` in direct mode. Mirrors the per-call
 /// filter loop in `tools.rs::filter_list_tools_response` so backend and
 /// direct surfaces share the same safety net.
@@ -596,7 +596,7 @@ pub async fn composio_execute(
                     elapsed_ms,
                 },
             );
-            // Backend (tinyhumansai/backend#683) now parses all composio
+            // Backend (eversilver/backend#683) now parses all composio
             // payloads server-side and returns a `markdownFormatted`
             // string for known tools, so callers should consume that
             // directly. Core no longer reshapes `resp.data` here. Memory
@@ -1412,10 +1412,10 @@ async fn fetch_connected_integrations_uncached(
 
     // Route via the mode-aware factory so the chat-agent's
     // "connected_integrations" view reflects the live tenant — backend
-    // (tinyhumans) or direct (user's personal Composio). Prior to #1710
+    // (eversilver) or direct (user's personal Composio). Prior to #1710
     // Wave 3 this path called `build_composio_client` directly, which
     // is backend-only — after a `composio.mode = "direct"` toggle the
-    // cache kept replaying the tinyhumans-tenant connections back into
+    // cache kept replaying the eversilver-tenant connections back into
     // the integration overview (e.g. gmail / notion appearing as
     // connected in direct mode even when the user's direct tenant had
     // a different set of toolkits). Resolving per call closes the
@@ -1433,7 +1433,7 @@ async fn fetch_connected_integrations_uncached(
     };
 
     // Pull the allowlist + connections + tool catalogue. Backend mode
-    // walks the tinyhumans tenant's curated allowlist via
+    // walks the eversilver tenant's curated allowlist via
     // `list_toolkits`; direct mode has no centralised allowlist (per
     // `ops::composio_list_toolkits`'s direct-mode branch) so the
     // user's set of active connections IS the universe of valid

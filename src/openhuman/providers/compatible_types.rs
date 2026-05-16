@@ -38,7 +38,7 @@ pub(crate) struct NativeChatRequest {
     pub(crate) tools: Option<Vec<serde_json::Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) tool_choice: Option<String>,
-    /// OpenHuman backend extension: stable conversation identifier so the
+    /// Eversilver backend extension: stable conversation identifier so the
     /// server can group `InferenceLog` entries and align KV-cache keys
     /// with the same logical chat thread the user sees in the UI. Skipped
     /// when serialising for vanilla OpenAI-compatible providers that
@@ -50,7 +50,7 @@ pub(crate) struct NativeChatRequest {
     /// OpenAI streaming `stream_options`. Set to `{"include_usage": true}`
     /// on streaming requests so the server emits a final usage chunk
     /// (carrying token counts and `openhuman.billing.charged_amount_usd`
-    /// when the OpenHuman backend is in front). Without this, streaming
+    /// when the Eversilver backend is in front). Without this, streaming
     /// responses arrive with `usage = None`, transcript headers lose the
     /// `- Charged: $…` line, and per-message cost annotations vanish for
     /// streamed sessions (typically the orchestrator).
@@ -101,9 +101,9 @@ pub(crate) struct ApiChatResponse {
     /// Standard OpenAI usage block.
     #[serde(default)]
     pub(crate) usage: Option<ApiUsage>,
-    /// OpenHuman backend metadata (usage + billing summary).
+    /// Eversilver backend metadata (usage + billing summary).
     #[serde(default)]
-    pub(crate) openhuman: Option<OpenHumanMeta>,
+    pub(crate) openhuman: Option<EversilverMeta>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -130,17 +130,17 @@ pub(crate) struct PromptTokensDetails {
     pub(crate) cached_tokens: u64,
 }
 
-/// OpenHuman backend metadata appended to the response JSON.
+/// Eversilver backend metadata appended to the response JSON.
 #[derive(Debug, Deserialize, Default)]
-pub(crate) struct OpenHumanMeta {
+pub(crate) struct EversilverMeta {
     #[serde(default)]
-    pub(crate) usage: Option<OpenHumanUsage>,
+    pub(crate) usage: Option<EversilverUsage>,
     #[serde(default)]
-    pub(crate) billing: Option<OpenHumanBilling>,
+    pub(crate) billing: Option<EversilverBilling>,
 }
 
 #[derive(Debug, Deserialize, Default)]
-pub(crate) struct OpenHumanUsage {
+pub(crate) struct EversilverUsage {
     pub(crate) input_tokens: Option<u64>,
     pub(crate) output_tokens: Option<u64>,
     #[allow(dead_code)]
@@ -149,7 +149,7 @@ pub(crate) struct OpenHumanUsage {
 }
 
 #[derive(Debug, Deserialize, Default)]
-pub(crate) struct OpenHumanBilling {
+pub(crate) struct EversilverBilling {
     #[serde(default)]
     pub(crate) charged_amount_usd: f64,
 }
@@ -249,7 +249,7 @@ pub(crate) struct StreamChunkResponse {
     #[serde(default)]
     pub(crate) usage: Option<ApiUsage>,
     #[serde(default)]
-    pub(crate) openhuman: Option<OpenHumanMeta>,
+    pub(crate) openhuman: Option<EversilverMeta>,
 }
 
 #[derive(Debug, Deserialize)]

@@ -70,15 +70,15 @@ const ACTION_USERS_INFO: &str = "SLACK_RETRIEVE_DETAILED_USER_INFORMATION";
 pub const BACKFILL_DAYS: i64 = 6;
 
 /// Resolve the active backfill window in days. Reads
-/// `OPENHUMAN_SLACK_BACKFILL_DAYS` env var if set and parseable as a
+/// `EVERSILVER_SLACK_BACKFILL_DAYS` env var if set and parseable as a
 /// positive integer; falls back to [`BACKFILL_DAYS`] otherwise.
 fn backfill_days() -> i64 {
-    match std::env::var("OPENHUMAN_SLACK_BACKFILL_DAYS") {
+    match std::env::var("EVERSILVER_SLACK_BACKFILL_DAYS") {
         Ok(s) => match s.trim().parse::<i64>() {
             Ok(n) if n >= 1 => n,
             _ => {
                 log::warn!(
-                    "[composio:slack] OPENHUMAN_SLACK_BACKFILL_DAYS={s:?} not a positive integer; \
+                    "[composio:slack] EVERSILVER_SLACK_BACKFILL_DAYS={s:?} not a positive integer; \
                      falling back to default {BACKFILL_DAYS}"
                 );
                 BACKFILL_DAYS
@@ -115,9 +115,9 @@ const RATELIMIT_MAX_ATTEMPTS: u32 = 6;
 /// Fixed inter-call sleep applied after every successful execute_tool.
 const INTER_CALL_PACING: Duration = Duration::from_secs(20);
 
-/// Resolve the JSON dump directory from `OPENHUMAN_SLACK_DUMP_DIR`.
+/// Resolve the JSON dump directory from `EVERSILVER_SLACK_DUMP_DIR`.
 fn dump_dir() -> Option<PathBuf> {
-    std::env::var_os("OPENHUMAN_SLACK_DUMP_DIR").map(PathBuf::from)
+    std::env::var_os("EVERSILVER_SLACK_DUMP_DIR").map(PathBuf::from)
 }
 
 /// Write a Composio response payload to disk under the dump dir. Best

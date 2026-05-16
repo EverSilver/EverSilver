@@ -93,7 +93,7 @@ pub(crate) async fn collect_calendar_meetings(
 ) -> Vec<PendingEvent> {
     // Route through the mode-aware factory so the heartbeat planner
     // sees the user's *own* Google Calendar connection in direct mode
-    // — not the tinyhumans backend tenant's (#1710). Pre-fix, the
+    // — not the eversilver backend tenant's (#1710). Pre-fix, the
     // collector hard-bound to `build_composio_client` (backend-only)
     // and silently returned an empty meeting list for direct-mode
     // users.

@@ -33,19 +33,19 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use serde_json::{json, Value};
 
-use openhuman_core::openhuman::composio::client::{
+use eversilver_core::openhuman::composio::client::{
     create_composio_client, direct_execute, ComposioClientKind,
 };
-use openhuman_core::openhuman::composio::providers::gmail::ingest::ingest_page_into_memory_tree;
-use openhuman_core::openhuman::composio::providers::registry::{
+use eversilver_core::openhuman::composio::providers::gmail::ingest::ingest_page_into_memory_tree;
+use eversilver_core::openhuman::composio::providers::registry::{
     get_provider, init_default_providers,
 };
-use openhuman_core::openhuman::config::Config;
-use openhuman_core::openhuman::memory::tree::content_store::read::{
+use eversilver_core::openhuman::config::Config;
+use eversilver_core::openhuman::memory::tree::content_store::read::{
     verify_chunk_file, verify_summary_file, VerifyResult,
 };
-use openhuman_core::openhuman::memory::tree::jobs::drain_until_idle;
-use openhuman_core::openhuman::memory::tree::store::{
+use eversilver_core::openhuman::memory::tree::jobs::drain_until_idle;
+use eversilver_core::openhuman::memory::tree::store::{
     get_chunk_content_pointers, list_chunks, list_summaries_with_content_path, ListChunksQuery,
 };
 

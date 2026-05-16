@@ -1,8 +1,8 @@
 //! E2E: Linux CEF deb package runtime - core binary resolution
 //!
 //! Tests the core binary resolution paths introduced in PR #3:
-//! - OPENHUMAN_CORE_BIN env override
-//! - Packaged Linux paths (/usr/bin/openhuman-core, /usr/lib/OpenHuman/openhuman-core)
+//! - EVERSILVER_CORE_BIN env override
+//! - Packaged Linux paths (/usr/bin/openhuman-core, /usr/lib/Eversilver/openhuman-core)
 //! - Staged sidecar detection in dev builds
 //! - Fallback to self-subcommand
 //!
@@ -61,7 +61,7 @@ fn create_fake_core_binary(dir: &std::path::Path, name: &str) -> PathBuf {
     path
 }
 
-/// Test that OPENHUMAN_CORE_BIN override takes precedence when file exists.
+/// Test that EVERSILVER_CORE_BIN override takes precedence when file exists.
 #[test]
 fn core_bin_env_override_takes_precedence_when_exists() {
     let temp_dir = std::env::temp_dir().join("openhuman-core-test-override");
@@ -73,14 +73,14 @@ fn core_bin_env_override_takes_precedence_when_exists() {
     let fake_core_str = fake_core.to_str().unwrap();
 
     // Set the env override
-    let _guard = EnvGuard::set("OPENHUMAN_CORE_BIN", fake_core_str);
+    let _guard = EnvGuard::set("EVERSILVER_CORE_BIN", fake_core_str);
 
     // Import and call the function from the tauri crate
     // We can't directly import from src-tauri, but we verify the behavior
     // by checking that the env var is set and file exists
     assert!(fake_core.exists(), "Fake core binary should exist");
     assert_eq!(
-        std::env::var("OPENHUMAN_CORE_BIN").ok().as_deref(),
+        std::env::var("EVERSILVER_CORE_BIN").ok().as_deref(),
         Some(fake_core_str)
     );
 
@@ -88,15 +88,15 @@ fn core_bin_env_override_takes_precedence_when_exists() {
     let _ = fs::remove_dir_all(&temp_dir);
 }
 
-/// Test that OPENHUMAN_CORE_BIN override gracefully handles non-existent files.
+/// Test that EVERSILVER_CORE_BIN override gracefully handles non-existent files.
 #[test]
 fn core_bin_env_override_graceful_when_nonexistent() {
     // Set env override to a non-existent path
-    let _guard = EnvGuard::set("OPENHUMAN_CORE_BIN", "/nonexistent/path/openhuman-core");
+    let _guard = EnvGuard::set("EVERSILVER_CORE_BIN", "/nonexistent/path/openhuman-core");
 
     // Verify the env var is set
     assert_eq!(
-        std::env::var("OPENHUMAN_CORE_BIN").ok().as_deref(),
+        std::env::var("EVERSILVER_CORE_BIN").ok().as_deref(),
         Some("/nonexistent/path/openhuman-core")
     );
 
@@ -110,7 +110,7 @@ fn core_bin_packaged_linux_paths_order() {
     // Document the expected search order for packaged Linux binaries
     let expected_paths = [
         "/usr/bin/openhuman-core",
-        "/usr/lib/OpenHuman/openhuman-core",
+        "/usr/lib/Eversilver/openhuman-core",
     ];
 
     // Verify these are valid absolute paths
@@ -136,8 +136,8 @@ fn core_bin_packaged_linux_paths_order() {
 fn core_port_env_configuration() {
     // Test default port
     {
-        let _guard = EnvGuard::unset("OPENHUMAN_CORE_PORT");
-        let port = std::env::var("OPENHUMAN_CORE_PORT")
+        let _guard = EnvGuard::unset("EVERSILVER_CORE_PORT");
+        let port = std::env::var("EVERSILVER_CORE_PORT")
             .ok()
             .and_then(|v| v.parse::<u16>().ok())
             .unwrap_or(7788);
@@ -146,8 +146,8 @@ fn core_port_env_configuration() {
 
     // Test custom port
     {
-        let _guard = EnvGuard::set("OPENHUMAN_CORE_PORT", "9999");
-        let port = std::env::var("OPENHUMAN_CORE_PORT")
+        let _guard = EnvGuard::set("EVERSILVER_CORE_PORT", "9999");
+        let port = std::env::var("EVERSILVER_CORE_PORT")
             .ok()
             .and_then(|v| v.parse::<u16>().ok())
             .unwrap_or(7788);
@@ -179,12 +179,12 @@ fn core_rpc_url_format() {
     }
 }
 
-/// Test OPENHUMAN_CORE_RPC_URL environment variable handling.
+/// Test EVERSILVER_CORE_RPC_URL environment variable handling.
 #[test]
 fn core_rpc_url_env_override() {
     // Test with env var set
-    let _guard = EnvGuard::set("OPENHUMAN_CORE_RPC_URL", "http://localhost:8888/rpc");
-    let url = std::env::var("OPENHUMAN_CORE_RPC_URL").unwrap();
+    let _guard = EnvGuard::set("EVERSILVER_CORE_RPC_URL", "http://localhost:8888/rpc");
+    let url = std::env::var("EVERSILVER_CORE_RPC_URL").unwrap();
     assert_eq!(url, "http://localhost:8888/rpc");
 
     // Verify format

@@ -48,7 +48,7 @@ pub struct IngestionStatusResult {
 
 /// Request a memory sync for a specific channel.
 ///
-/// Ingestion in OpenHuman is listener/webhook-driven — there is no per-provider
+/// Ingestion in Eversilver is listener/webhook-driven — there is no per-provider
 /// pull mechanism yet. This RPC publishes `DomainEvent::MemorySyncRequested` so
 /// that future ingestion subscribers can react to an explicit pull request.
 /// The event is fire-and-forget; the caller receives confirmation that the

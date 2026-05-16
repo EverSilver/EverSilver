@@ -7,8 +7,8 @@
  * - Tray setup on linux+cef (skipped without panicking)
  * - Grep-friendly logging patterns for diagnostics
  *
- * This spec validates that the Linux .deb package can find openhuman-core
- * in system paths like /usr/bin/openhuman-core when installed via .deb.
+ * This spec validates that the Linux .deb package can find eversilver-core
+ * in system paths like /usr/bin/eversilver-core when installed via .deb.
  *
  * Coverage:
  * - core_process::default_core_bin() resolution paths
@@ -193,7 +193,7 @@ describe('Linux CEF deb package runtime (UI → Tauri → sidecar)', () => {
       // The app started successfully in before() - if setup_tray() had panicked
       // on linux+cef, we wouldn't be here. Verify app is healthy.
 
-      const hasChrome = await textExists('OpenHuman');
+      const hasChrome = await textExists('Eversilver');
       stepLog('App chrome check', { hasChrome });
 
       // App should have started without crashing
@@ -273,7 +273,7 @@ describe('Linux CEF deb package runtime (UI → Tauri → sidecar)', () => {
     it('core process logs contain expected diagnostic patterns', async () => {
       // This test documents the expected log patterns from PR #3:
       // - "[core] default_core_bin: using packaged linux core binary"
-      // - "[core] default_core_bin: using OPENHUMAN_CORE_BIN override"
+      // - "[core] default_core_bin: using EVERSILVER_CORE_BIN override"
       // - "[tray] skipping tray setup on linux+cef"
       // - "[core] core process ready"
 
@@ -292,8 +292,8 @@ describe('Linux CEF deb package runtime (UI → Tauri → sidecar)', () => {
   // ==========================================================================
 
   describe('packaged linux binary path resolution', () => {
-    it('sidecar is running with non-default port when OPENHUMAN_CORE_PORT is set', async () => {
-      // When OPENHUMAN_CORE_PORT is set, the sidecar should use that port
+    it('sidecar is running with non-default port when EVERSILVER_CORE_PORT is set', async () => {
+      // When EVERSILVER_CORE_PORT is set, the sidecar should use that port
       // This verifies env var propagation to the sidecar
 
       const result = await invokeTauriCommand<string>('core_rpc_url');

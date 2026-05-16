@@ -3,11 +3,11 @@ use super::Provider;
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-/// Maps OpenHuman's abstract tier model names (`reasoning-v1`,
+/// Maps Eversilver's abstract tier model names (`reasoning-v1`,
 /// `reasoning-quick-v1`, `agentic-v1`, `coding-v1`, `summarization-v1`)
 /// to the hint slot in `model_routes`. Returns `None` for any model the
 /// router shouldn't rewrite.
-fn openhuman_tier_to_hint(model: &str) -> Option<&'static str> {
+fn eversilver_tier_to_hint(model: &str) -> Option<&'static str> {
     match model {
         "reasoning-v1" => Some("reasoning"),
         "reasoning-quick-v1" => Some("chat"),
@@ -88,10 +88,10 @@ impl RouterProvider {
     ///
     /// Resolution order:
     /// 1. `hint:<name>` — direct hint lookup (e.g. `hint:reasoning`).
-    /// 2. OpenHuman abstract tier names — `reasoning-v1`, `agentic-v1`,
+    /// 2. Eversilver abstract tier names — `reasoning-v1`, `agentic-v1`,
     ///    `coding-v1`, `summarization-v1` map onto the corresponding hints
     ///    so a custom provider gets the user-configured model id instead of
-    ///    the literal tier name (which is only meaningful to the OpenHuman
+    ///    the literal tier name (which is only meaningful to the Eversilver
     ///    backend and would 404 on OpenAI/Anthropic/etc.).
     /// 3. Anything else passes through unchanged to the default provider.
     fn resolve(&self, model: &str) -> (usize, String) {
@@ -111,10 +111,10 @@ impl RouterProvider {
             );
         }
 
-        // OpenHuman abstract tier → hint mapping. These names are internal
-        // aliases the OpenHuman backend dispatches itself; custom providers
+        // Eversilver abstract tier → hint mapping. These names are internal
+        // aliases the Eversilver backend dispatches itself; custom providers
         // need them translated through the user's route table.
-        if let Some(hint) = openhuman_tier_to_hint(model) {
+        if let Some(hint) = eversilver_tier_to_hint(model) {
             if let Some((idx, resolved_model)) = self.routes.get(hint) {
                 log::info!(
                     "[router] tier {} -> hint={} -> model={} (provider_idx={})",

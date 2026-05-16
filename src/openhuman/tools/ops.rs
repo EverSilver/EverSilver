@@ -219,7 +219,7 @@ pub fn all_tools_with_runtime(
         root_config.curl.timeout_secs,
     )));
 
-    // gitbooks — answers questions about OpenHuman by calling the
+    // gitbooks — answers questions about Eversilver by calling the
     // GitBook MCP server. Two tools mirroring the upstream MCP tools.
     if root_config.gitbooks.enabled {
         tools.push(Box::new(GitbooksSearchTool::new(
@@ -311,7 +311,7 @@ pub fn all_tools_with_runtime(
             security.clone(),
             crate::openhuman::providers::ProviderRuntimeOptions {
                 auth_profile_override: None,
-                openhuman_dir: root_config
+                eversilver_dir: root_config
                     .config_path
                     .parent()
                     .map(std::path::PathBuf::from),
@@ -422,7 +422,7 @@ pub fn all_tools_with_runtime(
     }
 
     // Coding-harness `lsp` tool (issue #1205) — capability-gated by the
-    // OPENHUMAN_LSP_ENABLED env var. The backend (real language-server
+    // EVERSILVER_LSP_ENABLED env var. The backend (real language-server
     // bridge) is a follow-up; today the gate just controls visibility
     // so agents don't see a method that always errors.
     if crate::openhuman::tools::implementations::lsp_capability_enabled() {
@@ -431,7 +431,7 @@ pub fn all_tools_with_runtime(
         ));
         tracing::debug!("[lsp] capability gate on — LspTool registered");
     } else {
-        tracing::debug!("[lsp] capability gate off (set OPENHUMAN_LSP_ENABLED=1 to register)");
+        tracing::debug!("[lsp] capability gate off (set EVERSILVER_LSP_ENABLED=1 to register)");
     }
 
     tools

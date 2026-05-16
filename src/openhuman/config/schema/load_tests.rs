@@ -35,17 +35,17 @@ fn write_and_clear_active_user_roundtrip() {
 }
 
 #[test]
-fn user_openhuman_dir_builds_correct_path() {
+fn user_eversilver_dir_builds_correct_path() {
     let root = PathBuf::from("/home/test/.openhuman");
-    let dir = user_openhuman_dir(&root, "user-123");
+    let dir = user_eversilver_dir(&root, "user-123");
     assert_eq!(dir, PathBuf::from("/home/test/.openhuman/users/user-123"));
 }
 
 #[tokio::test]
-// Races on `OPENHUMAN_WORKSPACE` env var with other tests holding
+// Races on `EVERSILVER_WORKSPACE` env var with other tests holding
 // `TEST_ENV_LOCK` — passes in isolation, intermittently fails in parallel.
 // Runs reliably with `--ignored --test-threads=1`. See PR #1524.
-#[ignore = "flaky in parallel cargo test; OPENHUMAN_WORKSPACE env-var race — see PR #1524"]
+#[ignore = "flaky in parallel cargo test; EVERSILVER_WORKSPACE env-var race — see PR #1524"]
 async fn resolve_dirs_uses_active_user_when_present() {
     let tmp = tempfile::tempdir().unwrap();
     let root = tmp.path();
@@ -114,75 +114,75 @@ fn clear_env(keys: &[&str]) {
 #[test]
 fn apply_env_overrides_picks_up_model() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_MODEL", "MODEL"]);
+    clear_env(&["EVERSILVER_MODEL", "MODEL"]);
     unsafe {
-        std::env::set_var("OPENHUMAN_MODEL", "gpt-5");
+        std::env::set_var("EVERSILVER_MODEL", "gpt-5");
     }
     let mut cfg = Config::default();
     cfg.apply_env_overrides();
     assert_eq!(cfg.default_model.as_deref(), Some("gpt-5"));
     unsafe {
-        std::env::remove_var("OPENHUMAN_MODEL");
+        std::env::remove_var("EVERSILVER_MODEL");
     }
 }
 
 #[test]
 fn apply_env_overrides_validates_temperature_range() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_TEMPERATURE"]);
+    clear_env(&["EVERSILVER_TEMPERATURE"]);
     let mut cfg = Config::default();
     cfg.default_temperature = 0.5;
     unsafe {
-        std::env::set_var("OPENHUMAN_TEMPERATURE", "1.2");
+        std::env::set_var("EVERSILVER_TEMPERATURE", "1.2");
     }
     cfg.apply_env_overrides();
     assert!((cfg.default_temperature - 1.2).abs() < f64::EPSILON);
 
     // Out of range — should be ignored.
     unsafe {
-        std::env::set_var("OPENHUMAN_TEMPERATURE", "5");
+        std::env::set_var("EVERSILVER_TEMPERATURE", "5");
     }
     cfg.apply_env_overrides();
     assert!((cfg.default_temperature - 1.2).abs() < f64::EPSILON);
 
     // Garbage value — ignored.
     unsafe {
-        std::env::set_var("OPENHUMAN_TEMPERATURE", "not-a-number");
+        std::env::set_var("EVERSILVER_TEMPERATURE", "not-a-number");
     }
     cfg.apply_env_overrides();
     assert!((cfg.default_temperature - 1.2).abs() < f64::EPSILON);
     unsafe {
-        std::env::remove_var("OPENHUMAN_TEMPERATURE");
+        std::env::remove_var("EVERSILVER_TEMPERATURE");
     }
 }
 
 #[test]
 fn apply_env_overrides_reasoning_enabled_parses_truthy_falsy() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_REASONING_ENABLED", "REASONING_ENABLED"]);
+    clear_env(&["EVERSILVER_REASONING_ENABLED", "REASONING_ENABLED"]);
     let mut cfg = Config::default();
     cfg.runtime.reasoning_enabled = None;
 
     unsafe {
-        std::env::set_var("OPENHUMAN_REASONING_ENABLED", "yes");
+        std::env::set_var("EVERSILVER_REASONING_ENABLED", "yes");
     }
     cfg.apply_env_overrides();
     assert_eq!(cfg.runtime.reasoning_enabled, Some(true));
 
     unsafe {
-        std::env::set_var("OPENHUMAN_REASONING_ENABLED", "off");
+        std::env::set_var("EVERSILVER_REASONING_ENABLED", "off");
     }
     cfg.apply_env_overrides();
     assert_eq!(cfg.runtime.reasoning_enabled, Some(false));
 
     // Unknown value — leaves field unchanged.
     unsafe {
-        std::env::set_var("OPENHUMAN_REASONING_ENABLED", "maybe");
+        std::env::set_var("EVERSILVER_REASONING_ENABLED", "maybe");
     }
     cfg.apply_env_overrides();
     assert_eq!(cfg.runtime.reasoning_enabled, Some(false));
     unsafe {
-        std::env::remove_var("OPENHUMAN_REASONING_ENABLED");
+        std::env::remove_var("EVERSILVER_REASONING_ENABLED");
     }
 }
 
@@ -190,22 +190,22 @@ fn apply_env_overrides_reasoning_enabled_parses_truthy_falsy() {
 fn apply_env_overrides_web_search_limits_only() {
     let _g = env_lock();
     clear_env(&[
-        "OPENHUMAN_WEB_SEARCH_MAX_RESULTS",
+        "EVERSILVER_WEB_SEARCH_MAX_RESULTS",
         "WEB_SEARCH_MAX_RESULTS",
-        "OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS",
+        "EVERSILVER_WEB_SEARCH_TIMEOUT_SECS",
         "WEB_SEARCH_TIMEOUT_SECS",
     ]);
     let mut cfg = Config::default();
     unsafe {
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "5");
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS", "20");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "5");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_TIMEOUT_SECS", "20");
     }
     cfg.apply_env_overrides();
     assert_eq!(cfg.web_search.max_results, 5);
     assert_eq!(cfg.web_search.timeout_secs, 20);
     clear_env(&[
-        "OPENHUMAN_WEB_SEARCH_MAX_RESULTS",
-        "OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS",
+        "EVERSILVER_WEB_SEARCH_MAX_RESULTS",
+        "EVERSILVER_WEB_SEARCH_TIMEOUT_SECS",
     ]);
 }
 
@@ -213,9 +213,9 @@ fn apply_env_overrides_web_search_limits_only() {
 fn apply_env_overrides_web_search_max_results_and_timeout_clamped() {
     let _g = env_lock();
     clear_env(&[
-        "OPENHUMAN_WEB_SEARCH_MAX_RESULTS",
+        "EVERSILVER_WEB_SEARCH_MAX_RESULTS",
         "WEB_SEARCH_MAX_RESULTS",
-        "OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS",
+        "EVERSILVER_WEB_SEARCH_TIMEOUT_SECS",
         "WEB_SEARCH_TIMEOUT_SECS",
     ]);
     let mut cfg = Config::default();
@@ -224,8 +224,8 @@ fn apply_env_overrides_web_search_max_results_and_timeout_clamped() {
 
     // Valid values apply.
     unsafe {
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "5");
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS", "20");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "5");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_TIMEOUT_SECS", "20");
     }
     cfg.apply_env_overrides();
     assert_eq!(cfg.web_search.max_results, 5);
@@ -233,8 +233,8 @@ fn apply_env_overrides_web_search_max_results_and_timeout_clamped() {
 
     // Out-of-range (>10 for max_results, 0 for timeout) — ignored.
     unsafe {
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "999");
-        std::env::set_var("OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS", "0");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "999");
+        std::env::set_var("EVERSILVER_WEB_SEARCH_TIMEOUT_SECS", "0");
     }
     cfg.apply_env_overrides();
     assert_eq!(
@@ -243,35 +243,35 @@ fn apply_env_overrides_web_search_max_results_and_timeout_clamped() {
     );
     assert_eq!(cfg.web_search.timeout_secs, 20);
     clear_env(&[
-        "OPENHUMAN_WEB_SEARCH_MAX_RESULTS",
-        "OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS",
+        "EVERSILVER_WEB_SEARCH_MAX_RESULTS",
+        "EVERSILVER_WEB_SEARCH_TIMEOUT_SECS",
     ]);
 }
 
 #[test]
 fn apply_env_overrides_picks_up_sentry_dsn() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
     let mut cfg = Config::default();
     unsafe {
-        std::env::set_var("OPENHUMAN_SENTRY_DSN", "https://token@sentry.io/1");
+        std::env::set_var("EVERSILVER_SENTRY_DSN", "https://token@sentry.io/1");
     }
     cfg.apply_env_overrides();
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
         Some("https://token@sentry.io/1")
     );
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
 }
 
 #[test]
 fn apply_env_overrides_prefers_core_sentry_dsn_when_both_set() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
     let mut cfg = Config::default();
     unsafe {
-        std::env::set_var("OPENHUMAN_SENTRY_DSN", "https://legacy@sentry.io/1");
-        std::env::set_var("OPENHUMAN_CORE_SENTRY_DSN", "https://new@sentry.io/2");
+        std::env::set_var("EVERSILVER_SENTRY_DSN", "https://legacy@sentry.io/1");
+        std::env::set_var("EVERSILVER_CORE_SENTRY_DSN", "https://new@sentry.io/2");
     }
     cfg.apply_env_overrides();
     assert_eq!(
@@ -279,23 +279,23 @@ fn apply_env_overrides_prefers_core_sentry_dsn_when_both_set() {
         Some("https://new@sentry.io/2"),
         "namespaced var must win over the legacy unprefixed one"
     );
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
 }
 
 #[test]
 fn apply_env_overrides_picks_up_core_sentry_dsn_alone() {
     let _g = env_lock();
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
     let mut cfg = Config::default();
     unsafe {
-        std::env::set_var("OPENHUMAN_CORE_SENTRY_DSN", "https://token@sentry.io/3");
+        std::env::set_var("EVERSILVER_CORE_SENTRY_DSN", "https://token@sentry.io/3");
     }
     cfg.apply_env_overrides();
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
         Some("https://token@sentry.io/3")
     );
-    clear_env(&["OPENHUMAN_CORE_SENTRY_DSN", "OPENHUMAN_SENTRY_DSN"]);
+    clear_env(&["EVERSILVER_CORE_SENTRY_DSN", "EVERSILVER_SENTRY_DSN"]);
 }
 
 // ── EnvLookup seam for resolve_runtime_config_dirs ─────────────
@@ -325,7 +325,7 @@ async fn env_workspace_override_wins_via_seam() {
 
     let ws_root = tempfile::tempdir().unwrap();
     let ws_path = ws_root.path().join("my-workspace");
-    let env = MapEnv::default().with("OPENHUMAN_WORKSPACE", ws_path.to_str().unwrap());
+    let env = MapEnv::default().with("EVERSILVER_WORKSPACE", ws_path.to_str().unwrap());
 
     let default_workspace = root.join("workspace");
     let (oh_dir, ws_dir, source) = resolve_runtime_config_dirs_with(root, &default_workspace, &env)
@@ -343,7 +343,7 @@ async fn empty_env_workspace_falls_through_to_active_user() {
     let tmp = tempfile::tempdir().unwrap();
     let root = tmp.path();
     write_active_user_id(root, "u-fallthrough").unwrap();
-    let env = MapEnv::default().with("OPENHUMAN_WORKSPACE", "");
+    let env = MapEnv::default().with("EVERSILVER_WORKSPACE", "");
 
     let default_workspace = root.join("workspace");
     let (oh_dir, ws_dir, source) = resolve_runtime_config_dirs_with(root, &default_workspace, &env)
@@ -360,7 +360,7 @@ async fn empty_env_workspace_falls_through_to_active_user() {
 async fn missing_env_workspace_uses_pre_login_default() {
     let tmp = tempfile::tempdir().unwrap();
     let root = tmp.path();
-    let env = MapEnv::default(); // no OPENHUMAN_WORKSPACE, no active user
+    let env = MapEnv::default(); // no EVERSILVER_WORKSPACE, no active user
 
     let default_workspace = root.join("workspace");
     let (oh_dir, ws_dir, source) = resolve_runtime_config_dirs_with(root, &default_workspace, &env)
@@ -423,10 +423,10 @@ impl EnvLookup for HashMapEnv {
 }
 
 #[test]
-fn env_overlay_model_prefers_openhuman_over_alias() {
-    // Both set → OPENHUMAN_MODEL wins.
+fn env_overlay_model_prefers_eversilver_over_alias() {
+    // Both set → EVERSILVER_MODEL wins.
     let env = HashMapEnv::new()
-        .with("OPENHUMAN_MODEL", "specific-v2")
+        .with("EVERSILVER_MODEL", "specific-v2")
         .with("MODEL", "alias-fallback");
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(&env);
@@ -441,7 +441,7 @@ fn env_overlay_model_prefers_openhuman_over_alias() {
 
 #[test]
 fn env_overlay_model_ignores_empty() {
-    let env = HashMapEnv::new().with("OPENHUMAN_MODEL", "");
+    let env = HashMapEnv::new().with("EVERSILVER_MODEL", "");
     let mut cfg = Config::default();
     let original = cfg.default_model.clone();
     cfg.apply_env_overlay_with(&env);
@@ -453,25 +453,25 @@ fn env_overlay_temperature_accepts_valid_and_ignores_out_of_range_or_garbage() {
     let mut cfg = Config::default();
     cfg.default_temperature = 0.5;
 
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "1.5"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "1.5"));
     assert!((cfg.default_temperature - 1.5).abs() < f64::EPSILON);
 
     // Negative (< 0.0) — ignored.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "-0.1"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "-0.1"));
     assert!((cfg.default_temperature - 1.5).abs() < f64::EPSILON);
 
     // Above cap (> 2.0) — ignored.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "2.5"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "2.5"));
     assert!((cfg.default_temperature - 1.5).abs() < f64::EPSILON);
 
     // Garbage — ignored.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "nope"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "nope"));
     assert!((cfg.default_temperature - 1.5).abs() < f64::EPSILON);
 
     // Boundaries — inclusive on both ends.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "0"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "0"));
     assert_eq!(cfg.default_temperature, 0.0);
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_TEMPERATURE", "2"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_TEMPERATURE", "2"));
     assert_eq!(cfg.default_temperature, 2.0);
 }
 
@@ -482,7 +482,7 @@ fn env_overlay_reasoning_enabled_recognises_truthy_falsy_and_ignores_garbage() {
 
     for truthy in ["1", "true", "yes", "on", "TRUE", " On "] {
         cfg.runtime.reasoning_enabled = None;
-        cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_REASONING_ENABLED", truthy));
+        cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_REASONING_ENABLED", truthy));
         assert_eq!(
             cfg.runtime.reasoning_enabled,
             Some(true),
@@ -492,7 +492,7 @@ fn env_overlay_reasoning_enabled_recognises_truthy_falsy_and_ignores_garbage() {
 
     for falsy in ["0", "false", "no", "off", "OFF"] {
         cfg.runtime.reasoning_enabled = Some(true);
-        cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_REASONING_ENABLED", falsy));
+        cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_REASONING_ENABLED", falsy));
         assert_eq!(
             cfg.runtime.reasoning_enabled,
             Some(false),
@@ -502,10 +502,10 @@ fn env_overlay_reasoning_enabled_recognises_truthy_falsy_and_ignores_garbage() {
 
     // Garbage leaves the previous value unchanged.
     cfg.runtime.reasoning_enabled = Some(true);
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_REASONING_ENABLED", "maybe"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_REASONING_ENABLED", "maybe"));
     assert_eq!(cfg.runtime.reasoning_enabled, Some(true));
 
-    // Alias works when the OPENHUMAN variant is absent.
+    // Alias works when the EVERSILVER variant is absent.
     cfg.runtime.reasoning_enabled = None;
     cfg.apply_env_overlay_with(&HashMapEnv::new().with("REASONING_ENABLED", "yes"));
     assert_eq!(cfg.runtime.reasoning_enabled, Some(true));
@@ -520,8 +520,8 @@ fn env_overlay_web_search_limits_validated() {
     // Valid values apply.
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "7")
-            .with("OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS", "25"),
+            .with("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "7")
+            .with("EVERSILVER_WEB_SEARCH_TIMEOUT_SECS", "25"),
     );
     assert_eq!(cfg.web_search.max_results, 7);
     assert_eq!(cfg.web_search.timeout_secs, 25);
@@ -529,16 +529,16 @@ fn env_overlay_web_search_limits_validated() {
     // Out-of-range — ignored.
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "0")
-            .with("OPENHUMAN_WEB_SEARCH_TIMEOUT_SECS", "0"),
+            .with("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "0")
+            .with("EVERSILVER_WEB_SEARCH_TIMEOUT_SECS", "0"),
     );
     assert_eq!(cfg.web_search.max_results, 7);
     assert_eq!(cfg.web_search.timeout_secs, 25);
 
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_WEB_SEARCH_MAX_RESULTS", "11"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_WEB_SEARCH_MAX_RESULTS", "11"));
     assert_eq!(cfg.web_search.max_results, 7);
 
-    // Bare aliases also accepted when the OPENHUMAN-prefixed variant is absent.
+    // Bare aliases also accepted when the EVERSILVER-prefixed variant is absent.
     cfg.apply_env_overlay_with(&HashMapEnv::new().with("WEB_SEARCH_MAX_RESULTS", "4"));
     assert_eq!(cfg.web_search.max_results, 4);
 }
@@ -549,7 +549,7 @@ fn env_overlay_proxy_url_enables_proxy_when_not_explicit() {
     assert!(!cfg.proxy.enabled);
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_HTTP_PROXY", "http://proxy.local:3128"),
+        &HashMapEnv::new().with("EVERSILVER_HTTP_PROXY", "http://proxy.local:3128"),
     );
 
     assert!(
@@ -567,12 +567,12 @@ fn env_overlay_explicit_proxy_enabled_overrides_auto_enable() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_PROXY_ENABLED", "false")
-            .with("OPENHUMAN_HTTP_PROXY", "http://proxy.local:3128"),
+            .with("EVERSILVER_PROXY_ENABLED", "false")
+            .with("EVERSILVER_HTTP_PROXY", "http://proxy.local:3128"),
     );
     assert!(
         !cfg.proxy.enabled,
-        "explicit OPENHUMAN_PROXY_ENABLED=false must win over URL-driven auto-enable"
+        "explicit EVERSILVER_PROXY_ENABLED=false must win over URL-driven auto-enable"
     );
 }
 
@@ -580,7 +580,7 @@ fn env_overlay_explicit_proxy_enabled_overrides_auto_enable() {
 fn env_overlay_proxy_scope_invalid_value_leaves_scope_unchanged() {
     let mut cfg = Config::default();
     let original_scope = cfg.proxy.scope;
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_PROXY_SCOPE", "bogus-scope"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_PROXY_SCOPE", "bogus-scope"));
     assert_eq!(cfg.proxy.scope, original_scope);
 }
 
@@ -591,9 +591,9 @@ fn env_overlay_node_flags_respect_bool_parser() {
 
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_NODE_ENABLED", "yes")
-            .with("OPENHUMAN_NODE_PREFER_SYSTEM", "off")
-            .with("OPENHUMAN_NODE_CACHE_DIR", "/tmp/oh-node"),
+            .with("EVERSILVER_NODE_ENABLED", "yes")
+            .with("EVERSILVER_NODE_PREFER_SYSTEM", "off")
+            .with("EVERSILVER_NODE_CACHE_DIR", "/tmp/oh-node"),
     );
     assert!(cfg.node.enabled);
     assert!(!cfg.node.prefer_system);
@@ -604,11 +604,11 @@ fn env_overlay_node_flags_respect_bool_parser() {
     );
 
     // Unrecognised bool — ignored, keeps previous true.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_NODE_ENABLED", "perhaps"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_NODE_ENABLED", "perhaps"));
     assert!(cfg.node.enabled);
 
     // Blank version does NOT clobber.
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_NODE_VERSION", "   "));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_NODE_VERSION", "   "));
     assert_eq!(cfg.node.version, original_version);
 }
 
@@ -618,7 +618,7 @@ fn env_overlay_sentry_dsn_trims_and_ignores_blank() {
     cfg.observability.sentry_dsn = None;
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_SENTRY_DSN", "  https://t@sentry.io/42  "),
+        &HashMapEnv::new().with("EVERSILVER_SENTRY_DSN", "  https://t@sentry.io/42  "),
     );
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
@@ -626,7 +626,7 @@ fn env_overlay_sentry_dsn_trims_and_ignores_blank() {
     );
 
     // Blank value — ignored (previous DSN retained).
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_SENTRY_DSN", "   "));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_SENTRY_DSN", "   "));
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
         Some("https://t@sentry.io/42")
@@ -640,13 +640,13 @@ fn env_overlay_prefers_namespaced_core_sentry_dsn() {
 
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_SENTRY_DSN", "https://legacy@sentry.io/1")
-            .with("OPENHUMAN_CORE_SENTRY_DSN", "https://new@sentry.io/2"),
+            .with("EVERSILVER_SENTRY_DSN", "https://legacy@sentry.io/1")
+            .with("EVERSILVER_CORE_SENTRY_DSN", "https://new@sentry.io/2"),
     );
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
         Some("https://new@sentry.io/2"),
-        "OPENHUMAN_CORE_SENTRY_DSN must win over OPENHUMAN_SENTRY_DSN"
+        "EVERSILVER_CORE_SENTRY_DSN must win over EVERSILVER_SENTRY_DSN"
     );
 }
 
@@ -656,7 +656,7 @@ fn env_overlay_namespaced_core_sentry_dsn_works_alone() {
     cfg.observability.sentry_dsn = None;
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_CORE_SENTRY_DSN", "https://token@sentry.io/3"),
+        &HashMapEnv::new().with("EVERSILVER_CORE_SENTRY_DSN", "https://token@sentry.io/3"),
     );
     assert_eq!(
         cfg.observability.sentry_dsn.as_deref(),
@@ -668,10 +668,10 @@ fn env_overlay_namespaced_core_sentry_dsn_works_alone() {
 fn env_overlay_analytics_enabled_parses_truthy_falsy() {
     let mut cfg = Config::default();
     cfg.observability.analytics_enabled = false;
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_ANALYTICS_ENABLED", "1"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_ANALYTICS_ENABLED", "1"));
     assert!(cfg.observability.analytics_enabled);
 
-    cfg.apply_env_overlay_with(&HashMapEnv::new().with("OPENHUMAN_ANALYTICS_ENABLED", "0"));
+    cfg.apply_env_overlay_with(&HashMapEnv::new().with("EVERSILVER_ANALYTICS_ENABLED", "0"));
     assert!(!cfg.observability.analytics_enabled);
 }
 
@@ -679,7 +679,7 @@ fn env_overlay_analytics_enabled_parses_truthy_falsy() {
 fn env_overlay_learning_source_values_and_invalid_ignored() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_LEARNING_REFLECTION_SOURCE", "local"),
+        &HashMapEnv::new().with("EVERSILVER_LEARNING_REFLECTION_SOURCE", "local"),
     );
     assert_eq!(
         cfg.learning.reflection_source,
@@ -687,7 +687,7 @@ fn env_overlay_learning_source_values_and_invalid_ignored() {
     );
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_LEARNING_REFLECTION_SOURCE", "cloud"),
+        &HashMapEnv::new().with("EVERSILVER_LEARNING_REFLECTION_SOURCE", "cloud"),
     );
     assert_eq!(
         cfg.learning.reflection_source,
@@ -696,7 +696,7 @@ fn env_overlay_learning_source_values_and_invalid_ignored() {
 
     // Unknown — ignored, retains cloud from previous step.
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_LEARNING_REFLECTION_SOURCE", "bogus"),
+        &HashMapEnv::new().with("EVERSILVER_LEARNING_REFLECTION_SOURCE", "bogus"),
     );
     assert_eq!(
         cfg.learning.reflection_source,
@@ -709,8 +709,8 @@ fn env_overlay_learning_numeric_values_parse() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_LEARNING_MAX_REFLECTIONS_PER_SESSION", "8")
-            .with("OPENHUMAN_LEARNING_MIN_TURN_COMPLEXITY", "2"),
+            .with("EVERSILVER_LEARNING_MAX_REFLECTIONS_PER_SESSION", "8")
+            .with("EVERSILVER_LEARNING_MIN_TURN_COMPLEXITY", "2"),
     );
     assert_eq!(cfg.learning.max_reflections_per_session, 8);
     assert_eq!(cfg.learning.min_turn_complexity, 2);
@@ -721,7 +721,7 @@ fn env_overlay_dictation_activation_mode_only_toggle_or_push() {
     let mut cfg = Config::default();
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_DICTATION_ACTIVATION_MODE", "toggle"),
+        &HashMapEnv::new().with("EVERSILVER_DICTATION_ACTIVATION_MODE", "toggle"),
     );
     assert_eq!(
         cfg.dictation.activation_mode,
@@ -729,7 +729,7 @@ fn env_overlay_dictation_activation_mode_only_toggle_or_push() {
     );
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_DICTATION_ACTIVATION_MODE", "push"),
+        &HashMapEnv::new().with("EVERSILVER_DICTATION_ACTIVATION_MODE", "push"),
     );
     assert_eq!(
         cfg.dictation.activation_mode,
@@ -738,7 +738,7 @@ fn env_overlay_dictation_activation_mode_only_toggle_or_push() {
 
     // Unknown — retains previous value (Push).
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_DICTATION_ACTIVATION_MODE", "wave"),
+        &HashMapEnv::new().with("EVERSILVER_DICTATION_ACTIVATION_MODE", "wave"),
     );
     assert_eq!(
         cfg.dictation.activation_mode,
@@ -758,7 +758,7 @@ fn env_overlay_context_tool_result_budget_env_suppresses_legacy_migration() {
     cfg.agent.tool_result_budget_bytes = 999_999;
 
     cfg.apply_env_overlay_with(&HashMapEnv::new().with(
-        "OPENHUMAN_CONTEXT_TOOL_RESULT_BUDGET_BYTES",
+        "EVERSILVER_CONTEXT_TOOL_RESULT_BUDGET_BYTES",
         &default_budget.to_string(),
     ));
     assert_eq!(
@@ -788,7 +788,7 @@ fn env_overlay_context_tool_result_budget_env_wins_over_legacy_migration() {
     cfg.agent.tool_result_budget_bytes = 111_111;
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_CONTEXT_TOOL_RESULT_BUDGET_BYTES", "222222"),
+        &HashMapEnv::new().with("EVERSILVER_CONTEXT_TOOL_RESULT_BUDGET_BYTES", "222222"),
     );
     assert_eq!(
         cfg.context.tool_result_budget_bytes, 222_222,
@@ -801,15 +801,15 @@ fn env_overlay_auto_update_interval_parses_u32() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
         &HashMapEnv::new()
-            .with("OPENHUMAN_AUTO_UPDATE_ENABLED", "true")
-            .with("OPENHUMAN_AUTO_UPDATE_INTERVAL_MINUTES", "60"),
+            .with("EVERSILVER_AUTO_UPDATE_ENABLED", "true")
+            .with("EVERSILVER_AUTO_UPDATE_INTERVAL_MINUTES", "60"),
     );
     assert!(cfg.update.enabled);
     assert_eq!(cfg.update.interval_minutes, 60);
 
     // Garbage numeric — ignored, previous value retained.
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_AUTO_UPDATE_INTERVAL_MINUTES", "hello"),
+        &HashMapEnv::new().with("EVERSILVER_AUTO_UPDATE_INTERVAL_MINUTES", "hello"),
     );
     assert_eq!(cfg.update.interval_minutes, 60);
 }
@@ -818,7 +818,7 @@ fn env_overlay_auto_update_interval_parses_u32() {
 fn env_overlay_auto_update_restart_strategy_accepts_supported_values() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_AUTO_UPDATE_RESTART_STRATEGY", "supervisor"),
+        &HashMapEnv::new().with("EVERSILVER_AUTO_UPDATE_RESTART_STRATEGY", "supervisor"),
     );
     assert_eq!(
         cfg.update.restart_strategy,
@@ -826,7 +826,7 @@ fn env_overlay_auto_update_restart_strategy_accepts_supported_values() {
     );
 
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_AUTO_UPDATE_RESTART_STRATEGY", "self_replace"),
+        &HashMapEnv::new().with("EVERSILVER_AUTO_UPDATE_RESTART_STRATEGY", "self_replace"),
     );
     assert_eq!(
         cfg.update.restart_strategy,
@@ -838,7 +838,7 @@ fn env_overlay_auto_update_restart_strategy_accepts_supported_values() {
 fn env_overlay_auto_update_rpc_mutations_enabled_parses_bool() {
     let mut cfg = Config::default();
     cfg.apply_env_overlay_with(
-        &HashMapEnv::new().with("OPENHUMAN_AUTO_UPDATE_RPC_MUTATIONS_ENABLED", "false"),
+        &HashMapEnv::new().with("EVERSILVER_AUTO_UPDATE_RPC_MUTATIONS_ENABLED", "false"),
     );
     assert!(!cfg.update.rpc_mutations_enabled);
 }
@@ -890,10 +890,10 @@ async fn resolve_runtime_config_dirs_with_env_workspace_override() {
     let root = tmp.path();
     let default_workspace = root.join("workspace");
 
-    // Point OPENHUMAN_WORKSPACE at a custom path via HashMapEnv — no
+    // Point EVERSILVER_WORKSPACE at a custom path via HashMapEnv — no
     // process-env mutation needed.
     let custom_ws = tmp.path().join("custom_ws");
-    let env = HashMapEnv::new().with("OPENHUMAN_WORKSPACE", custom_ws.to_str().unwrap());
+    let env = HashMapEnv::new().with("EVERSILVER_WORKSPACE", custom_ws.to_str().unwrap());
 
     let (oh_dir, ws_dir, source) = resolve_runtime_config_dirs_with(root, &default_workspace, &env)
         .await
@@ -912,7 +912,7 @@ async fn resolve_runtime_config_dirs_with_empty_env_falls_back_to_default() {
     let root = tmp.path();
     let default_workspace = root.join("workspace");
 
-    // Empty env: no OPENHUMAN_WORKSPACE → falls through to the pre-login
+    // Empty env: no EVERSILVER_WORKSPACE → falls through to the pre-login
     // user directory path (no active_user.toml, no workspace marker).
     let env = HashMapEnv::new();
     let (oh_dir, _ws_dir, source) =
@@ -1081,12 +1081,12 @@ fn apply_env_overrides_commits_side_effects_to_runtime_proxy() {
     // Hold the env lock so no other test races on proxy-related env vars.
     let _g = env_lock();
     clear_env(&[
-        "OPENHUMAN_PROXY_ENABLED",
-        "OPENHUMAN_HTTP_PROXY",
+        "EVERSILVER_PROXY_ENABLED",
+        "EVERSILVER_HTTP_PROXY",
         "HTTP_PROXY",
-        "OPENHUMAN_HTTPS_PROXY",
+        "EVERSILVER_HTTPS_PROXY",
         "HTTPS_PROXY",
-        "OPENHUMAN_ALL_PROXY",
+        "EVERSILVER_ALL_PROXY",
         "ALL_PROXY",
     ]);
 
@@ -1143,7 +1143,7 @@ fn env_lock() -> std::sync::MutexGuard<'static, ()> {
 }
 
 async fn load_or_init_for_workspace(root: &std::path::Path) -> Config {
-    let env = MapEnv::default().with("OPENHUMAN_WORKSPACE", root.to_str().unwrap());
+    let env = MapEnv::default().with("EVERSILVER_WORKSPACE", root.to_str().unwrap());
     Config::load_or_init_with_env_lookup(root, &root.join("workspace"), &env)
         .await
         .unwrap()
@@ -1311,12 +1311,12 @@ fn migrate_legacy_inference_url_moves_external_chat_completions() {
 }
 
 #[test]
-fn migrate_legacy_inference_url_clears_openhuman_backend_form() {
+fn migrate_legacy_inference_url_clears_eversilver_backend_form() {
     let mut cfg = Config::default();
-    cfg.api_url = Some("https://api.tinyhumans.ai/openai/v1/chat/completions".to_string());
+    cfg.api_url = Some("https://api.eversilver.local/openai/v1/chat/completions".to_string());
     cfg.inference_url = None;
     migrate_legacy_inference_url(&mut cfg);
-    // The OpenHuman host is the default backend — both fields end up None so
+    // The Eversilver host is the default backend — both fields end up None so
     // inference flows through the derived default `{backend}/openai/v1/...`.
     assert_eq!(cfg.api_url, None);
     assert_eq!(cfg.inference_url, None);

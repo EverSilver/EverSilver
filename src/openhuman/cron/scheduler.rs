@@ -237,7 +237,7 @@ async fn run_agent_job(config: &Config, job: &CronJob) -> (bool, String, Option<
                 );
                 // Resolve the agent definition's model spec into an
                 // exact model id. `ModelSpec::resolve` synthesises
-                // `{hint}-v1` for Hint specs, which only the OpenHuman
+                // `{hint}-v1` for Hint specs, which only the Eversilver
                 // backend understands as a tier hint — Anthropic and
                 // every other provider 404 on names like `agentic-v1`.
                 // Route Hint specs through the per-workload factory so

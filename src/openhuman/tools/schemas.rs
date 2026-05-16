@@ -50,7 +50,7 @@ pub fn tools_schemas(function: &str) -> ControllerSchema {
             namespace: "tools",
             function: "composio_execute",
             description: "Execute a Composio action. Routes through the mode-aware \
-                          factory: backend mode proxies via the OpenHuman backend; \
+                          factory: backend mode proxies via the Eversilver backend; \
                           direct mode calls backend.composio.dev with the user's own \
                           API key. Exposed for Tauri-driven flows (e.g. onboarding) \
                           that orchestrate tool calls themselves.",

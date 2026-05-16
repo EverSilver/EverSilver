@@ -7,7 +7,7 @@
 //! `AssistantToolCalls ⇔ ToolResults` holds and the provider still
 //! accepts the next request.
 //!
-//! OpenHuman's inference backend does automatic prefix caching, so we
+//! Eversilver's inference backend does automatic prefix caching, so we
 //! skip any cache-editing dance and go straight to the placeholder
 //! strategy: overwrite the old bodies in place, let the backend
 //! re-prefill once, and let the next turn pick up the new (smaller)

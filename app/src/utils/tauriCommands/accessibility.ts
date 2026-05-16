@@ -169,153 +169,153 @@ export interface CaptureTestResult {
   timing_ms: number;
 }
 
-export async function openhumanAccessibilityStatus(): Promise<
+export async function eversilverAccessibilityStatus(): Promise<
   CommandResponse<AccessibilityStatus>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityStatus>>({
-    method: 'openhuman.accessibility_status',
+    method: 'eversilver.accessibility_status',
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityRequestPermissions(): Promise<
+export async function eversilverAccessibilityRequestPermissions(): Promise<
   CommandResponse<AccessibilityPermissionStatus>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityPermissionStatus>>({
-    method: 'openhuman.accessibility_request_permissions',
+    method: 'eversilver.accessibility_request_permissions',
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityRequestPermission(
+export async function eversilverAccessibilityRequestPermission(
   permission: AccessibilityPermissionKind
 ): Promise<CommandResponse<AccessibilityPermissionStatus>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityPermissionStatus>>({
-    method: 'openhuman.accessibility_request_permission',
+    method: 'eversilver.accessibility_request_permission',
     params: { permission },
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityStartSession(
+export async function eversilverAccessibilityStartSession(
   params: AccessibilityStartSessionParams
 ): Promise<CommandResponse<AccessibilitySessionStatus>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilitySessionStatus>>({
-    method: 'openhuman.accessibility_start_session',
+    method: 'eversilver.accessibility_start_session',
     params,
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityStopSession(
+export async function eversilverAccessibilityStopSession(
   params?: AccessibilityStopSessionParams
 ): Promise<CommandResponse<AccessibilitySessionStatus>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilitySessionStatus>>({
-    method: 'openhuman.accessibility_stop_session',
+    method: 'eversilver.accessibility_stop_session',
     params: params ?? {},
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityCaptureNow(): Promise<
+export async function eversilverAccessibilityCaptureNow(): Promise<
   CommandResponse<AccessibilityCaptureNowResult>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityCaptureNowResult>>({
-    method: 'openhuman.accessibility_capture_now',
+    method: 'eversilver.accessibility_capture_now',
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityInputAction(
+export async function eversilverAccessibilityInputAction(
   params: AccessibilityInputActionParams
 ): Promise<CommandResponse<AccessibilityInputActionResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityInputActionResult>>({
-    method: 'openhuman.accessibility_input_action',
+    method: 'eversilver.accessibility_input_action',
     params,
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityAutocompleteSuggest(
+export async function eversilverAccessibilityAutocompleteSuggest(
   params?: AccessibilityAutocompleteSuggestParams
 ): Promise<CommandResponse<AccessibilityAutocompleteSuggestResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityAutocompleteSuggestResult>>({
-    method: 'openhuman.accessibility_autocomplete_suggest',
+    method: 'eversilver.accessibility_autocomplete_suggest',
     params: params ?? {},
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityAutocompleteCommit(
+export async function eversilverAccessibilityAutocompleteCommit(
   params: AccessibilityAutocompleteCommitParams
 ): Promise<CommandResponse<AccessibilityAutocompleteCommitResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityAutocompleteCommitResult>>({
-    method: 'openhuman.accessibility_autocomplete_commit',
+    method: 'eversilver.accessibility_autocomplete_commit',
     params,
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityVisionRecent(
+export async function eversilverAccessibilityVisionRecent(
   limit?: number
 ): Promise<CommandResponse<AccessibilityVisionRecentResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityVisionRecentResult>>({
-    method: 'openhuman.accessibility_vision_recent',
+    method: 'eversilver.accessibility_vision_recent',
     params: { limit },
     serviceManaged: true,
   });
 }
 
-export async function openhumanAccessibilityVisionFlush(): Promise<
+export async function eversilverAccessibilityVisionFlush(): Promise<
   CommandResponse<AccessibilityVisionFlushResult>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AccessibilityVisionFlushResult>>({
-    method: 'openhuman.accessibility_vision_flush',
+    method: 'eversilver.accessibility_vision_flush',
     serviceManaged: true,
   });
 }
 
-export async function openhumanScreenIntelligenceCaptureTest(): Promise<
+export async function eversilverScreenIntelligenceCaptureTest(): Promise<
   CommandResponse<CaptureTestResult>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<CaptureTestResult>>({
-    method: 'openhuman.screen_intelligence_capture_test',
+    method: 'eversilver.screen_intelligence_capture_test',
     serviceManaged: true,
   });
 }

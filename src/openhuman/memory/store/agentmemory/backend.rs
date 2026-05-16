@@ -1,9 +1,9 @@
-//! `impl Memory for AgentMemoryBackend` — the hot path for OpenHuman <→
+//! `impl Memory for AgentMemoryBackend` — the hot path for Eversilver <→
 //! agentmemory traffic.
 //!
 //! The upstream agentmemory REST contract (endpoints, payloads, lifecycle
 //! semantics) lives at <https://github.com/rohitg00/agentmemory>. This
-//! module pins the OpenHuman-visible projection of that contract; the
+//! module pins the Eversilver-visible projection of that contract; the
 //! field-mapping table is in `mapping.rs` and the security guard is in
 //! `client.rs`.
 

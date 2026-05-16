@@ -156,7 +156,7 @@ pub async fn start_channels(config: Config) -> Result<()> {
 
     let provider_runtime_options = providers::ProviderRuntimeOptions {
         auth_profile_override: None,
-        openhuman_dir: config.config_path.parent().map(std::path::PathBuf::from),
+        eversilver_dir: config.config_path.parent().map(std::path::PathBuf::from),
         secrets_encrypt: config.secrets.encrypt,
         reasoning_enabled: config.runtime.reasoning_enabled,
     };
@@ -492,7 +492,7 @@ pub async fn start_channels(config: Config) -> Result<()> {
         return Ok(());
     }
 
-    println!("🦀 OpenHuman Channel Server");
+    println!("🦀 Eversilver Channel Server");
     println!("  🤖 Model:    {model}");
     let effective_backend = memory::effective_memory_backend_name(
         &config.memory.backend,

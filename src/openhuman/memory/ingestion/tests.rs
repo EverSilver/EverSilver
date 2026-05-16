@@ -36,7 +36,7 @@ async fn gmail_fixture_ingestion_recovers_required_signals() {
             document: NamespaceDocumentInput {
                 namespace: "skill-gmail".to_string(),
                 key: "gmail-thread-memory-integration".to_string(),
-                title: "Memory integration plan for OpenHuman desktop".to_string(),
+                title: "Memory integration plan for Eversilver desktop".to_string(),
                 content: fixture("gmail_thread_example.txt"),
                 source_type: "gmail".to_string(),
                 priority: "high".to_string(),
@@ -66,11 +66,11 @@ async fn gmail_fixture_ingestion_recovers_required_signals() {
     assert!(result
         .entities
         .iter()
-        .any(|entity| entity.name == "OPENHUMAN"));
+        .any(|entity| entity.name == "EVERSILVER"));
     assert!(result
         .relations
         .iter()
-        .any(|relation| relation.subject == "OPENHUMAN"
+        .any(|relation| relation.subject == "EVERSILVER"
             && relation.predicate == "USES"
             && relation.object.contains("JSON-RPC")));
     assert!(result
@@ -98,7 +98,7 @@ async fn gmail_fixture_ingestion_recovers_required_signals() {
     assert!(recall
         .hits
         .iter()
-        .any(|hit| hit.content.contains("OpenHuman") || hit.content.contains("JSON-RPC")));
+        .any(|hit| hit.content.contains("Eversilver") || hit.content.contains("JSON-RPC")));
     assert!(recall
         .hits
         .iter()
@@ -126,7 +126,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
             document: NamespaceDocumentInput {
                 namespace: "skill-notion".to_string(),
                 key: "notion-roadmap-memory-layer".to_string(),
-                title: "OpenHuman Memory Layer Roadmap".to_string(),
+                title: "Eversilver Memory Layer Roadmap".to_string(),
                 content: fixture("notion_page_example.txt"),
                 source_type: "notion".to_string(),
                 priority: "high".to_string(),
@@ -144,7 +144,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
     assert!(result
         .entities
         .iter()
-        .any(|entity| entity.name == "OPENHUMAN"));
+        .any(|entity| entity.name == "EVERSILVER"));
     assert!(result
         .entities
         .iter()
@@ -152,7 +152,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
     assert!(result
         .relations
         .iter()
-        .any(|relation| relation.subject == "OPENHUMAN"
+        .any(|relation| relation.subject == "EVERSILVER"
             && relation.predicate == "USES"
             && relation.object.contains("JSON-RPC")));
     assert!(result
@@ -168,7 +168,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
     assert!(result.decision_count >= 1);
 
     let graph_rows = memory
-        .graph_query_namespace("skill-notion", Some("OPENHUMAN"), Some("USES"))
+        .graph_query_namespace("skill-notion", Some("EVERSILVER"), Some("USES"))
         .await
         .unwrap();
     assert!(!graph_rows.is_empty());
@@ -195,7 +195,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
     assert!(recall
         .hits
         .iter()
-        .any(|hit| hit.content.contains("OpenHuman")));
+        .any(|hit| hit.content.contains("Eversilver")));
 
     let memories = memory
         .recall_namespace_memories("skill-notion", 5)
@@ -203,7 +203,7 @@ async fn notion_fixture_ingestion_recovers_required_signals() {
         .unwrap();
     assert!(memories
         .iter()
-        .any(|hit| hit.content.contains("OpenHuman") || hit.content.contains("core-first")));
+        .any(|hit| hit.content.contains("Eversilver") || hit.content.contains("core-first")));
     assert!(memories
         .iter()
         .any(|hit| matches!(hit.kind, crate::openhuman::memory::MemoryItemKind::Document)));

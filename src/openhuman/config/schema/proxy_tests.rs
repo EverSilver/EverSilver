@@ -49,9 +49,9 @@ fn parse_proxy_scope_accepts_known_aliases() {
     );
     assert_eq!(parse_proxy_scope("env"), Some(ProxyScope::Environment));
     assert_eq!(parse_proxy_scope("ENV"), Some(ProxyScope::Environment));
-    assert_eq!(parse_proxy_scope("openhuman"), Some(ProxyScope::OpenHuman));
-    assert_eq!(parse_proxy_scope("internal"), Some(ProxyScope::OpenHuman));
-    assert_eq!(parse_proxy_scope("core"), Some(ProxyScope::OpenHuman));
+    assert_eq!(parse_proxy_scope("openhuman"), Some(ProxyScope::Eversilver));
+    assert_eq!(parse_proxy_scope("internal"), Some(ProxyScope::Eversilver));
+    assert_eq!(parse_proxy_scope("core"), Some(ProxyScope::Eversilver));
     assert_eq!(parse_proxy_scope("services"), Some(ProxyScope::Services));
     assert_eq!(parse_proxy_scope("service"), Some(ProxyScope::Services));
     assert_eq!(
@@ -272,11 +272,11 @@ fn should_apply_environment_scope_always_false() {
 }
 
 #[test]
-fn should_apply_openhuman_scope_always_true() {
+fn should_apply_eversilver_scope_always_true() {
     let c = ProxyConfig {
         enabled: true,
         http_proxy: Some("http://p:8080".into()),
-        scope: ProxyScope::OpenHuman,
+        scope: ProxyScope::Eversilver,
         ..Default::default()
     };
     assert!(c.should_apply_to_service("provider.openai"));
@@ -382,7 +382,7 @@ fn apply_to_reqwest_builder_applies_all_proxy() {
     let c = ProxyConfig {
         enabled: true,
         all_proxy: Some("http://proxy:8080".into()),
-        scope: ProxyScope::OpenHuman,
+        scope: ProxyScope::Eversilver,
         ..Default::default()
     };
     let builder = reqwest::Client::builder();
@@ -398,7 +398,7 @@ fn apply_to_reqwest_builder_applies_http_and_https_proxy() {
         enabled: true,
         http_proxy: Some("http://proxy:8080".into()),
         https_proxy: Some("http://proxy:8443".into()),
-        scope: ProxyScope::OpenHuman,
+        scope: ProxyScope::Eversilver,
         ..Default::default()
     };
     let builder = reqwest::Client::builder();

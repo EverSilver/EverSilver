@@ -21,7 +21,7 @@ use crate::cdp::CdpConn;
 
 use super::inject;
 
-/// Polling cadence for `__openhumanDrainCaptions`. Captions arrive at
+/// Polling cadence for `__eversilverDrainCaptions`. Captions arrive at
 /// roughly word-by-word frequency; 500 ms is the sweet spot between
 /// "responsive enough that wake-word detection feels live" and "not
 /// hammering the CDP socket".

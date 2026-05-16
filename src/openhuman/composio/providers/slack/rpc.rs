@@ -77,7 +77,7 @@ pub async fn sync_trigger_rpc(
 
     // Route through the mode-aware factory so direct-mode users
     // discover slack connections from THEIR personal Composio tenant —
-    // not the tinyhumans backend tenant. Mirrors `composio::ops`
+    // not the eversilver backend tenant. Mirrors `composio::ops`
     // (#1710).
     let connections = list_slack_connections(config).await?;
 
@@ -165,7 +165,7 @@ pub async fn sync_status_rpc(
         client_if_ready().ok_or_else(|| "[slack_ingest] memory client not ready".to_string())?;
 
     // Route through the mode-aware factory so direct-mode users see
-    // status rows for THEIR slack connections, not the tinyhumans
+    // status rows for THEIR slack connections, not the eversilver
     // backend tenant's (#1710).
     let connections = list_slack_connections(config).await?;
 

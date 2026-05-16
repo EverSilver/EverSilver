@@ -1,7 +1,7 @@
 //! # Memory Store
 //!
 //! This module provides the core storage abstractions and implementations for
-//! the OpenHuman memory system. It manages namespaces, documents, text chunks,
+//! the Eversilver memory system. It manages namespaces, documents, text chunks,
 //! vector embeddings, and graph relations.
 //!
 //! The memory system is designed to be pluggable, with the primary implementation

@@ -56,7 +56,7 @@ type WorkloadId =
 type WorkloadGroup = 'chat' | 'background';
 
 type ProviderRef =
-  | { kind: 'openhuman' }
+  | { kind: 'eversilver' }
   | { kind: 'cloud'; providerSlug: string; model: string }
   | { kind: 'local'; model: string };
 
@@ -71,7 +71,7 @@ type RoutingMap = Record<WorkloadId, ProviderRef>;
 // Slug-keyed display metadata for built-in provider slugs. Used only for
 // chip rendering (label, tone). Custom providers use `provider.label` directly.
 const BUILTIN_PROVIDER_META: Record<string, { tone: string; label: string }> = {
-  openhuman: { label: 'OpenHuman', tone: 'bg-primary-50 ring-primary-200 text-primary-900' },
+  eversilver: { label: 'Eversilver', tone: 'bg-primary-50 ring-primary-200 text-primary-900' },
   openai: { label: 'OpenAI', tone: 'bg-emerald-50 ring-emerald-200 text-emerald-900' },
   anthropic: { label: 'Anthropic', tone: 'bg-orange-50 ring-orange-200 text-orange-900' },
   openrouter: { label: 'OpenRouter', tone: 'bg-slate-100 ring-slate-300 text-slate-900' },
@@ -142,14 +142,14 @@ const WORKLOADS: Workload[] = [
 type AISettings = { cloudProviders: CloudProvider[]; routing: RoutingMap };
 
 const EMPTY_ROUTING: RoutingMap = {
-  reasoning: { kind: 'openhuman' },
-  agentic: { kind: 'openhuman' },
-  coding: { kind: 'openhuman' },
-  memory: { kind: 'openhuman' },
-  embeddings: { kind: 'openhuman' },
-  heartbeat: { kind: 'openhuman' },
-  learning: { kind: 'openhuman' },
-  subconscious: { kind: 'openhuman' },
+  reasoning: { kind: 'eversilver' },
+  agentic: { kind: 'eversilver' },
+  coding: { kind: 'eversilver' },
+  memory: { kind: 'eversilver' },
+  embeddings: { kind: 'eversilver' },
+  heartbeat: { kind: 'eversilver' },
+  learning: { kind: 'eversilver' },
+  subconscious: { kind: 'eversilver' },
 };
 
 const EMPTY_SETTINGS: AISettings = { cloudProviders: [], routing: EMPTY_ROUTING };
@@ -164,7 +164,7 @@ function maskKeyLabel(hasKey: boolean): string {
  * to bearer, matching the OpenAI-compatible majority.
  */
 function authStyleForSlug(slug: string): AuthStyle {
-  if (slug === 'openhuman') return 'openhuman_jwt';
+  if (slug === 'eversilver') return 'eversilver_jwt';
   if (slug === 'anthropic') return 'anthropic';
   if (slug === 'lmstudio' || slug === 'ollama') return 'none';
   return 'bearer';
@@ -526,11 +526,11 @@ const WorkloadRow = ({
   const selectedCloud =
     ref_.kind === 'cloud' ? cloudProviders.find(c => c.slug === ref_.providerSlug) : undefined;
 
-  const isDefault = ref_.kind === 'openhuman';
+  const isDefault = ref_.kind === 'eversilver';
 
   let resolved: string;
-  if (ref_.kind === 'openhuman') {
-    resolved = 'OpenHuman (default)';
+  if (ref_.kind === 'eversilver') {
+    resolved = 'Eversilver (default)';
   } else if (ref_.kind === 'cloud') {
     if (!selectedCloud) resolved = `${ref_.providerSlug} · ${ref_.model}`;
     else resolved = `${selectedCloud.label} · ${ref_.model}`;
@@ -558,7 +558,7 @@ const WorkloadRow = ({
       <div className="inline-flex shrink-0 items-center rounded-lg bg-stone-100 p-0.5">
         <button
           type="button"
-          onClick={() => onChange({ kind: 'openhuman' })}
+          onClick={() => onChange({ kind: 'eversilver' })}
           className={`${segmentBase} ${isDefault ? activeSegment : inactiveSegment}`}>
           Default
         </button>
@@ -599,9 +599,9 @@ const CustomRoutingDialog = ({
   onClose,
   onSubmit,
 }: CustomRoutingDialogProps) => {
-  // Non-openhuman cloud providers + local-ollama (if available) are the
-  // "Custom" options. OpenHuman is excluded — it's the Default path.
-  const customCloud = cloudProviders.filter(p => p.slug !== 'openhuman');
+  // Non-eversilver cloud providers + local-ollama (if available) are the
+  // "Custom" options. Eversilver is excluded — it's the Default path.
+  const customCloud = cloudProviders.filter(p => p.slug !== 'eversilver');
   const localAvailable = ollamaRunning && localModels.length > 0;
 
   const initialSource: CustomDialogSource | null =
@@ -837,8 +837,8 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
       const b = draft.routing[w.id];
       if (JSON.stringify(a) !== JSON.stringify(b)) {
         const describe = (r: ProviderRef) =>
-          r.kind === 'openhuman'
-            ? 'openhuman'
+          r.kind === 'eversilver'
+            ? 'eversilver'
             : r.kind === 'cloud'
               ? `${r.providerSlug}:${r.model}`
               : `local:${r.model}`;
@@ -871,7 +871,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
           <div className="border-b border-stone-200 pb-2">
             <h2 className="text-base font-semibold text-stone-900">LLM Providers</h2>
             <p className="text-xs text-stone-500 mt-0.5">
-              Connect the language-model backends you want OpenHuman to use. Toggle a provider on to
+              Connect the language-model backends you want Eversilver to use. Toggle a provider on to
               add its key; toggle off to disconnect.
             </p>
           </div>
@@ -908,7 +908,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
                           Object.entries(draft.routing).map(([wid, ref]) => [
                             wid,
                             ref.kind === 'cloud' && ref.providerSlug === existing.slug
-                              ? ({ kind: 'openhuman' } as const)
+                              ? ({ kind: 'eversilver' } as const)
                               : ref,
                           ])
                         ) as typeof draft.routing;
@@ -956,7 +956,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
                             Object.entries(draft.routing).map(([wid, ref]) => [
                               wid,
                               ref.kind === 'cloud' && ref.providerSlug === localKind
-                                ? ({ kind: 'openhuman' } as const)
+                                ? ({ kind: 'eversilver' } as const)
                                 : ref,
                             ])
                           ) as typeof draft.routing;
@@ -982,14 +982,14 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
 
         {/* ═══════════════════════════════════════════════════════════════
             ROUTING — which workload uses which model. Each row is a
-            binary toggle: Default (let OpenHuman pick) or Custom (opens
+            binary toggle: Default (let Eversilver pick) or Custom (opens
             a popup to choose provider + model).
             ═══════════════════════════════════════════════════════════════ */}
         <div className="space-y-4">
           <div className="border-b border-stone-200 pb-2">
             <h2 className="text-base font-semibold text-stone-900">Routing</h2>
             <p className="text-xs text-stone-500 mt-0.5">
-              Pick how each workload is served. Default uses OpenHuman; Custom lets you point a
+              Pick how each workload is served. Default uses Eversilver; Custom lets you point a
               workload at a specific provider and model.
             </p>
           </div>
@@ -1037,7 +1037,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
             </div>
 
             <div className="text-[11px] text-stone-500">
-              Default resolves to <span className="font-mono text-stone-700">OpenHuman</span>.
+              Default resolves to <span className="font-mono text-stone-700">Eversilver</span>.
             </div>
           </section>
         </div>
@@ -1075,7 +1075,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
               // Persist the credential BEFORE mutating draft, so a key-write
               // failure doesn't leave the config referencing a provider with
               // no stored key.
-              if (apiKey && upserted.slug !== 'openhuman') {
+              if (apiKey && upserted.slug !== 'eversilver') {
                 try {
                   await setCloudProviderKey(upserted.slug, apiKey);
                 } catch (err) {
@@ -1155,7 +1155,7 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
               };
               // Persist the credential BEFORE mutating draft, so a key-write
               // failure can't leave config + secrets out of sync.
-              if (!isLocalRuntime && slug !== 'openhuman') {
+              if (!isLocalRuntime && slug !== 'eversilver') {
                 try {
                   await setCloudProviderKey(slug, apiKey);
                 } catch (err) {
@@ -1207,7 +1207,7 @@ const CloudProviderEditor = ({
   const [endpoint, setEndpoint] = useState(initial?.endpoint ?? defaultEndpointFor(defaultSlug));
   const [apiKey, setApiKey] = useState('');
   const [saving, setSaving] = useState(false);
-  const isOpenHuman = slug === 'openhuman';
+  const isEversilver = slug === 'eversilver';
   const hasExistingKey = (initial?.maskedKey ?? '').startsWith('••••');
 
   return (
@@ -1265,12 +1265,12 @@ const CloudProviderEditor = ({
             <input
               value={endpoint}
               onChange={e => setEndpoint(e.target.value)}
-              disabled={isOpenHuman}
+              disabled={isEversilver}
               className="mt-1 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 font-mono text-xs text-stone-900 placeholder:text-stone-400 disabled:opacity-60 focus:border-primary-400 focus:outline-none focus:ring-1 focus:ring-primary-200"
               placeholder="https://api.example.com/v1"
             />
           </div>
-          {!isOpenHuman && (
+          {!isEversilver && (
             <div>
               <label className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wide text-stone-500">
                 <span>API key</span>
@@ -1330,8 +1330,8 @@ const CloudProviderEditor = ({
 
 function defaultEndpointFor(slug: string): string {
   switch (slug) {
-    case 'openhuman':
-      return 'https://api.openhuman.ai/v1';
+    case 'eversilver':
+      return 'https://api.eversilver.ai/v1';
     case 'openai':
       return 'https://api.openai.com/v1';
     case 'anthropic':

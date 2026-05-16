@@ -145,7 +145,7 @@ fn sanitizers_and_tool_call_helpers_cover_fallback_paths() {
 
 #[tokio::test]
 async fn run_single_preserves_typed_max_iterations_error_for_sentry_skip() {
-    // OPENHUMAN-TAURI-99 regression guard: when the agent hits its tool
+    // EVERSILVER-TAURI-99 regression guard: when the agent hits its tool
     // iteration cap, `run_single` MUST surface the typed
     // `AgentError::MaxIterationsExceeded` variant so the call site can
     // downcast and skip `report_error`. If the error reaches the funnel as

@@ -7,12 +7,12 @@ pub(crate) const DEFAULT_OLLAMA_BASE_URL: &str = "http://localhost:11434";
 /// Returns the effective Ollama base URL.
 ///
 /// Priority (highest to lowest):
-/// 1. `OPENHUMAN_OLLAMA_BASE_URL` — app-specific override, used in tests.
+/// 1. `EVERSILVER_OLLAMA_BASE_URL` — app-specific override, used in tests.
 /// 2. `OLLAMA_HOST` — Ollama's own env var; normalized to a full URL by
 ///    prepending `http://` when no scheme is present.
 /// 3. [`DEFAULT_OLLAMA_BASE_URL`] — `http://localhost:11434`.
 pub(crate) fn ollama_base_url() -> String {
-    if let Ok(url) = std::env::var("OPENHUMAN_OLLAMA_BASE_URL") {
+    if let Ok(url) = std::env::var("EVERSILVER_OLLAMA_BASE_URL") {
         let trimmed = url.trim();
         if !trimmed.is_empty() {
             return trimmed.trim_end_matches('/').to_string();
@@ -284,12 +284,12 @@ mod tests {
 
     // ── ollama_base_url env-override behaviour ───────────────────────
     //
-    // These tests mutate the process-global `OPENHUMAN_OLLAMA_BASE_URL`
+    // These tests mutate the process-global `EVERSILVER_OLLAMA_BASE_URL`
     // variable, so they coordinate with the shared `LOCAL_AI_TEST_MUTEX`
     // used by `public_infer.rs` tests to prevent interleaved set/remove
     // calls from other tests in the same binary.
 
-    const ENV_VAR: &str = "OPENHUMAN_OLLAMA_BASE_URL";
+    const ENV_VAR: &str = "EVERSILVER_OLLAMA_BASE_URL";
     const OLLAMA_HOST_VAR: &str = "OLLAMA_HOST";
 
     struct OllamaEnvGuard {
@@ -386,7 +386,7 @@ mod tests {
     }
 
     #[test]
-    fn ollama_base_url_uses_ollama_host_when_openhuman_var_unset() {
+    fn ollama_base_url_uses_ollama_host_when_eversilver_var_unset() {
         let _lock = test_lock();
         let _g1 = OllamaEnvGuard::clear();
         let _g2 = OllamaEnvGuard::set_var(OLLAMA_HOST_VAR, "192.168.1.5:11434");
@@ -410,7 +410,7 @@ mod tests {
     }
 
     #[test]
-    fn ollama_base_url_openhuman_var_takes_priority_over_ollama_host() {
+    fn ollama_base_url_eversilver_var_takes_priority_over_ollama_host() {
         let _lock = test_lock();
         let _g1 = OllamaEnvGuard::set("http://127.0.0.1:55555");
         let _g2 = OllamaEnvGuard::set_var(OLLAMA_HOST_VAR, "192.168.1.5:11434");

@@ -61,19 +61,19 @@ until the migration completes.
 
 ## Calls into
 
-- `src/openhuman/local_ai/` — embedding model, sentiment scoring, extraction LLM.
-- `src/openhuman/embeddings/` — vector backend selection.
-- `src/openhuman/config/` — memory backend choice + filesystem paths.
-- `src/openhuman/encryption/` — at-rest secrets for KV namespaces.
+- `src/eversilver/local_ai/` — embedding model, sentiment scoring, extraction LLM.
+- `src/eversilver/embeddings/` — vector backend selection.
+- `src/eversilver/config/` — memory backend choice + filesystem paths.
+- `src/eversilver/encryption/` — at-rest secrets for KV namespaces.
 - `src/core/event_bus/` — emits `DomainEvent::Memory(*)` on ingestion / mutation.
 
 ## Called by
 
-- `src/openhuman/agent/` (`memory_loader.rs`, `harness/memory_context.rs`, `harness/archivist*.rs`, `harness/fork_context.rs`) — context injection and episodic indexing.
-- `src/openhuman/learning/{reflection,tool_tracker,user_profile,prompt_sections}.rs` — long-term insight storage.
-- `src/openhuman/screen_intelligence/{helpers,tests}.rs` — recall surfaces for visual context.
-- `src/openhuman/autocomplete/history.rs` — query-history recall.
-- `src/openhuman/tools/ops.rs` and `tools/impl/system/tool_stats.rs` — memory-backed tool stats.
+- `src/eversilver/agent/` (`memory_loader.rs`, `harness/memory_context.rs`, `harness/archivist*.rs`, `harness/fork_context.rs`) — context injection and episodic indexing.
+- `src/eversilver/learning/{reflection,tool_tracker,user_profile,prompt_sections}.rs` — long-term insight storage.
+- `src/eversilver/screen_intelligence/{helpers,tests}.rs` — recall surfaces for visual context.
+- `src/eversilver/autocomplete/history.rs` — query-history recall.
+- `src/eversilver/tools/ops.rs` and `tools/impl/system/tool_stats.rs` — memory-backed tool stats.
 - `src/core/all.rs` — registers `all_memory_*` controllers.
 
 ## Tests

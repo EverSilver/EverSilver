@@ -29,7 +29,7 @@ const MAX_LIST_LIMIT: usize = 10_000;
 // comfortably above realistic peer-write durations and shrinks the rate
 // at which we have to fall back to that path. The previous 5s was tight
 // enough on contended Windows hosts that we were observing avoidable
-// busy returns (see OPENHUMAN-TAURI-BP).
+// busy returns (see EVERSILVER-TAURI-BP).
 const SQLITE_BUSY_TIMEOUT: Duration = Duration::from_secs(15);
 
 /// Chunk lifecycle: freshly persisted, awaiting the async extract job.

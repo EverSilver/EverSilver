@@ -1,6 +1,6 @@
 # Contributor Rewards Automation
 
-OpenHuman uses `.github/workflows/contributor-rewards.yml` to invite eligible
+Eversilver uses `.github/workflows/contributor-rewards.yml` to invite eligible
 contributors into the Discord and merch reward flow.
 
 ## Triggers
@@ -23,7 +23,7 @@ The workflow creates these labels if they do not already exist:
 Each reward comment includes a hidden marker scoped to the GitHub login:
 
 ```html
-<!-- openhuman-contributor-reward:user=<login> -->
+<!-- eversilver-contributor-reward:user=<login> -->
 ```
 
 Automatic first-merged-PR rewards are skipped when the same login already has a
@@ -40,7 +40,7 @@ Configure these repository variables under
 
 | Variable                         | Required | Purpose                                                                  |
 | -------------------------------- | -------- | ------------------------------------------------------------------------ |
-| `CONTRIBUTOR_REWARD_DISCORD_URL` | No       | Public Discord invite URL. Defaults to `https://discord.tinyhumans.ai/`. |
+| `CONTRIBUTOR_REWARD_DISCORD_URL` | No       | Public Discord invite URL. Defaults to `https://discord.eversilver.local/`. |
 | `CONTRIBUTOR_REWARD_MERCH_URL`   | No       | Public merch claim or redemption URL included in the comment.            |
 | `CONTRIBUTOR_REWARD_MESSAGE`     | No       | Full custom comment body. Supports tokens listed below.                  |
 

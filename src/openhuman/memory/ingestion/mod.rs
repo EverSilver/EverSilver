@@ -1,4 +1,4 @@
-//! Document ingestion and knowledge extraction for the OpenHuman memory system.
+//! Document ingestion and knowledge extraction for the Eversilver memory system.
 //!
 //! This module provides the pipeline for taking raw unstructured text and
 //! transforming it into structured memory. The process includes:

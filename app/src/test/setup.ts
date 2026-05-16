@@ -128,21 +128,21 @@ vi.mock('../utils/tauriCommands', () => ({
   getAuthState: vi.fn().mockResolvedValue({ is_authenticated: false }),
   logout: vi.fn().mockResolvedValue(undefined),
   syncMemoryClientToken: vi.fn().mockResolvedValue(undefined),
-  openhumanServiceInstall: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
-  openhumanServiceStart: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
-  openhumanServiceStop: vi.fn().mockResolvedValue({ result: { state: 'Stopped' }, logs: [] }),
-  openhumanServiceStatus: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
-  openhumanServiceUninstall: vi
+  eversilverServiceInstall: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
+  eversilverServiceStart: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
+  eversilverServiceStop: vi.fn().mockResolvedValue({ result: { state: 'Stopped' }, logs: [] }),
+  eversilverServiceStatus: vi.fn().mockResolvedValue({ result: { state: 'Running' }, logs: [] }),
+  eversilverServiceUninstall: vi
     .fn()
     .mockResolvedValue({ result: { state: 'NotInstalled' }, logs: [] }),
-  openhumanAgentServerStatus: vi.fn().mockResolvedValue({ result: { running: true }, logs: [] }),
-  openhumanUpdateMeetSettings: vi
+  eversilverAgentServerStatus: vi.fn().mockResolvedValue({ result: { running: true }, logs: [] }),
+  eversilverUpdateMeetSettings: vi
     .fn()
     .mockResolvedValue({
       result: { config: {}, workspace_dir: '/tmp', config_path: '/tmp/cfg.toml' },
       logs: [],
     }),
-  openhumanGetMeetSettings: vi
+  eversilverGetMeetSettings: vi
     .fn()
     .mockResolvedValue({ result: { auto_orchestrator_handoff: false }, logs: [] }),
   exchangeToken: vi.fn(),
@@ -162,8 +162,8 @@ vi.mock('../utils/config', () => ({
   SKILLS_GITHUB_REPO: 'test/skills',
   SENTRY_DSN: undefined,
   BACKEND_URL: mockApiUrl,
-  TELEGRAM_BOT_USERNAME: 'openhuman_bot',
-  LATEST_APP_DOWNLOAD_URL: 'https://github.com/tinyhumansai/openhuman/releases/latest',
+  TELEGRAM_BOT_USERNAME: 'eversilver_bot',
+  LATEST_APP_DOWNLOAD_URL: 'https://github.com/eversilver/eversilver/releases/latest',
   APP_VERSION: '0.0.0-test',
   DEV_JWT_TOKEN: undefined,
   MASCOT_VOICE_ID: 'ljX1ZrXuDIIRVcmiVSyR',

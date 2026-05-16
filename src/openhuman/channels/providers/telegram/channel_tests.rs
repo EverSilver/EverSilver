@@ -238,7 +238,7 @@ fn telegram_extract_bind_code_plain_command() {
 #[test]
 fn telegram_extract_bind_code_supports_bot_mention() {
     assert_eq!(
-        TelegramChannel::extract_bind_code("/bind@openhuman_bot 654321"),
+        TelegramChannel::extract_bind_code("/bind@eversilver_bot 654321"),
         Some("654321")
     );
 }

@@ -15,20 +15,20 @@ import {
   type LocalAiSpeechResult,
   type LocalAiStatus,
   type LocalAiTtsResult,
-  openhumanLocalAiAssetsStatus,
-  openhumanLocalAiDiagnostics,
-  openhumanLocalAiDownload,
-  openhumanLocalAiDownloadAllAssets,
-  openhumanLocalAiDownloadAsset,
-  openhumanLocalAiDownloadsProgress,
-  openhumanLocalAiEmbed,
-  openhumanLocalAiPrompt,
-  openhumanLocalAiSetOllamaPath,
-  openhumanLocalAiStatus,
-  openhumanLocalAiSummarize,
-  openhumanLocalAiTranscribe,
-  openhumanLocalAiTts,
-  openhumanLocalAiVisionPrompt,
+  eversilverLocalAiAssetsStatus,
+  eversilverLocalAiDiagnostics,
+  eversilverLocalAiDownload,
+  eversilverLocalAiDownloadAllAssets,
+  eversilverLocalAiDownloadAsset,
+  eversilverLocalAiDownloadsProgress,
+  eversilverLocalAiEmbed,
+  eversilverLocalAiPrompt,
+  eversilverLocalAiSetOllamaPath,
+  eversilverLocalAiStatus,
+  eversilverLocalAiSummarize,
+  eversilverLocalAiTranscribe,
+  eversilverLocalAiTts,
+  eversilverLocalAiVisionPrompt,
 } from '../../../utils/tauriCommands';
 import SettingsHeader from '../components/SettingsHeader';
 import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
@@ -132,9 +132,9 @@ const LocalModelDebugPanel = () => {
   const loadStatus = async () => {
     try {
       const [statusResponse, assetsResponse, downloadsResponse] = await Promise.all([
-        openhumanLocalAiStatus(),
-        openhumanLocalAiAssetsStatus(),
-        openhumanLocalAiDownloadsProgress(),
+        eversilverLocalAiStatus(),
+        eversilverLocalAiAssetsStatus(),
+        eversilverLocalAiDownloadsProgress(),
       ]);
       setStatus(statusResponse.result);
       setAssets(assetsResponse.result);
@@ -164,9 +164,9 @@ const LocalModelDebugPanel = () => {
     setStatusError('');
     setBootstrapMessage('');
     try {
-      await openhumanLocalAiDownload(force);
-      await openhumanLocalAiDownloadAllAssets(force);
-      const freshStatus = await openhumanLocalAiStatus();
+      await eversilverLocalAiDownload(force);
+      await eversilverLocalAiDownloadAllAssets(force);
+      const freshStatus = await eversilverLocalAiStatus();
       setStatus(freshStatus.result);
       if (freshStatus.result?.state === 'ready') {
         setBootstrapMessage(force ? 'Re-bootstrap complete' : 'Models verified');
@@ -187,7 +187,7 @@ const LocalModelDebugPanel = () => {
     setSummaryOutput('');
     setStatusError('');
     try {
-      const result = await openhumanLocalAiSummarize(summaryInput.trim(), 220);
+      const result = await eversilverLocalAiSummarize(summaryInput.trim(), 220);
       setSummaryOutput(result.result);
       await loadStatus();
     } catch (err) {
@@ -203,7 +203,7 @@ const LocalModelDebugPanel = () => {
     setPromptOutput('');
     setPromptError('');
     try {
-      const result = await openhumanLocalAiPrompt(promptInput.trim(), 180, promptNoThink);
+      const result = await eversilverLocalAiPrompt(promptInput.trim(), 180, promptNoThink);
       setPromptOutput(result.result);
       await loadStatus();
     } catch (err) {
@@ -223,7 +223,7 @@ const LocalModelDebugPanel = () => {
         .split('\n')
         .map(v => v.trim())
         .filter(Boolean);
-      const result = await openhumanLocalAiVisionPrompt(visionPromptInput.trim(), imageRefs, 220);
+      const result = await eversilverLocalAiVisionPrompt(visionPromptInput.trim(), imageRefs, 220);
       setVisionOutput(result.result);
       await loadStatus();
     } catch (err) {
@@ -243,7 +243,7 @@ const LocalModelDebugPanel = () => {
         .split('\n')
         .map(v => v.trim())
         .filter(Boolean);
-      const result = await openhumanLocalAiEmbed(inputs);
+      const result = await eversilverLocalAiEmbed(inputs);
       setEmbeddingOutput(result.result);
       await loadStatus();
     } catch (err) {
@@ -259,7 +259,7 @@ const LocalModelDebugPanel = () => {
     setTranscribeOutput(null);
     setStatusError('');
     try {
-      const result = await openhumanLocalAiTranscribe(audioPathInput.trim());
+      const result = await eversilverLocalAiTranscribe(audioPathInput.trim());
       setTranscribeOutput(result.result);
       await loadStatus();
     } catch (err) {
@@ -275,7 +275,7 @@ const LocalModelDebugPanel = () => {
     setTtsOutput(null);
     setStatusError('');
     try {
-      const result = await openhumanLocalAiTts(
+      const result = await eversilverLocalAiTts(
         ttsInput.trim(),
         ttsOutputPath.trim() ? ttsOutputPath.trim() : undefined
       );
@@ -295,7 +295,7 @@ const LocalModelDebugPanel = () => {
     setAssetDownloadBusy(prev => ({ ...prev, [capability]: true }));
     setStatusError('');
     try {
-      const result = await openhumanLocalAiDownloadAsset(capability);
+      const result = await eversilverLocalAiDownloadAsset(capability);
       setAssets(result.result);
       await loadStatus();
     } catch (err) {
@@ -309,7 +309,7 @@ const LocalModelDebugPanel = () => {
     setIsSettingPath(true);
     setStatusError('');
     try {
-      await openhumanLocalAiSetOllamaPath(ollamaPathInput);
+      await eversilverLocalAiSetOllamaPath(ollamaPathInput);
       await loadStatus();
     } catch (err) {
       setStatusError(err instanceof Error ? err.message : 'Failed to set Ollama path');
@@ -322,7 +322,7 @@ const LocalModelDebugPanel = () => {
     setOllamaPathInput('');
     setIsSettingPath(true);
     try {
-      await openhumanLocalAiSetOllamaPath('');
+      await eversilverLocalAiSetOllamaPath('');
       await loadStatus();
     } catch (err) {
       setStatusError(err instanceof Error ? err.message : 'Failed to clear Ollama path');
@@ -335,7 +335,7 @@ const LocalModelDebugPanel = () => {
     setIsDiagnosticsLoading(true);
     setDiagnosticsError('');
     try {
-      const result = await openhumanLocalAiDiagnostics();
+      const result = await eversilverLocalAiDiagnostics();
       setDiagnostics(result);
     } catch (err) {
       setDiagnosticsError(err instanceof Error ? err.message : 'Diagnostics failed');

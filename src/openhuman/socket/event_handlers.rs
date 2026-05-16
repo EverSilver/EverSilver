@@ -350,7 +350,7 @@ mod tests {
     #[test]
     fn handle_sio_event_debug_truncation_respects_utf8_boundary() {
         // Serialized JSON must be >= 500 bytes with a multi-byte codepoint
-        // straddling byte 500 — mirrors OPENHUMAN-TAURI-KC (Cyrillic at 499..501).
+        // straddling byte 500 — mirrors EVERSILVER-TAURI-KC (Cyrillic at 499..501).
         let inner = format!("{}н", "a".repeat(498));
         let payload_json = serde_json::Value::String(inner.clone()).to_string();
         assert!(
@@ -438,7 +438,7 @@ mod tests {
         emit_via_channel(&tx, "ping", json!({}));
     }
 
-    // Regression: OPENHUMAN-TAURI-KC (#1814). A multi-byte UTF-8 char
+    // Regression: EVERSILVER-TAURI-KC (#1814). A multi-byte UTF-8 char
     // straddling byte 500 of `data.to_string()` used to panic the debug-log
     // truncator with `byte index 500 is not a char boundary`, killing the
     // core thread on every receipt of such an event.

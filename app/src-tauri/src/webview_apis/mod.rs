@@ -30,12 +30,12 @@
 //! The server always binds `127.0.0.1:0` and lets the OS pick an
 //! ephemeral port. The resolved port is exposed via [`resolved_port`]
 //! and pushed into the core sidecar's environment as
-//! `OPENHUMAN_WEBVIEW_APIS_PORT` by `core_process::spawn_core` so the
+//! `EVERSILVER_WEBVIEW_APIS_PORT` by `core_process::spawn_core` so the
 //! client side can find it.
 //!
-//! `OPENHUMAN_WEBVIEW_APIS_PORT` is an **output** of the bridge — it is
+//! `EVERSILVER_WEBVIEW_APIS_PORT` is an **output** of the bridge — it is
 //! intentionally never read as input. Honouring a pre-existing value
-//! was the cause of Sentry OPENHUMAN-TAURI-82 on Windows: a stale env
+//! was the cause of Sentry EVERSILVER-TAURI-82 on Windows: a stale env
 //! value left over from a prior run (or inherited from a parent
 //! process) led the next launch to re-bind the exact same port and
 //! fail with WSAEADDRINUSE (`os error 10048`).

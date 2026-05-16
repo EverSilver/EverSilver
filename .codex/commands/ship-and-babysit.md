@@ -1,13 +1,13 @@
 ---
-description: Commit, push to origin (fork), open PR to tinyhumansai/openhuman:main, then poll every ~5min for CodeRabbit comments and CI failures, resolve them, and exit when clean.
+description: Commit, push to origin (fork), open PR to eversilver/eversilver:main, then poll every ~5min for CodeRabbit comments and CI failures, resolve them, and exit when clean.
 ---
 
-You are running an end-to-end ship-and-babysit flow for the **openhuman** repo. Follow these phases in order. Be concise in user-facing text.
+You are running an end-to-end ship-and-babysit flow for the **eversilver** repo. Follow these phases in order. Be concise in user-facing text.
 
 Repo facts:
-- Upstream: `tinyhumansai/openhuman`. PRs target `main`.
+- Upstream: `eversilver/eversilver`. PRs target `main`.
 - Push branches to `origin` (the user's fork). Treat `upstream` as fetch-only.
-- PRs are opened with `--head <fork-owner>:<branch>` against `tinyhumansai/openhuman:main`.
+- PRs are opened with `--head <fork-owner>:<branch>` against `eversilver/eversilver:main`.
 - PR template: `.github/PULL_REQUEST_TEMPLATE.md`.
 
 Resolve the fork owner once at the start and reuse it:
@@ -16,7 +16,7 @@ Resolve the fork owner once at the start and reuse it:
 FORK_OWNER=$(git remote get-url origin | sed -E 's#.*[:/]([^/]+)/[^/]+(\.git)?$#\1#')
 ```
 
-If `origin` resolves to `tinyhumansai`, stop and ask the user to add a fork remote. Never push branches to the upstream repo.
+If `origin` resolves to `eversilver`, stop and ask the user to add a fork remote. Never push branches to the upstream repo.
 
 ## Phase 1 — Commit
 
@@ -33,11 +33,11 @@ If `origin` resolves to `tinyhumansai`, stop and ask the user to add a fork remo
 
 ## Phase 3 — Open PR
 
-1. Verify `upstream` points at `tinyhumansai/openhuman`.
+1. Verify `upstream` points at `eversilver/eversilver`.
 2. Check whether a PR already exists for this branch:
 
 ```bash
-gh pr list --repo tinyhumansai/openhuman --head <fork-owner>:<branch> --state open --json number,url
+gh pr list --repo eversilver/eversilver --head <fork-owner>:<branch> --state open --json number,url
 ```
 
 3. If no PR exists, write a title and a body that follows `.github/PULL_REQUEST_TEMPLATE.md` exactly. Inspect `git log main..HEAD` and `git diff main...HEAD` first.
@@ -51,15 +51,15 @@ Repeat until the PR is clean:
 1. Check CI:
 
 ```bash
-gh pr checks <PR#> --repo tinyhumansai/openhuman --json name,state,link,description
+gh pr checks <PR#> --repo eversilver/eversilver --json name,state,link,description
 ```
 
-2. If an Actions-backed check fails, fetch failed logs with `gh run view <run-id> --log-failed --repo tinyhumansai/openhuman`, fix the issue, commit, and push.
+2. If an Actions-backed check fails, fetch failed logs with `gh run view <run-id> --log-failed --repo eversilver/eversilver`, fix the issue, commit, and push.
 3. Check CodeRabbit PR review comments and issue comments:
 
 ```bash
-gh api repos/tinyhumansai/openhuman/pulls/<PR#>/comments --paginate
-gh api repos/tinyhumansai/openhuman/issues/<PR#>/comments --paginate
+gh api repos/eversilver/eversilver/pulls/<PR#>/comments --paginate
+gh api repos/eversilver/eversilver/issues/<PR#>/comments --paginate
 ```
 
 4. Apply correct in-scope suggestions. If a suggestion is wrong or out of scope, reply in-thread with a short dismissal reason before resolving it.

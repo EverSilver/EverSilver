@@ -1,4 +1,4 @@
-// OpenHuman captions bridge for the embedded Google Meet webview.
+// Eversilver captions bridge for the embedded Google Meet webview.
 //
 // Companion to `audio_bridge.js`. Where the audio bridge handles the
 // SPEAK direction (synthesized PCM → MediaStream the page hands to its
@@ -13,8 +13,8 @@
 //     observer's notify window).
 //   - Maintain a queue of new caption lines, deduped by speaker+text.
 //     Each entry: { speaker, text, ts }.
-//   - Expose `window.__openhumanDrainCaptions()` and
-//     `__openhumanCaptionsBridgeInfo()` for the Tauri shell to drive
+//   - Expose `window.__eversilverDrainCaptions()` and
+//     `__eversilverCaptionsBridgeInfo()` for the Tauri shell to drive
 //     over CDP `Runtime.evaluate`.
 //
 // Why scraping (and not getDisplayMedia, or Web Speech, or Meet's
@@ -27,15 +27,15 @@
 //     obfuscate often, so we lean on `aria-label="Captions"` (which
 //     Meet keeps stable for accessibility).
 //
-// Wake-word handling lives in the core (`src/openhuman/meet_agent/`),
+// Wake-word handling lives in the core (`src/eversilver/meet_agent/`),
 // not here — the page just streams every caption line out and core
 // decides when to act.
 
 (function () {
-  if (window.__openhumanCaptionsBridgeInstalled) {
+  if (window.__eversilverCaptionsBridgeInstalled) {
     return;
   }
-  window.__openhumanCaptionsBridgeInstalled = true;
+  window.__eversilverCaptionsBridgeInstalled = true;
 
   var queue = [];
   // Per-speaker last-text fingerprint so a caption that grows in place
@@ -125,8 +125,8 @@
   //      observer-attach time.
   function attachObserver() {
     var region = findCaptionsRegion();
-    if (!region || region.__openhumanObserverAttached) return false;
-    region.__openhumanObserverAttached = true;
+    if (!region || region.__eversilverObserverAttached) return false;
+    region.__eversilverObserverAttached = true;
     var obs = new MutationObserver(function () {
       pollOnce();
     });
@@ -168,13 +168,13 @@
   setInterval(tryEnableCaptions, 2000);
 
   // Public API consumed by the Tauri shell over CDP Runtime.evaluate.
-  window.__openhumanDrainCaptions = function () {
+  window.__eversilverDrainCaptions = function () {
     var out = queue.slice();
     queue.length = 0;
     return out;
   };
 
-  window.__openhumanCaptionsBridgeInfo = function () {
+  window.__eversilverCaptionsBridgeInfo = function () {
     return {
       installed: true,
       region_found: !!findCaptionsRegion(),

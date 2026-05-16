@@ -13,42 +13,42 @@ describe('rpcMethods catalog', () => {
     });
 
     test('transforms auth methods by replacing dots with underscores', () => {
-      expect(normalizeRpcMethod('openhuman.auth.login')).toBe('openhuman.auth_login');
-      expect(normalizeRpcMethod('openhuman.auth.get.state')).toBe('openhuman.auth_get_state');
-      expect(normalizeRpcMethod('openhuman.auth.a.b.c')).toBe('openhuman.auth_a_b_c');
+      expect(normalizeRpcMethod('eversilver.auth.login')).toBe('eversilver.auth_login');
+      expect(normalizeRpcMethod('eversilver.auth.get.state')).toBe('eversilver.auth_get_state');
+      expect(normalizeRpcMethod('eversilver.auth.a.b.c')).toBe('eversilver.auth_a_b_c');
     });
 
     test('transforms accessibility prefix to screen_intelligence prefix', () => {
-      expect(normalizeRpcMethod('openhuman.accessibility_status')).toBe(
-        'openhuman.screen_intelligence_status'
+      expect(normalizeRpcMethod('eversilver.accessibility_status')).toBe(
+        'eversilver.screen_intelligence_status'
       );
-      expect(normalizeRpcMethod('openhuman.accessibility_enable')).toBe(
-        'openhuman.screen_intelligence_enable'
+      expect(normalizeRpcMethod('eversilver.accessibility_enable')).toBe(
+        'eversilver.screen_intelligence_enable'
       );
     });
 
     test('returns unmapped or unrecognized methods unchanged', () => {
-      expect(normalizeRpcMethod('openhuman.threads_list')).toBe('openhuman.threads_list');
-      expect(normalizeRpcMethod('openhuman.unknown_method')).toBe('openhuman.unknown_method');
+      expect(normalizeRpcMethod('eversilver.threads_list')).toBe('eversilver.threads_list');
+      expect(normalizeRpcMethod('eversilver.unknown_method')).toBe('eversilver.unknown_method');
       expect(normalizeRpcMethod('')).toBe('');
       expect(normalizeRpcMethod('random_string')).toBe('random_string');
     });
 
     test('trims whitespace and converts to lower case', () => {
-      expect(normalizeRpcMethod('  OpenHuman.Auth.Login  ')).toBe('openhuman.auth_login');
-      expect(normalizeRpcMethod('  OPENHUMAN.GET_CONFIG ')).toBe(CORE_RPC_METHODS.configGet);
-      expect(normalizeRpcMethod('OpenHuman.Accessibility_Status  ')).toBe(
-        'openhuman.screen_intelligence_status'
+      expect(normalizeRpcMethod('  Eversilver.Auth.Login  ')).toBe('eversilver.auth_login');
+      expect(normalizeRpcMethod('  EVERSILVER.GET_CONFIG ')).toBe(CORE_RPC_METHODS.configGet);
+      expect(normalizeRpcMethod('Eversilver.Accessibility_Status  ')).toBe(
+        'eversilver.screen_intelligence_status'
       );
       expect(normalizeRpcMethod('   some_RANDOM_method  ')).toBe('some_random_method');
     });
   });
 
   test('legacy aliases point at canonical method values', () => {
-    expect(LEGACY_METHOD_ALIASES['openhuman.update_model_settings']).toBe(
+    expect(LEGACY_METHOD_ALIASES['eversilver.update_model_settings']).toBe(
       CORE_RPC_METHODS.configUpdateModelSettings
     );
-    expect(LEGACY_METHOD_ALIASES['openhuman.workspace_onboarding_flag_set']).toBe(
+    expect(LEGACY_METHOD_ALIASES['eversilver.workspace_onboarding_flag_set']).toBe(
       CORE_RPC_METHODS.configWorkspaceOnboardingFlagSet
     );
   });
@@ -56,23 +56,23 @@ describe('rpcMethods catalog', () => {
   test('catalog canonical methods exist in core schema registry (drift guard)', () => {
     const schemaSources = [
       fs.readFileSync(
-        path.resolve(__dirname, '../../../../src/openhuman/config/schemas.rs'),
+        path.resolve(__dirname, '../../../../src/eversilver/config/schemas.rs'),
         'utf8'
       ),
       fs.readFileSync(
-        path.resolve(__dirname, '../../../../src/openhuman/screen_intelligence/schemas.rs'),
+        path.resolve(__dirname, '../../../../src/eversilver/screen_intelligence/schemas.rs'),
         'utf8'
       ),
       fs.readFileSync(
-        path.resolve(__dirname, '../../../../src/openhuman/providers/schemas.rs'),
+        path.resolve(__dirname, '../../../../src/eversilver/providers/schemas.rs'),
         'utf8'
       ),
     ].join('\n');
 
     for (const method of Object.values(CORE_RPC_METHODS)) {
       // core.* methods (e.g. core.ping) are special dispatch methods, not in the schema catalog.
-      if (!method.startsWith('openhuman.')) continue;
-      const methodRoot = method.slice('openhuman.'.length);
+      if (!method.startsWith('eversilver.')) continue;
+      const methodRoot = method.slice('eversilver.'.length);
       const namespace = methodRoot.startsWith('screen_intelligence_')
         ? 'screen_intelligence'
         : methodRoot.startsWith('providers_')

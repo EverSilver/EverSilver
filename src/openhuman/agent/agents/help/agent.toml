@@ -1,7 +1,7 @@
 id = "help"
 display_name = "Help"
 delegate_name = "ask_docs"
-when_to_use = "Product help — answers questions about how OpenHuman works, what features exist, how to configure things, or where to find a guide. Reads the OpenHuman GitBook docs via the `gitbooks_*` tools. Use this for any 'how do I…' / 'what does X do' / 'where is the setting for…' question about OpenHuman itself, before guessing or making things up."
+when_to_use = "Product help — answers questions about how Eversilver works, what features exist, how to configure things, or where to find a guide. Reads the Eversilver GitBook docs via the `gitbooks_*` tools. Use this for any 'how do I…' / 'what does X do' / 'where is the setting for…' question about Eversilver itself, before guessing or making things up."
 temperature = 0.3
 max_iterations = 6
 sandbox_mode = "read_only"

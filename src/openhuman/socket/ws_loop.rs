@@ -44,7 +44,7 @@ const MAX_REDIRECT_HOPS: u8 = 3;
 /// Transient blips that recover within 4 attempts produce zero Sentry noise;
 /// sustained outages produce exactly one event per affected client.
 ///
-/// See OPENHUMAN-TAURI-8M — a single gateway 503 incident generated 549
+/// See EVERSILVER-TAURI-8M — a single gateway 503 incident generated 549
 /// Sentry events because every retry was logged at `error`.
 const FAIL_ESCALATE_THRESHOLD: u32 = 5;
 
@@ -178,12 +178,12 @@ fn log_connection_failure(consecutive: u32, reason: &str) {
     if consecutive == FAIL_ESCALATE_THRESHOLD {
         // Route the one-shot sustained-outage escalation through the
         // observability classifier so an offline user (no wifi / airplane mode
-        // / `Network is unreachable (os error 51)` — see OPENHUMAN-TAURI-BH)
+        // / `Network is unreachable (os error 51)` — see EVERSILVER-TAURI-BH)
         // does not page on every affected client. Sentry has no signal to act
         // on a user being offline — no status, no trace, no payload — so the
         // event was pure noise. Genuine outage shapes (gateway 5xx, malformed
         // handshake, …) don't match the classifier and still fire one Sentry
-        // event per affected client, preserving the OPENHUMAN-TAURI-8M intent.
+        // event per affected client, preserving the EVERSILVER-TAURI-8M intent.
         let detailed = format!(
             "[socket] Connection failed (sustained outage after {consecutive} attempts): {reason}"
         );

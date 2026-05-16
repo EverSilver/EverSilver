@@ -7,7 +7,7 @@
 //! ## Provider-string grammar
 //!
 //! ```text
-//! "openhuman"        → OpenHumanBackendProvider; model = config.default_model
+//! "openhuman"        → EversilverBackendProvider; model = config.default_model
 //! "ollama:<model>"   → local Ollama at config.local_ai.base_url
 //! "<slug>:<model>"   → cloud_providers entry keyed by slug;
 //!                      builds OpenAiCompatibleProvider (Bearer) or Anthropic
@@ -23,12 +23,12 @@ use crate::openhuman::credentials::AuthService;
 use crate::openhuman::providers::compatible::{
     AuthStyle as CompatAuthStyle, OpenAiCompatibleProvider,
 };
-use crate::openhuman::providers::openhuman_backend::OpenHumanBackendProvider;
+use crate::openhuman::providers::eversilver_backend::EversilverBackendProvider;
 use crate::openhuman::providers::traits::Provider;
 use crate::openhuman::providers::ProviderRuntimeOptions;
 
-/// Sentinel meaning "use the OpenHuman backend session JWT".
-pub const PROVIDER_OPENHUMAN: &str = "openhuman";
+/// Sentinel meaning "use the Eversilver backend session JWT".
+pub const PROVIDER_EVERSILVER: &str = "openhuman";
 /// Prefix for Ollama-local providers: `"ollama:<model>"`.
 pub const OLLAMA_PROVIDER_PREFIX: &str = "ollama:";
 
@@ -62,7 +62,7 @@ pub fn provider_for_role(role: &str, config: &Config) -> String {
     };
     let s = opt.unwrap_or("").trim();
     if s.is_empty() || s == "cloud" {
-        PROVIDER_OPENHUMAN.to_string()
+        PROVIDER_EVERSILVER.to_string()
     } else {
         s.to_string()
     }
@@ -97,13 +97,13 @@ pub fn create_chat_provider_from_string(
         p
     );
 
-    // Empty / legacy "cloud" sentinel → OpenHuman backend.
+    // Empty / legacy "cloud" sentinel → Eversilver backend.
     if p.is_empty() || p == "cloud" {
-        return make_openhuman_backend(config);
+        return make_eversilver_backend(config);
     }
 
-    if p == PROVIDER_OPENHUMAN {
-        return make_openhuman_backend(config);
+    if p == PROVIDER_EVERSILVER {
+        return make_eversilver_backend(config);
     }
 
     if let Some(model) = p.strip_prefix(OLLAMA_PROVIDER_PREFIX) {
@@ -154,8 +154,8 @@ pub fn create_chat_provider_from_string(
 
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
-/// Build the OpenHuman backend provider (session-JWT auth).
-fn make_openhuman_backend(config: &Config) -> anyhow::Result<(Box<dyn Provider>, String)> {
+/// Build the Eversilver backend provider (session-JWT auth).
+fn make_eversilver_backend(config: &Config) -> anyhow::Result<(Box<dyn Provider>, String)> {
     let model = config
         .default_model
         .clone()
@@ -164,23 +164,23 @@ fn make_openhuman_backend(config: &Config) -> anyhow::Result<(Box<dyn Provider>,
     // Critical: pass the *config's* workspace directory through so the
     // provider's `AuthService` reads `auth-profiles.json` from the
     // same dir login wrote to. Without this, `ProviderRuntimeOptions::default()`
-    // leaves `openhuman_dir = None`, the provider falls back to
+    // leaves `eversilver_dir = None`, the provider falls back to
     // `~/.openhuman`, and reads an unrelated (or empty)
     // profile store — surfacing as "No backend session: store a JWT
     // via auth (app-session)" even though login just succeeded in the
-    // user's actual workspace (e.g. test workspaces under OPENHUMAN_WORKSPACE).
+    // user's actual workspace (e.g. test workspaces under EVERSILVER_WORKSPACE).
     let options = ProviderRuntimeOptions {
-        openhuman_dir: config.config_path.parent().map(std::path::PathBuf::from),
+        eversilver_dir: config.config_path.parent().map(std::path::PathBuf::from),
         secrets_encrypt: config.secrets.encrypt,
         ..ProviderRuntimeOptions::default()
     };
     log::debug!(
         "[providers][chat-factory] building openhuman backend provider model={} state_dir={:?} secrets_encrypt={}",
         model,
-        options.openhuman_dir,
+        options.eversilver_dir,
         options.secrets_encrypt
     );
-    // Translate `hint:<tier>` model strings into the OpenHuman backend's
+    // Translate `hint:<tier>` model strings into the Eversilver backend's
     // canonical tier names.
     let model = match model.strip_prefix("hint:") {
         Some("reasoning") => crate::openhuman::config::MODEL_REASONING_V1.to_string(),
@@ -189,7 +189,7 @@ fn make_openhuman_backend(config: &Config) -> anyhow::Result<(Box<dyn Provider>,
         Some("coding") => crate::openhuman::config::MODEL_CODING_V1.to_string(),
         _ => model,
     };
-    let p = Box::new(OpenHumanBackendProvider::new(
+    let p = Box::new(EversilverBackendProvider::new(
         config.api_url.as_deref(),
         &options,
     ));
@@ -267,13 +267,13 @@ fn make_cloud_provider_by_slug(
             Ok((p, effective_model))
         }
         AuthStyle::OpenhumanJwt => {
-            // Route to the OpenHuman backend — ignore the entry's endpoint
+            // Route to the Eversilver backend — ignore the entry's endpoint
             // and model; use the backend provider with the configured default.
             log::debug!(
                 "[providers][chat-factory] slug='{}' has auth_style=OpenhumanJwt → routing to openhuman backend",
                 slug
             );
-            make_openhuman_backend(config)
+            make_eversilver_backend(config)
         }
         AuthStyle::None => {
             let p = make_openai_compatible_provider(&entry.endpoint, "", CompatAuthStyle::Bearer)?;
@@ -373,7 +373,7 @@ mod tests {
         CloudProviderCreds {
             id: id.to_string(),
             slug: "openhuman".to_string(),
-            label: "OpenHuman".to_string(),
+            label: "Eversilver".to_string(),
             endpoint: "https://api.openhuman.ai/v1".to_string(),
             auth_style: AuthStyle::OpenhumanJwt,
             ..Default::default()
@@ -407,7 +407,7 @@ mod tests {
     // ── Grammar: all recognised forms ────────────────────────────────────────
 
     #[test]
-    fn openhuman_literal() {
+    fn eversilver_literal() {
         let config = Config::default();
         let (_, model) = create_chat_provider_from_string("reasoning", "openhuman", &config)
             .expect("openhuman literal must build");
@@ -415,7 +415,7 @@ mod tests {
     }
 
     #[test]
-    fn cloud_no_providers_falls_back_to_openhuman() {
+    fn cloud_no_providers_falls_back_to_eversilver() {
         let config = Config::default();
         // "cloud" sentinel still works — routes to openhuman.
         let result = create_chat_provider_from_string("reasoning", "cloud", &config);
@@ -427,7 +427,7 @@ mod tests {
     }
 
     #[test]
-    fn openhuman_slug_routes_to_backend() {
+    fn eversilver_slug_routes_to_backend() {
         let config = config_with_providers(vec![oh_entry("p_oh")]);
         let (_, model) = create_chat_provider_from_string("reasoning", "openhuman:", &config)
             .expect("openhuman: must build");
@@ -484,7 +484,7 @@ mod tests {
     // ── Workload routing ──────────────────────────────────────────────────────
 
     #[test]
-    fn all_workloads_default_to_openhuman() {
+    fn all_workloads_default_to_eversilver() {
         let config = Config::default();
         for role in &[
             "reasoning",
@@ -576,7 +576,7 @@ mod tests {
     }
 
     #[test]
-    fn primary_cloud_defaults_to_openhuman_when_no_providers() {
+    fn primary_cloud_defaults_to_eversilver_when_no_providers() {
         let config = Config::default();
         assert!(create_chat_provider("reasoning", &config).is_ok());
     }
@@ -596,14 +596,14 @@ mod tests {
     }
 
     #[test]
-    fn summarization_defaults_to_openhuman_like_memory() {
+    fn summarization_defaults_to_eversilver_like_memory() {
         let config = Config::default();
         assert_eq!(provider_for_role("memory", &config), "openhuman");
         assert_eq!(provider_for_role("summarization", &config), "openhuman");
     }
 
     #[test]
-    fn unknown_workload_falls_back_to_openhuman() {
+    fn unknown_workload_falls_back_to_eversilver() {
         let config = Config::default();
         assert_eq!(
             provider_for_role("nope-not-a-workload", &config),
@@ -612,10 +612,10 @@ mod tests {
         assert_eq!(provider_for_role("", &config), "openhuman");
     }
 
-    // ── OpenHuman backend state_dir wiring ────────────────────────────────────
+    // ── Eversilver backend state_dir wiring ────────────────────────────────────
 
     #[test]
-    fn openhuman_backend_uses_config_path_parent_as_state_dir() {
+    fn eversilver_backend_uses_config_path_parent_as_state_dir() {
         let mut config = Config::default();
         config.config_path = std::path::PathBuf::from("/tmp/oh-test-workspace/config.toml");
         let (_provider, model) = create_chat_provider("reasoning", &config)

@@ -33,7 +33,7 @@ function parseArgs(argv) {
   return {
     lightweight: argv.includes('--lightweight'),
     strictPath: argv.includes('--strict-path'),
-    expectedPath: process.env.CODEX_EXPECT_REPO_PATH || '/workspace/openhuman',
+    expectedPath: process.env.CODEX_EXPECT_REPO_PATH || '/workspace/eversilver',
   };
 }
 
@@ -54,7 +54,7 @@ function summarize(checks) {
 function recommendations(changedFiles, lightweight) {
   const lines = [];
   if (hasPattern(changedFiles, APP_PATTERNS)) {
-    lines.push('pnpm --filter openhuman-app format:check');
+    lines.push('pnpm --filter eversilver-app format:check');
     lines.push('pnpm typecheck');
     lines.push('pnpm --dir app exec vitest run <changed-test-files> --config test/vitest.config.ts');
   }
@@ -97,7 +97,7 @@ function main() {
     if (!remotes) {
       checks.push(runCheck('git remote configured (recommended)', true, 'no remotes configured in this checkout'));
     } else {
-      const hasExpectedRemote = /(jwalin-shah\/openhuman|tinyhumansai\/openhuman)/.test(remotes);
+      const hasExpectedRemote = /(jwalin-shah\/eversilver|eversilver\/eversilver)/.test(remotes);
       checks.push(runCheck('expected git remote present', hasExpectedRemote));
     }
   } catch (error) {

@@ -1,7 +1,7 @@
-From: Sanil Jain <sanil@tinyhumans.ai>
-To: Asha Mehta <asha@tinyhumans.ai>, Ravi Kulkarni <ravi@tinyhumans.ai>
-Cc: OpenHuman Core <core@tinyhumans.ai>
-Subject: Re: Memory integration plan for OpenHuman desktop
+From: Sanil Jain <sanil@eversilver.local>
+To: Asha Mehta <asha@eversilver.local>, Ravi Kulkarni <ravi@eversilver.local>
+Cc: Eversilver Core <core@eversilver.local>
+Subject: Re: Memory integration plan for Eversilver desktop
 Date: Tue, 12 Mar 2026 09:14:00 +0530
 Thread-Id: memory-integration-2026-03
 
@@ -20,7 +20,7 @@ Current work items:
 - Sanil will review response models so they follow the Neocortex API style.
 
 Important project facts:
-- Project name: OpenHuman
+- Project name: Eversilver
 - Subproject: memory-layer-completion
 - Target milestone: March 22, 2026
 - Preferred embedding model for local experiments: text-embedding-3-small
@@ -44,9 +44,9 @@ Sanil
 
 ---
 
-From: Asha Mehta <asha@tinyhumans.ai>
-To: Sanil Jain <sanil@tinyhumans.ai>, Ravi Kulkarni <ravi@tinyhumans.ai>
-Subject: Re: Memory integration plan for OpenHuman desktop
+From: Asha Mehta <asha@eversilver.local>
+To: Sanil Jain <sanil@eversilver.local>, Ravi Kulkarni <ravi@eversilver.local>
+Subject: Re: Memory integration plan for Eversilver desktop
 Date: Tue, 12 Mar 2026 08:41:00 +0530
 
 Agreed.
@@ -56,7 +56,7 @@ For the Neocortex donor path, I reviewed the neocortex_v2 extractor again:
 - It supports sentence-level and chunk-level extraction.
 - It adds recipient and spatial relation heuristics.
 
-I think we should preserve those heuristics when we port the ingestion flow into OpenHuman.
+I think we should preserve those heuristics when we port the ingestion flow into Eversilver.
 
 Also, please record this:
 - Ravi prefers narrower worker ownership to avoid merge conflicts.
@@ -67,9 +67,9 @@ Asha
 
 ---
 
-From: Ravi Kulkarni <ravi@tinyhumans.ai>
-To: Sanil Jain <sanil@tinyhumans.ai>, Asha Mehta <asha@tinyhumans.ai>
-Subject: Re: Memory integration plan for OpenHuman desktop
+From: Ravi Kulkarni <ravi@eversilver.local>
+To: Sanil Jain <sanil@eversilver.local>, Asha Mehta <asha@eversilver.local>
+Subject: Re: Memory integration plan for Eversilver desktop
 Date: Tue, 12 Mar 2026 08:09:00 +0530
 
 One more note before I start:

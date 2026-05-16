@@ -5,7 +5,7 @@
 //! specialists. Each file defines exactly one definition.
 //!
 //! TOML (rather than YAML) is used for consistency with the rest of
-//! OpenHuman's config system, which already depends on the `toml` crate
+//! Eversilver's config system, which already depends on the `toml` crate
 //! and uses TOML for its main config file.
 //!
 //! The loader is intentionally lenient: it logs and skips files that fail
@@ -119,11 +119,11 @@ pub fn load_file(path: &Path) -> Result<AgentDefinition> {
 }
 
 fn user_home_agents_dir() -> Option<PathBuf> {
-    // Honour OPENHUMAN_HOME first if set; otherwise ~/.openhuman.
-    if let Ok(custom) = std::env::var("OPENHUMAN_HOME") {
+    // Honour EVERSILVER_HOME first if set; otherwise ~/.openhuman.
+    if let Ok(custom) = std::env::var("EVERSILVER_HOME") {
         return Some(PathBuf::from(custom).join("agents"));
     }
-    match crate::openhuman::config::default_root_openhuman_dir() {
+    match crate::openhuman::config::default_root_eversilver_dir() {
         Ok(dir) => Some(dir.join("agents")),
         Err(error) => {
             tracing::debug!(

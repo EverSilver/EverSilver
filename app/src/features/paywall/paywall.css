@@ -1,0 +1,201 @@
+.eversilver-paywall-prompt {
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  min-height: 300px;
+}
+
+.eversilver-paywall-card {
+  width: min(380px, 90vw);
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(106, 123, 184, 0.08) 0%, rgba(138, 146, 216, 0.04) 100%);
+  border: 1px solid rgba(138, 146, 216, 0.2);
+  border-radius: 14px;
+  text-align: center;
+  color: #e8eaf2;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.eversilver-paywall-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.eversilver-paywall-card p {
+  margin: 0.4rem 0;
+  color: #8a92b8;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.eversilver-paywall-price {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 1rem 0 !important;
+  color: #c0c7e0 !important;
+}
+
+.eversilver-paywall-price span {
+  font-size: 0.9rem;
+  color: #8a92b8;
+  font-weight: 400;
+}
+
+.eversilver-paywall-cta {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #6a7bb8 0%, #8a92d8 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms, opacity 150ms;
+}
+
+.eversilver-paywall-cta:hover {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+/* Pricing Screen */
+.eversilver-pricing-screen {
+  padding: 3rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e8eaf2;
+}
+
+.eversilver-pricing-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.eversilver-pricing-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.eversilver-pricing-header p {
+  color: #8a92b8;
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+.eversilver-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.eversilver-pricing-card {
+  padding: 2rem 1.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 200ms, border-color 200ms;
+}
+
+.eversilver-pricing-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(138, 146, 216, 0.3);
+}
+
+.eversilver-pricing-card[data-tier='pro'] {
+  border-color: rgba(138, 146, 216, 0.4);
+  background: linear-gradient(135deg, rgba(106, 123, 184, 0.06) 0%, rgba(138, 146, 216, 0.03) 100%);
+}
+
+.eversilver-pricing-card[data-tier='ultra'] {
+  border-color: rgba(200, 180, 100, 0.4);
+  background: linear-gradient(135deg, rgba(200, 180, 100, 0.06) 0%, rgba(220, 200, 120, 0.03) 100%);
+}
+
+.eversilver-pricing-card.is-current {
+  outline: 2px solid #6a7bb8;
+  outline-offset: -1px;
+}
+
+.eversilver-pricing-card h2 {
+  font-size: 1.3rem;
+  margin: 0 0 0.5rem;
+}
+
+.eversilver-pricing-price {
+  margin: 0.5rem 0 1rem;
+}
+
+.eversilver-pricing-price .amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.eversilver-pricing-price .period {
+  font-size: 0.9rem;
+  color: #8a92b8;
+  margin-left: 0.25rem;
+}
+
+.eversilver-pricing-description {
+  color: #8a92b8;
+  font-size: 0.9rem;
+  margin: 0 0 1.25rem;
+  line-height: 1.5;
+}
+
+.eversilver-pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  flex-grow: 1;
+}
+
+.eversilver-pricing-features li {
+  padding: 0.4rem 0;
+  font-size: 0.88rem;
+  color: #c0c7e0;
+  text-transform: capitalize;
+}
+
+.eversilver-pricing-features li::before {
+  content: '✓ ';
+  color: #8a92d8;
+  margin-right: 0.4rem;
+}
+
+.eversilver-pricing-cta {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #6a7bb8 0%, #8a92d8 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms, opacity 150ms;
+}
+
+.eversilver-pricing-cta:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+
+.eversilver-pricing-cta:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.eversilver-pricing-cta.is-current {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

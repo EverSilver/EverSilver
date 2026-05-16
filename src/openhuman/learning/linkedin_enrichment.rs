@@ -314,13 +314,13 @@ pub async fn summarise_profile_with_llm(config: &Config, raw_md: &str) -> anyhow
     };
 
     // Point `AuthService` at the same state dir the rest of the app uses
-    // (the openhuman_dir derived from `config.config_path`), otherwise
-    // `OpenHumanBackendProvider::resolve_bearer` looks in `~/.openhuman`
+    // (the eversilver_dir derived from `config.config_path`), otherwise
+    // `EversilverBackendProvider::resolve_bearer` looks in `~/.openhuman`
     // and fails with "No backend session" even when the JWT is present
-    // under a custom `OPENHUMAN_WORKSPACE`.
+    // under a custom `EVERSILVER_WORKSPACE`.
     let options = ProviderRuntimeOptions {
         auth_profile_override: None,
-        openhuman_dir: config
+        eversilver_dir: config
             .config_path
             .parent()
             .map(std::path::PathBuf::from)

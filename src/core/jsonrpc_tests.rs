@@ -116,12 +116,12 @@ async fn shutdown_token_stops_axum_listener_within_timeout() {
     .expect("seed scheduler_gate=always_on config.toml");
     let _env = EnvVarGuard::set_many(vec![
         (
-            "OPENHUMAN_WORKSPACE",
+            "EVERSILVER_WORKSPACE",
             workspace.path().as_os_str().to_os_string(),
         ),
-        ("OPENHUMAN_DISABLE_CHANNEL_LISTENERS", OsString::from("1")),
+        ("EVERSILVER_DISABLE_CHANNEL_LISTENERS", OsString::from("1")),
         (
-            "OPENHUMAN_CORE_TOKEN",
+            "EVERSILVER_CORE_TOKEN",
             OsString::from("test-token-shutdown"),
         ),
     ]);
@@ -294,7 +294,7 @@ async fn invoke_local_ai_download_asset_missing_required_param_fails_validation(
 }
 
 #[test]
-fn http_schema_dump_includes_openhuman_and_core_methods() {
+fn http_schema_dump_includes_eversilver_and_core_methods() {
     let dump = build_http_schema_dump();
     let methods = dump.methods;
     assert!(
@@ -614,7 +614,7 @@ fn is_session_expired_error_does_not_match_unrelated_errors() {
 
 #[test]
 fn is_param_validation_error_matches_the_three_validator_shapes() {
-    // Regression guard for OPENHUMAN-TAURI-20: pre-#1467 cores rejected
+    // Regression guard for EVERSILVER-TAURI-20: pre-#1467 cores rejected
     // `api_key` because it wasn't in the schema yet. The error string
     // must keep matching here so it gets logged at info level and never
     // reaches Sentry as an unactionable client/server skew event.
@@ -680,7 +680,7 @@ async fn structured_rpc_error_envelope_passes_through_generic_dispatch() {
 
     let workspace = tempfile::tempdir().expect("workspace tempdir");
     let _env = EnvVarGuard::set_many(vec![(
-        "OPENHUMAN_WORKSPACE",
+        "EVERSILVER_WORKSPACE",
         workspace.path().as_os_str().to_os_string(),
     )]);
 
@@ -701,7 +701,7 @@ async fn structured_rpc_error_envelope_passes_through_generic_dispatch() {
     // never the encoded sentinel envelope.
     let message = body["error"]["message"].as_str().expect("error message");
     assert!(
-        !message.contains("__OPENHUMAN_STRUCTURED_RPC_ERROR_V1__"),
+        !message.contains("__EVERSILVER_STRUCTURED_RPC_ERROR_V1__"),
         "sentinel-encoded envelope leaked onto the wire: {message}"
     );
     assert!(message.contains("thread-ghost"));
@@ -718,7 +718,7 @@ async fn thread_not_found_rpc_error_does_not_report_to_sentry() {
 
     let workspace = tempfile::tempdir().expect("workspace tempdir");
     let _env = EnvVarGuard::set_many(vec![(
-        "OPENHUMAN_WORKSPACE",
+        "EVERSILVER_WORKSPACE",
         workspace.path().as_os_str().to_os_string(),
     )]);
 

@@ -2,7 +2,7 @@
 //! upstream-provider errors are not surfaced as generic gateway (502) failures.
 //!
 //! Issue #1797 — Composio support found tool-level failures on their side while
-//! OpenHuman was bucketing them as HTTP 502 / gateway instability.
+//! Eversilver was bucketing them as HTTP 502 / gateway instability.
 
 /// Stable, grep-friendly error classes for metrics and UI routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -128,7 +128,7 @@ fn format_insufficient_scope_message(tool: &str, detail: &str) -> String {
 fn format_rate_limited_message(tool: &str, detail: &str) -> String {
     format!(
         "`{tool}` hit an upstream rate limit ({detail}). Wait a minute and retry, or reduce \
-         call frequency — this is not an OpenHuman gateway outage."
+         call frequency — this is not an Eversilver gateway outage."
     )
 }
 

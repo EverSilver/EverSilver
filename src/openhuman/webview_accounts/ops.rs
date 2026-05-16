@@ -9,7 +9,7 @@ use std::path::PathBuf;
 
 /// Env var set by the Tauri shell to the shared CEF cookies SQLite
 /// path. See `app/src-tauri/src/lib.rs`.
-pub(crate) const COOKIES_DB_ENV: &str = "OPENHUMAN_CEF_COOKIES_DB";
+pub(crate) const COOKIES_DB_ENV: &str = "EVERSILVER_CEF_COOKIES_DB";
 
 /// A provider we surface in the welcome snapshot.
 ///
@@ -81,7 +81,7 @@ pub(crate) const PROVIDERS: &[Provider] = &[
 /// guess a platform-specific default here: the Tauri shell is the only
 /// component that authoritatively knows the bundle identifier + cache
 /// directory, and letting it configure us keeps dev/test/ci variants
-/// (custom `OPENHUMAN_WORKSPACE`, renamed bundle) working without
+/// (custom `EVERSILVER_WORKSPACE`, renamed bundle) working without
 /// special-casing.
 fn cookies_db_path() -> Option<PathBuf> {
     let value = std::env::var(COOKIES_DB_ENV).ok()?;

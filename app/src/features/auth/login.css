@@ -1,0 +1,119 @@
+.eversilver-login-screen {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at top, #1a1d2e 0%, #0a0b14 70%);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e8eaf2;
+  z-index: 9999;
+}
+
+.eversilver-login-card {
+  width: min(420px, 90vw);
+  padding: 2.5rem 2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.eversilver-login-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #c0c7e0 0%, #8a92b8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eversilver-login-subtitle {
+  font-size: 0.95rem;
+  color: #8a92b8;
+  margin: 0 0 2rem;
+}
+
+.eversilver-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.eversilver-login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.eversilver-login-field span {
+  font-size: 0.8rem;
+  color: #8a92b8;
+  font-weight: 500;
+}
+
+.eversilver-login-field input {
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e8eaf2;
+  font-size: 0.95rem;
+  transition: border-color 150ms, background 150ms;
+}
+
+.eversilver-login-field input:focus {
+  outline: none;
+  border-color: #6a7bb8;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.eversilver-login-error {
+  padding: 0.6rem 0.8rem;
+  background: rgba(220, 80, 80, 0.1);
+  border: 1px solid rgba(220, 80, 80, 0.3);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #ff9595;
+}
+
+.eversilver-login-submit {
+  margin-top: 0.5rem;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #6a7bb8 0%, #8a92d8 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 150ms, transform 150ms;
+}
+
+.eversilver-login-submit:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.eversilver-login-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.eversilver-login-toggle {
+  margin-top: 1.25rem;
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: #8a92b8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 150ms;
+}
+
+.eversilver-login-toggle:hover {
+  color: #c0c7e0;
+}

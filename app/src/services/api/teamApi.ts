@@ -7,51 +7,51 @@ async function rpcResult<T>(method: string, params?: Record<string, unknown>): P
 }
 
 export const teamApi = {
-  getTeams: async (): Promise<TeamWithRole[]> => rpcResult('openhuman.team_list_teams'),
+  getTeams: async (): Promise<TeamWithRole[]> => rpcResult('eversilver.team_list_teams'),
 
   getTeam: async (teamId: string): Promise<Team> =>
-    rpcResult('openhuman.team_get_team', { teamId }),
+    rpcResult('eversilver.team_get_team', { teamId }),
 
   createTeam: async (name: string): Promise<Team> =>
-    rpcResult('openhuman.team_create_team', { name }),
+    rpcResult('eversilver.team_create_team', { name }),
 
   updateTeam: async (teamId: string, data: { name?: string }): Promise<Team> =>
-    rpcResult('openhuman.team_update_team', { teamId, ...data }),
+    rpcResult('eversilver.team_update_team', { teamId, ...data }),
 
   deleteTeam: async (teamId: string): Promise<void> => {
-    await rpcResult('openhuman.team_delete_team', { teamId });
+    await rpcResult('eversilver.team_delete_team', { teamId });
   },
 
   switchTeam: async (teamId: string): Promise<void> => {
-    await rpcResult('openhuman.team_switch_team', { teamId });
+    await rpcResult('eversilver.team_switch_team', { teamId });
   },
 
   getMembers: async (teamId: string): Promise<TeamMember[]> =>
-    rpcResult('openhuman.team_list_members', { teamId }),
+    rpcResult('eversilver.team_list_members', { teamId }),
 
   removeMember: async (teamId: string, userId: string): Promise<void> => {
-    await rpcResult('openhuman.team_remove_member', { teamId, userId });
+    await rpcResult('eversilver.team_remove_member', { teamId, userId });
   },
 
   changeMemberRole: async (teamId: string, userId: string, role: TeamRole): Promise<void> => {
-    await rpcResult('openhuman.team_change_member_role', { teamId, userId, role });
+    await rpcResult('eversilver.team_change_member_role', { teamId, userId, role });
   },
 
   leaveTeam: async (teamId: string): Promise<void> => {
-    await rpcResult('openhuman.team_leave_team', { teamId });
+    await rpcResult('eversilver.team_leave_team', { teamId });
   },
 
   createInvite: async (
     teamId: string,
     opts?: { maxUses?: number; expiresInDays?: number }
-  ): Promise<TeamInvite> => rpcResult('openhuman.team_create_invite', { teamId, ...opts }),
+  ): Promise<TeamInvite> => rpcResult('eversilver.team_create_invite', { teamId, ...opts }),
 
   getInvites: async (teamId: string): Promise<TeamInvite[]> =>
-    rpcResult('openhuman.team_list_invites', { teamId }),
+    rpcResult('eversilver.team_list_invites', { teamId }),
 
   revokeInvite: async (teamId: string, inviteId: string): Promise<void> => {
-    await rpcResult('openhuman.team_revoke_invite', { teamId, inviteId });
+    await rpcResult('eversilver.team_revoke_invite', { teamId, inviteId });
   },
 
-  joinTeam: async (code: string): Promise<Team> => rpcResult('openhuman.team_join_team', { code }),
+  joinTeam: async (code: string): Promise<Team> => rpcResult('eversilver.team_join_team', { code }),
 };

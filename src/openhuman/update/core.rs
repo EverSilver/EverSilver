@@ -12,7 +12,7 @@ use crate::openhuman::update::types::{GitHubAsset, GitHubRelease, UpdateApplyRes
 use crate::openhuman::util::utf8_safe_prefix_at_byte_boundary;
 
 /// GitHub owner/repo for the core binary releases.
-const GITHUB_OWNER: &str = "tinyhumansai";
+const GITHUB_OWNER: &str = "eversilver";
 const GITHUB_REPO: &str = "openhuman";
 
 /// Current binary version (set at compile time from Cargo.toml).
@@ -109,7 +109,7 @@ pub async fn check_available() -> Result<UpdateInfo, String> {
             if is_transport_network_failure(&e)
                 || crate::core::observability::is_updater_transient_message(&msg)
             {
-                // OPENHUMAN-TAURI-2F: reqwest's transport-level failure fires
+                // EVERSILVER-TAURI-2F: reqwest's transport-level failure fires
                 // before any HTTP status when DNS / TCP / TLS handshake fails,
                 // or the user's ISP / firewall blocks api.github.com. No
                 // status, no trace, no payload — Sentry has no signal to act
@@ -234,7 +234,7 @@ pub async fn download_and_stage_with_version(
         let msg = format!("failed to download update: {e}");
         if is_transport_network_failure(&e) {
             // Same transport-level shape as `check_releases` above
-            // (OPENHUMAN-TAURI-2F) — DNS / TCP / TLS / firewall failure that
+            // (EVERSILVER-TAURI-2F) — DNS / TCP / TLS / firewall failure that
             // carries no actionable Sentry signal. The user-visible error is
             // still returned; Sentry just doesn't get spammed.
             log::warn!(
@@ -378,7 +378,7 @@ mod tests {
         assert!(!current_version().is_empty());
     }
 
-    /// OPENHUMAN-TAURI-2F regression guard. A reqwest call to an unroutable
+    /// EVERSILVER-TAURI-2F regression guard. A reqwest call to an unroutable
     /// host (port 1 on TEST-NET-1, RFC 5737 documentation range — guaranteed
     /// never to answer) must classify as a transport failure so the
     /// `check_releases` / `download` call sites skip the Sentry report. If

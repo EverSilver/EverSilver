@@ -1,4 +1,4 @@
-//! Service management helpers for OpenHuman daemon.
+//! Service management helpers for Eversilver daemon.
 
 pub mod bus;
 mod core;

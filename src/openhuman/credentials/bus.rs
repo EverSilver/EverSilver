@@ -17,7 +17,7 @@
 //! Without this subscriber, a 401 from a background LLM call would only
 //! be detected but never acted on, and the same loop would 401 again on
 //! the next iteration. This is the fix for issue
-//! `OPENHUMAN-TAURI-1T` (5,414 Sentry events from one user's
+//! `EVERSILVER-TAURI-1T` (5,414 Sentry events from one user's
 //! cron-driven LLM calls after session expiry).
 
 use crate::core::event_bus::{DomainEvent, EventHandler};

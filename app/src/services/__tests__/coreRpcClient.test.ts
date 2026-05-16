@@ -56,7 +56,7 @@ function sampleAccessibilityStatus(
     },
     denylist: [],
     is_context_blocked: false,
-    permission_check_process_path: '/tmp/openhuman-core-aarch64-apple-darwin',
+    permission_check_process_path: '/tmp/eversilver-core-aarch64-apple-darwin',
     ...overrides,
   };
 }
@@ -79,12 +79,12 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: { ok: true } }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.auth.get_state' });
+    await callCoreRpc({ method: 'eversilver.auth.get_state' });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const requestInit = fetchMock.mock.calls[0][1] as RequestInit;
     const body = JSON.parse(String(requestInit.body));
-    expect(body.method).toBe('openhuman.auth_get_state');
+    expect(body.method).toBe('eversilver.auth_get_state');
   });
 
   test('maps accessibility prefix to screen intelligence prefix', async () => {
@@ -94,18 +94,18 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 2, result: { accepted: true } }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.accessibility_status' });
+    await callCoreRpc({ method: 'eversilver.accessibility_status' });
 
     const requestInit = fetchMock.mock.calls[0][1] as RequestInit;
     const body = JSON.parse(String(requestInit.body));
-    expect(body.method).toBe('openhuman.screen_intelligence_status');
+    expect(body.method).toBe('eversilver.screen_intelligence_status');
   });
 
   test('fetches accessibility_status CommandResponse with permissions and process path', async () => {
     const fetchMock = vi.mocked(fetch);
     const status = sampleAccessibilityStatus({
       permission_check_process_path:
-        '/Users/dev/openhuman/app/src-tauri/binaries/openhuman-core-aarch64-apple-darwin',
+        '/Users/dev/eversilver/app/src-tauri/binaries/eversilver-core-aarch64-apple-darwin',
     });
     const envelope: CommandResponse<AccessibilityStatus> = {
       result: status,
@@ -118,7 +118,7 @@ describe('coreRpcClient', () => {
     } as Response);
 
     const out = await callCoreRpc<CommandResponse<AccessibilityStatus>>({
-      method: 'openhuman.accessibility_status',
+      method: 'eversilver.accessibility_status',
     });
 
     expect(out.logs).toContain('screen intelligence status fetched');
@@ -127,7 +127,7 @@ describe('coreRpcClient', () => {
     expect(out.result.permissions.input_monitoring).toBe('unknown');
     expect(out.result.core_process?.pid).toBe(4242);
     expect(out.result.permission_check_process_path).toBe(
-      '/Users/dev/openhuman/app/src-tauri/binaries/openhuman-core-aarch64-apple-darwin'
+      '/Users/dev/eversilver/app/src-tauri/binaries/eversilver-core-aarch64-apple-darwin'
     );
   });
 
@@ -142,7 +142,7 @@ describe('coreRpcClient', () => {
       }),
     } as Response);
 
-    await expect(callCoreRpc({ method: 'openhuman.config_get' })).rejects.toThrow('boom from core');
+    await expect(callCoreRpc({ method: 'eversilver.config_get' })).rejects.toThrow('boom from core');
   });
 
   test('throws on non-ok HTTP response', async () => {
@@ -154,7 +154,7 @@ describe('coreRpcClient', () => {
       text: async () => 'temporarily unavailable',
     } as Response);
 
-    await expect(callCoreRpc({ method: 'openhuman.config_get' })).rejects.toThrow(
+    await expect(callCoreRpc({ method: 'eversilver.config_get' })).rejects.toThrow(
       'Core RPC HTTP 503: temporarily unavailable'
     );
   });
@@ -171,22 +171,22 @@ describe('coreRpcClient', () => {
   });
 
   test.each([
-    ['openhuman.get_config', 'openhuman.config_get'],
-    ['openhuman.get_runtime_flags', 'openhuman.config_get_runtime_flags'],
-    ['openhuman.set_browser_allow_all', 'openhuman.config_set_browser_allow_all'],
-    ['openhuman.update_browser_settings', 'openhuman.config_update_browser_settings'],
-    ['openhuman.update_memory_settings', 'openhuman.config_update_memory_settings'],
-    ['openhuman.update_model_settings', 'openhuman.config_update_model_settings'],
-    ['openhuman.update_runtime_settings', 'openhuman.config_update_runtime_settings'],
+    ['eversilver.get_config', 'eversilver.config_get'],
+    ['eversilver.get_runtime_flags', 'eversilver.config_get_runtime_flags'],
+    ['eversilver.set_browser_allow_all', 'eversilver.config_set_browser_allow_all'],
+    ['eversilver.update_browser_settings', 'eversilver.config_update_browser_settings'],
+    ['eversilver.update_memory_settings', 'eversilver.config_update_memory_settings'],
+    ['eversilver.update_model_settings', 'eversilver.config_update_model_settings'],
+    ['eversilver.update_runtime_settings', 'eversilver.config_update_runtime_settings'],
     [
-      'openhuman.update_screen_intelligence_settings',
-      'openhuman.config_update_screen_intelligence_settings',
+      'eversilver.update_screen_intelligence_settings',
+      'eversilver.config_update_screen_intelligence_settings',
     ],
     [
-      'openhuman.workspace_onboarding_flag_exists',
-      'openhuman.config_workspace_onboarding_flag_exists',
+      'eversilver.workspace_onboarding_flag_exists',
+      'eversilver.config_workspace_onboarding_flag_exists',
     ],
-    ['openhuman.workspace_onboarding_flag_set', 'openhuman.config_workspace_onboarding_flag_set'],
+    ['eversilver.workspace_onboarding_flag_set', 'eversilver.config_workspace_onboarding_flag_set'],
   ])('rewrites legacy alias %s -> %s', async (incoming, expected) => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
@@ -206,9 +206,9 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: {} }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.threads_list' });
+    await callCoreRpc({ method: 'eversilver.threads_list' });
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
-    expect(body.method).toBe('openhuman.threads_list');
+    expect(body.method).toBe('eversilver.threads_list');
   });
 
   test('defaults params to empty object when omitted', async () => {
@@ -218,7 +218,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: {} }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.threads_list' });
+    await callCoreRpc({ method: 'eversilver.threads_list' });
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body.params).toEqual({});
     expect(body.jsonrpc).toBe('2.0');
@@ -233,7 +233,7 @@ describe('coreRpcClient', () => {
     } as Response);
 
     const params = { thread_id: 't-1', nested: { flag: true } };
-    await callCoreRpc({ method: 'openhuman.threads_messages_list', params });
+    await callCoreRpc({ method: 'eversilver.threads_messages_list', params });
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
     expect(body.params).toEqual(params);
   });
@@ -245,8 +245,8 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 0, result: {} }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.threads_list' });
-    await callCoreRpc({ method: 'openhuman.threads_list' });
+    await callCoreRpc({ method: 'eversilver.threads_list' });
+    await callCoreRpc({ method: 'eversilver.threads_list' });
     const idA = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body)).id;
     const idB = JSON.parse(String((fetchMock.mock.calls[1][1] as RequestInit).body)).id;
     expect(typeof idA).toBe('number');
@@ -261,7 +261,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1 }),
     } as Response);
 
-    await expect(callCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'Core RPC response missing result'
     );
   });
@@ -273,7 +273,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, error: { code: -32000, message: '' } }),
     } as Response);
 
-    await expect(callCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'Core RPC returned an error'
     );
   });
@@ -282,7 +282,7 @@ describe('coreRpcClient', () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockRejectedValueOnce(new Error('ECONNREFUSED sidecar'));
 
-    await expect(callCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'ECONNREFUSED sidecar'
     );
   });
@@ -294,9 +294,9 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: {} }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.auth.sub.segment' });
+    await callCoreRpc({ method: 'eversilver.auth.sub.segment' });
     const body = JSON.parse(String((fetchMock.mock.calls[0][1] as RequestInit).body));
-    expect(body.method).toBe('openhuman.auth_sub_segment');
+    expect(body.method).toBe('eversilver.auth_sub_segment');
   });
 
   test('rejects with a timeout error when fetch does not resolve within CORE_RPC_TIMEOUT_MS', async () => {
@@ -320,7 +320,7 @@ describe('coreRpcClient', () => {
           })
       );
 
-      const pending = callCoreRpc({ method: 'openhuman.threads_list' });
+      const pending = callCoreRpc({ method: 'eversilver.threads_list' });
       // Swallow the unhandled rejection that would otherwise be raised when
       // advancing timers triggers the abort before the `await expect` below.
       pending.catch(() => {});
@@ -328,7 +328,7 @@ describe('coreRpcClient', () => {
       await vi.advanceTimersByTimeAsync(CORE_RPC_TIMEOUT_MS + 1);
 
       await expect(pending).rejects.toThrow(
-        `Core RPC openhuman.threads_list timed out after ${CORE_RPC_TIMEOUT_MS}ms`
+        `Core RPC eversilver.threads_list timed out after ${CORE_RPC_TIMEOUT_MS}ms`
       );
     } finally {
       vi.useRealTimers();
@@ -342,7 +342,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: { ok: true } }),
     } as Response);
 
-    const result = await callCoreRpc<{ ok: boolean }>({ method: 'openhuman.threads_list' });
+    const result = await callCoreRpc<{ ok: boolean }>({ method: 'eversilver.threads_list' });
     expect(result).toEqual({ ok: true });
 
     // Signal on the request init must be populated so the timeout path
@@ -358,7 +358,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: {} }),
     } as Response);
 
-    await callCoreRpc({ method: 'openhuman.threads_list' });
+    await callCoreRpc({ method: 'eversilver.threads_list' });
     const init = fetchMock.mock.calls[0][1] as RequestInit;
     expect(init.method).toBe('POST');
     const headers = init.headers as Record<string, string>;
@@ -381,7 +381,7 @@ describe('coreRpcClient', () => {
       json: async () => ({ jsonrpc: '2.0', id: 1, result: {} }),
     } as Response);
 
-    await callFreshCoreRpc({ method: 'openhuman.threads_list' });
+    await callFreshCoreRpc({ method: 'eversilver.threads_list' });
 
     const headers = (fetchMock.mock.calls[0][1] as RequestInit).headers as Record<string, string>;
     expect(headers.Authorization).toBe('Bearer test-local-token');
@@ -397,7 +397,7 @@ describe('coreRpcClient', () => {
     });
     const { callCoreRpc: callFreshCoreRpc } = await import('../coreRpcClient');
 
-    await expect(callFreshCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callFreshCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'Core RPC token unavailable in Tauri; local RPC auth cannot be satisfied'
     );
     expect(fetch).not.toHaveBeenCalled();
@@ -413,10 +413,10 @@ describe('coreRpcClient', () => {
     });
     const { callCoreRpc: callFreshCoreRpc } = await import('../coreRpcClient');
 
-    await expect(callFreshCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callFreshCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'Core RPC token unavailable in Tauri; local RPC auth cannot be satisfied'
     );
-    await expect(callFreshCoreRpc({ method: 'openhuman.threads_list' })).rejects.toThrow(
+    await expect(callFreshCoreRpc({ method: 'eversilver.threads_list' })).rejects.toThrow(
       'Core RPC token unavailable in Tauri; local RPC auth cannot be satisfied'
     );
 
@@ -567,7 +567,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       }),
     } as Response);
 
-    await expect(callCoreRpc({ method: 'openhuman.team_get_usage' })).rejects.toMatchObject({
+    await expect(callCoreRpc({ method: 'eversilver.team_get_usage' })).rejects.toMatchObject({
       name: 'CoreRpcError',
       kind: 'auth_expired',
     });
@@ -578,7 +578,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       source: string;
     }>;
     expect(evt.type).toBe('core-rpc-auth-expired');
-    expect(evt.detail.method).toBe('openhuman.team_get_usage');
+    expect(evt.detail.method).toBe('eversilver.team_get_usage');
     expect(evt.detail.source).toBe('rpc');
   });
 
@@ -591,7 +591,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       text: async () => 'session expired',
     } as Response);
 
-    const err = await callCoreRpc({ method: 'openhuman.threads_list' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.threads_list' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('auth_expired');
     expect((err as CoreRpcError).httpStatus).toBe(401);
@@ -609,7 +609,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       }),
     } as Response);
 
-    const err = await callCoreRpc({ method: 'openhuman.team_get_usage' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.team_get_usage' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('budget_exceeded');
     expect(authExpiredHandler).not.toHaveBeenCalled();
@@ -624,7 +624,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       text: async () => 'rate-limit exceeded',
     } as Response);
 
-    const err = await callCoreRpc({ method: 'openhuman.team_get_usage' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.team_get_usage' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('rate_limited');
     expect((err as CoreRpcError).httpStatus).toBe(429);
@@ -637,7 +637,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       new Error('error sending request for url (http://x): ECONNREFUSED')
     );
 
-    const err = await callCoreRpc({ method: 'openhuman.threads_list' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.threads_list' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('transport');
     expect(authExpiredHandler).not.toHaveBeenCalled();
@@ -654,7 +654,7 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
       }),
     } as Response);
 
-    const err = await callCoreRpc({ method: 'openhuman.threads_list' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.threads_list' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('unknown');
     expect((err as Error).message).toBe('something weird');
@@ -674,13 +674,13 @@ describe('coreRpcClient — typed errors + auth-expired event', () => {
           data: {
             kind: 'ThreadNotFound',
             thread_id: 'thread-123',
-            method: 'openhuman.threads_message_append',
+            method: 'eversilver.threads_message_append',
           },
         },
       }),
     } as Response);
 
-    const err = await callCoreRpc({ method: 'openhuman.threads_message_append' }).catch(e => e);
+    const err = await callCoreRpc({ method: 'eversilver.threads_message_append' }).catch(e => e);
     expect(err).toBeInstanceOf(CoreRpcError);
     expect((err as CoreRpcError).kind).toBe('thread_not_found');
     expect(isThreadNotFoundCoreRpcError(err, 'thread-123')).toBe(true);
@@ -799,7 +799,7 @@ describe('getCoreRpcUrl', () => {
 
   test('cloud-picker URL identical to build-time default still wins over local sidecar', async () => {
     // Regression: in the old `storedUrl !== CORE_RPC_URL` check the picker's
-    // value was discarded when it coincided with `VITE_OPENHUMAN_CORE_RPC_URL`,
+    // value was discarded when it coincided with `VITE_EVERSILVER_CORE_RPC_URL`,
     // silently routing cloud-mode RPC back to the local sidecar.
     vi.doMock('../../utils/configPersistence', () => ({
       peekStoredRpcUrl: () => 'http://127.0.0.1:7788/rpc',
@@ -861,7 +861,7 @@ describe('getCoreRpcToken (cloud-mode persistence)', () => {
     } as Response);
 
     const { callCoreRpc: freshCallCoreRpc } = await import('../coreRpcClient');
-    await freshCallCoreRpc({ method: 'openhuman.ping' });
+    await freshCallCoreRpc({ method: 'eversilver.ping' });
 
     expect(vi.mocked(invoke)).not.toHaveBeenCalledWith('core_rpc_token', expect.anything());
     const requestInit = fetchMock.mock.calls[0][1] as RequestInit;
@@ -884,7 +884,7 @@ describe('getCoreRpcToken (cloud-mode persistence)', () => {
 
     const { callCoreRpc: freshCallCoreRpc, clearCoreRpcTokenCache } =
       await import('../coreRpcClient');
-    await freshCallCoreRpc({ method: 'openhuman.ping' });
+    await freshCallCoreRpc({ method: 'eversilver.ping' });
     let headers = fetchMock.mock.calls[0][1] as RequestInit;
     expect((headers.headers as Record<string, string>).Authorization).toBe('Bearer first-token');
 
@@ -892,7 +892,7 @@ describe('getCoreRpcToken (cloud-mode persistence)', () => {
     // persists. Clearing it makes the next call re-resolve.
     storedToken = 'second-token';
     clearCoreRpcTokenCache();
-    await freshCallCoreRpc({ method: 'openhuman.ping' });
+    await freshCallCoreRpc({ method: 'eversilver.ping' });
     headers = fetchMock.mock.calls[1][1] as RequestInit;
     expect((headers.headers as Record<string, string>).Authorization).toBe('Bearer second-token');
   });
@@ -915,7 +915,7 @@ describe('getCoreRpcToken (cloud-mode persistence)', () => {
     } as Response);
 
     const { callCoreRpc: freshCallCoreRpc } = await import('../coreRpcClient');
-    await freshCallCoreRpc({ method: 'openhuman.ping' });
+    await freshCallCoreRpc({ method: 'eversilver.ping' });
 
     const requestInit = fetchMock.mock.calls[0][1] as RequestInit;
     const headers = requestInit.headers as Record<string, string>;

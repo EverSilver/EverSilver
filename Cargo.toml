@@ -129,7 +129,7 @@ rdev = "0.5"
 fs2 = "0.4"
 # Cross-platform battery probe for the scheduler gate. Maintained fork of
 # the abandoned `battery` crate; same `use battery::*;` API surface. Used
-# only by `openhuman::scheduler_gate::signals` to decide when to throttle
+# only by `eversilver::scheduler_gate::signals` to decide when to throttle
 # background LLM work on laptops.
 starship-battery = "0.10"
 
@@ -178,7 +178,7 @@ fantoccini = ["browser-native"]
 landlock = ["sandbox-landlock"]
 rag-pdf = ["dep:pdf-extract"]
 whatsapp-web = ["dep:whatsapp-rust", "dep:whatsapp-rust-tokio-transport", "dep:whatsapp-rust-ureq-http-client", "dep:wacore", "serde-big-array"]
-# Exposes the destructive `openhuman.test_reset` RPC. Off by default; the E2E
+# Exposes the destructive `eversilver.test_reset` RPC. Off by default; the E2E
 # build (app/scripts/e2e-build.sh) flips it on. Shipped binaries never have
 # this feature so the wipe RPC isn't even registered, let alone reachable.
 e2e-test-support = []
@@ -186,7 +186,7 @@ e2e-test-support = []
 # Fix whisper-rs-sys CRT mismatch on Windows MSVC (LNK2038).
 # Upstream cmake build defaults to /MD but Rust uses /MT.
 # This fork adds config.static_crt(true) to the build script.
-# See: https://github.com/tinyhumansai/openhuman/issues/273
+# See: https://github.com/eversilver/eversilver/issues/273
 [patch.crates-io]
 whisper-rs-sys = { git = "https://github.com/tinyhumansai/whisper-rs-sys.git", branch = "main" }
 

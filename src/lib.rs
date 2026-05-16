@@ -1,9 +1,9 @@
-//! Core library for the OpenHuman platform.
+//! Core library for the Eversilver platform.
 //!
-//! This crate provides the central logic for the OpenHuman core binary, including:
+//! This crate provides the central logic for the Eversilver core binary, including:
 //! - API and RPC handlers for external interactions.
 //! - Core system services (CLI, configuration, monitoring).
-//! - Domain-specific logic for the OpenHuman agent runtime.
+//! - Domain-specific logic for the Eversilver agent runtime.
 
 pub mod api;
 pub mod core;
@@ -15,7 +15,7 @@ pub use openhuman::memory::{MemoryClient, MemoryState};
 
 /// Runs the core logic based on the provided command-line arguments.
 ///
-/// This is the primary entry point for the OpenHuman binary, delegating to the
+/// This is the primary entry point for the Eversilver binary, delegating to the
 /// CLI module for argument parsing and command dispatch.
 ///
 /// # Arguments

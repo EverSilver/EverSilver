@@ -185,7 +185,7 @@ pub struct ComposioExecuteResponse {
     #[serde(rename = "costUsd", default)]
     pub cost_usd: f64,
     /// Backend-rendered compact markdown for known tools (set by
-    /// backend PR tinyhumansai/backend#683). When present and non-empty
+    /// backend PR eversilver/backend#683). When present and non-empty
     /// callers should prefer this over `data` for LLM/CLI consumption.
     #[serde(rename = "markdownFormatted", default)]
     pub markdown_formatted: Option<String>,

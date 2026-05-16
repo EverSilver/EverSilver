@@ -1,4 +1,4 @@
-//! Install the OpenHuman camera bridge into the Meet webview via CDP.
+//! Install the Eversilver camera bridge into the Meet webview via CDP.
 //!
 //! ## Why post-reload `Runtime.evaluate`, not `addScriptToEvaluateOnNewDocument`
 //!
@@ -77,8 +77,8 @@ pub async fn confirm_bridge_alive(cdp: &mut CdpConn, session: &str) {
             .call(
                 "Runtime.evaluate",
                 json!({
-                    "expression": "(typeof window.__openhumanCameraBridgeInfo === 'function') \
-                                   ? JSON.stringify(window.__openhumanCameraBridgeInfo()) \
+                    "expression": "(typeof window.__eversilverCameraBridgeInfo === 'function') \
+                                   ? JSON.stringify(window.__eversilverCameraBridgeInfo()) \
                                    : null",
                     "returnByValue": true,
                 }),
@@ -101,17 +101,17 @@ pub async fn confirm_bridge_alive(cdp: &mut CdpConn, session: &str) {
     log::warn!("[meet-camera] bridge readiness probe timed out");
 }
 
-/// Spawn a background loop that polls `__openhumanCameraBridgeInfo()`
+/// Spawn a background loop that polls `__eversilverCameraBridgeInfo()`
 /// over a freshly-attached CDP session every `interval`, computing the
 /// per-interval delta in `remoteFrameCount` (effective FPS) and
 /// `droppedOutOfOrder` (race incidents). Logs every tick so a tail
 /// gives a live timeline of producer/consumer health.
 ///
-/// Lives only when `OPENHUMAN_DEV_MEET_CAMERA_DIAG=1`; otherwise no-op.
+/// Lives only when `EVERSILVER_DEV_MEET_CAMERA_DIAG=1`; otherwise no-op.
 /// Self-terminates when the CDP connection closes (e.g. the meet
 /// window was destroyed).
 pub fn spawn_diagnostics_poller(meet_url: String) {
-    let enabled = std::env::var("OPENHUMAN_DEV_MEET_CAMERA_DIAG")
+    let enabled = std::env::var("EVERSILVER_DEV_MEET_CAMERA_DIAG")
         .map(|v| v == "1" || v.eq_ignore_ascii_case("true"))
         .unwrap_or(false);
     if !enabled {
@@ -142,8 +142,8 @@ pub fn spawn_diagnostics_poller(meet_url: String) {
                 .call(
                     "Runtime.evaluate",
                     json!({
-                        "expression": "(typeof window.__openhumanCameraBridgeInfo === 'function') \
-                                       ? JSON.stringify(window.__openhumanCameraBridgeInfo()) \
+                        "expression": "(typeof window.__eversilverCameraBridgeInfo === 'function') \
+                                       ? JSON.stringify(window.__eversilverCameraBridgeInfo()) \
                                        : null",
                         "returnByValue": true,
                     }),
@@ -222,8 +222,8 @@ pub async fn set_mood(cdp: &mut CdpConn, session: &str, mood: &str) -> Result<()
         return Err(format!("invalid mood: {mood}"));
     }
     let expression = format!(
-        "(typeof window.__openhumanSetMood === 'function') \
-         ? window.__openhumanSetMood('{mood}') : false"
+        "(typeof window.__eversilverSetMood === 'function') \
+         ? window.__eversilverSetMood('{mood}') : false"
     );
     let res = cdp
         .call(

@@ -1,5 +1,5 @@
 // Mascot library types — mirror the backend models in
-// `tinyhumansai/backend:src/services/mascots/types.ts` and
+// `eversilver/backend:src/services/mascots/types.ts` and
 // `src/database/models/mascot.ts`. Kept in TS-only form here because
 // the app talks to the backend over HTTP — there is no shared package.
 

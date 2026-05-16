@@ -96,7 +96,7 @@ pub struct WhisperTranscribeResult {
 /// 1. Resolve `WHISPER_BIN` (env override → PATH lookup). If missing,
 ///    return an actionable error so the UI can deep-link to the installer.
 /// 2. Decode the base64 audio and write it to a temp file under
-///    `$TMP/openhuman_voice_input/voice-<ts>-<uuid>.<ext>` — whisper-cli
+///    `$TMP/eversilver_voice_input/voice-<ts>-<uuid>.<ext>` — whisper-cli
 ///    consumes a file path, not stdin.
 /// 3. Spawn `whisper-cli -m <model> -f <file> [-l <lang>]`, capture
 ///    stdout, and clean up the temp file regardless of outcome.
@@ -144,7 +144,7 @@ pub async fn transcribe_whisper(
     );
 
     let ext = mime_to_extension(opts.mime_type.as_deref());
-    let voice_dir = std::env::temp_dir().join("openhuman_voice_input");
+    let voice_dir = std::env::temp_dir().join("eversilver_voice_input");
     tokio::fs::create_dir_all(&voice_dir)
         .await
         .map_err(|e| format!("{LOG_PREFIX} failed to create voice input directory: {e}"))?;

@@ -8,26 +8,26 @@ import {
   type CommandResponse,
   type ConfigSnapshot,
   isTauri,
-  openhumanAutocompleteSetStyle,
-  openhumanAutocompleteStart,
-  openhumanAutocompleteStatus,
-  openhumanAutocompleteStop,
-  openhumanGetConfig,
+  eversilverAutocompleteSetStyle,
+  eversilverAutocompleteStart,
+  eversilverAutocompleteStatus,
+  eversilverAutocompleteStop,
+  eversilverGetConfig,
 } from '../../../../utils/tauriCommands';
 import AutocompletePanel from '../AutocompletePanel';
 
 vi.mock('../../../../utils/tauriCommands', () => ({
   isTauri: vi.fn(() => true),
-  openhumanAutocompleteAccept: vi.fn(),
-  openhumanAutocompleteClearHistory: vi.fn(),
-  openhumanAutocompleteCurrent: vi.fn(),
-  openhumanAutocompleteDebugFocus: vi.fn(),
-  openhumanAutocompleteHistory: vi.fn(),
-  openhumanAutocompleteSetStyle: vi.fn(),
-  openhumanAutocompleteStart: vi.fn(),
-  openhumanAutocompleteStatus: vi.fn(),
-  openhumanAutocompleteStop: vi.fn(),
-  openhumanGetConfig: vi.fn(),
+  eversilverAutocompleteAccept: vi.fn(),
+  eversilverAutocompleteClearHistory: vi.fn(),
+  eversilverAutocompleteCurrent: vi.fn(),
+  eversilverAutocompleteDebugFocus: vi.fn(),
+  eversilverAutocompleteHistory: vi.fn(),
+  eversilverAutocompleteSetStyle: vi.fn(),
+  eversilverAutocompleteStart: vi.fn(),
+  eversilverAutocompleteStatus: vi.fn(),
+  eversilverAutocompleteStop: vi.fn(),
+  eversilverGetConfig: vi.fn(),
 }));
 
 type RuntimeHarness = { status: AutocompleteStatus; config: AutocompleteConfig };
@@ -35,8 +35,8 @@ type RuntimeHarness = { status: AutocompleteStatus; config: AutocompleteConfig }
 const makeConfigSnapshot = (config: AutocompleteConfig): CommandResponse<ConfigSnapshot> => ({
   result: {
     config: { autocomplete: config },
-    workspace_dir: '/tmp/openhuman-e2e',
-    config_path: '/tmp/openhuman-e2e/config.toml',
+    workspace_dir: '/tmp/eversilver-e2e',
+    config_path: '/tmp/eversilver-e2e/config.toml',
   },
   logs: [],
 });
@@ -61,7 +61,7 @@ describe('AutocompletePanel (simplified)', () => {
         phase: 'idle',
         debounce_ms: 120,
         model_id: 'gemma3:4b-it-qat',
-        app_name: 'OpenHuman',
+        app_name: 'Eversilver',
         last_error: null,
         updated_at_ms: Date.now(),
         suggestion: null,
@@ -79,16 +79,16 @@ describe('AutocompletePanel (simplified)', () => {
       },
     };
 
-    vi.mocked(openhumanAutocompleteStatus).mockImplementation(async () => ({
+    vi.mocked(eversilverAutocompleteStatus).mockImplementation(async () => ({
       result: cloneStatus(runtime.status),
       logs: [],
     }));
 
-    vi.mocked(openhumanGetConfig).mockImplementation(async () =>
+    vi.mocked(eversilverGetConfig).mockImplementation(async () =>
       makeConfigSnapshot(runtime.config)
     );
 
-    vi.mocked(openhumanAutocompleteSetStyle).mockImplementation(async params => {
+    vi.mocked(eversilverAutocompleteSetStyle).mockImplementation(async params => {
       runtime.config = {
         ...runtime.config,
         ...params,
@@ -100,7 +100,7 @@ describe('AutocompletePanel (simplified)', () => {
       return { result: { config: { ...runtime.config } }, logs: [] };
     });
 
-    vi.mocked(openhumanAutocompleteStart).mockImplementation(async () => {
+    vi.mocked(eversilverAutocompleteStart).mockImplementation(async () => {
       if (!runtime.config.enabled) {
         return { result: { started: false }, logs: [] };
       }
@@ -109,7 +109,7 @@ describe('AutocompletePanel (simplified)', () => {
       return { result: { started: true }, logs: [] };
     });
 
-    vi.mocked(openhumanAutocompleteStop).mockImplementation(async () => {
+    vi.mocked(eversilverAutocompleteStop).mockImplementation(async () => {
       runtime.status.running = false;
       runtime.status.phase = 'idle';
       runtime.status.suggestion = null;
@@ -140,7 +140,7 @@ describe('AutocompletePanel (simplified)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Settings' }));
 
     await waitFor(() => {
-      expect(openhumanAutocompleteSetStyle).toHaveBeenCalledWith(
+      expect(eversilverAutocompleteSetStyle).toHaveBeenCalledWith(
         expect.objectContaining({ style_preset: 'concise', accept_with_tab: true })
       );
     });
@@ -161,7 +161,7 @@ describe('AutocompletePanel (simplified)', () => {
     // Start
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     await waitFor(() => {
-      expect(openhumanAutocompleteStart).toHaveBeenCalled();
+      expect(eversilverAutocompleteStart).toHaveBeenCalled();
     });
     await waitFor(() => {
       expect(screen.getByText('Autocomplete started.')).toBeInTheDocument();
@@ -170,7 +170,7 @@ describe('AutocompletePanel (simplified)', () => {
     // Stop
     fireEvent.click(screen.getByRole('button', { name: 'Stop' }));
     await waitFor(() => {
-      expect(openhumanAutocompleteStop).toHaveBeenCalled();
+      expect(eversilverAutocompleteStop).toHaveBeenCalled();
     });
     await waitFor(() => {
       expect(screen.getByText('Autocomplete stopped.')).toBeInTheDocument();
@@ -201,7 +201,7 @@ describe('AutocompletePanel (simplified)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Settings' }));
 
     await waitFor(() => {
-      expect(openhumanAutocompleteSetStyle).toHaveBeenCalledWith(
+      expect(eversilverAutocompleteSetStyle).toHaveBeenCalledWith(
         expect.objectContaining({
           enabled: false,
           debounce_ms: 500,

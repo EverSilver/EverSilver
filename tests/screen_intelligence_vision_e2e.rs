@@ -14,7 +14,7 @@
 //! ```
 //! cargo test --test screen_intelligence_vision_e2e
 //! ```
-//! Cross-platform CI tests use `OPENHUMAN_SCREEN_INTELLIGENCE_MOCK_VISION_JSON` to validate the
+//! Cross-platform CI tests use `EVERSILVER_SCREEN_INTELLIGENCE_MOCK_VISION_JSON` to validate the
 //! real engine pipeline without requiring macOS permissions or a running Ollama server.
 //!
 //! ### macOS E2E checklist (manual, requires Screen Recording permission)
@@ -35,11 +35,11 @@ use image::imageops::FilterType;
 use image::{ImageBuffer, Rgb, RgbImage};
 use tempfile::tempdir;
 
-use openhuman_core::openhuman::embeddings::NoopEmbedding;
-use openhuman_core::openhuman::memory::store::types::NamespaceDocumentInput;
-use openhuman_core::openhuman::memory::store::UnifiedMemory;
-use openhuman_core::openhuman::screen_intelligence::CaptureFrame;
-use openhuman_core::openhuman::screen_intelligence::{
+use eversilver_core::openhuman::embeddings::NoopEmbedding;
+use eversilver_core::openhuman::memory::store::types::NamespaceDocumentInput;
+use eversilver_core::openhuman::memory::store::UnifiedMemory;
+use eversilver_core::openhuman::screen_intelligence::CaptureFrame;
+use eversilver_core::openhuman::screen_intelligence::{
     global_engine, AccessibilityEngine, VisionSummary,
 };
 
@@ -118,7 +118,7 @@ fn make_capture_frame(image_ref: Option<String>) -> CaptureFrame {
 
 /// Open a UnifiedMemory backed by NoopEmbedding in a temp dir.
 fn open_test_memory(dir: &Path) -> UnifiedMemory {
-    let embedder: Arc<dyn openhuman_core::openhuman::embeddings::EmbeddingProvider> =
+    let embedder: Arc<dyn eversilver_core::openhuman::embeddings::EmbeddingProvider> =
         Arc::new(NoopEmbedding);
     UnifiedMemory::new(dir, embedder, Some(5)).expect("UnifiedMemory::new")
 }
@@ -151,7 +151,7 @@ encrypt = false
     );
     std::fs::create_dir_all(root).expect("mkdir test root");
     std::fs::write(root.join("config.toml"), &cfg).expect("write config");
-    let _: openhuman_core::openhuman::config::Config =
+    let _: eversilver_core::openhuman::config::Config =
         toml::from_str(&cfg).expect("test config should deserialize");
 }
 
@@ -671,9 +671,9 @@ async fn vision_summary_struct_persist_and_deserialize_roundtrip() {
 async fn engine_pipeline_with_mocked_local_vision_persists_to_memory() {
     let _lock = env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
     let _mock = EnvVarGuard::set(
-        "OPENHUMAN_SCREEN_INTELLIGENCE_MOCK_VISION_JSON",
+        "EVERSILVER_SCREEN_INTELLIGENCE_MOCK_VISION_JSON",
         r#"{"ui_state":"browser with docs","key_text":"README.md","actionable_notes":"User is reading project docs","confidence":0.89}"#,
     );
     write_screen_intelligence_test_config(tmp.path(), true, "ollama");
@@ -685,7 +685,7 @@ async fn engine_pipeline_with_mocked_local_vision_persists_to_memory() {
         .expect("mocked engine pipeline should succeed");
     assert_eq!(summary.ui_state, "browser with docs");
 
-    let config = openhuman_core::openhuman::config::Config::load_or_init()
+    let config = eversilver_core::openhuman::config::Config::load_or_init()
         .await
         .expect("load config");
     let mem = open_test_memory(&config.workspace_dir);
@@ -708,7 +708,7 @@ async fn engine_pipeline_with_mocked_local_vision_persists_to_memory() {
 async fn engine_pipeline_rejects_non_local_provider() {
     let _lock = env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
     write_screen_intelligence_test_config(tmp.path(), true, "openai");
 
     let frame = make_capture_frame(Some(make_test_png_uri(320, 240)));
@@ -731,8 +731,8 @@ async fn engine_pipeline_rejects_non_local_provider() {
 async fn macos_real_capture_cycle_persists_summary() {
     let _lock = env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
-    let _mock = EnvVarGuard::unset("OPENHUMAN_SCREEN_INTELLIGENCE_MOCK_VISION_JSON");
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
+    let _mock = EnvVarGuard::unset("EVERSILVER_SCREEN_INTELLIGENCE_MOCK_VISION_JSON");
     write_screen_intelligence_test_config(tmp.path(), true, "ollama");
 
     let capture = global_engine().capture_test().await;
@@ -756,7 +756,7 @@ async fn macos_real_capture_cycle_persists_summary() {
         "summary should include actionable notes"
     );
 
-    let config = openhuman_core::openhuman::config::Config::load_or_init()
+    let config = eversilver_core::openhuman::config::Config::load_or_init()
         .await
         .expect("load config");
     let mem = open_test_memory(&config.workspace_dir);

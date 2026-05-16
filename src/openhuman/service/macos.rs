@@ -54,7 +54,7 @@ pub(crate) fn install(config: &Config) -> Result<()> {
   <string>{stderr}</string>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>OPENHUMAN_DAEMON_INTERNAL</key>
+    <key>EVERSILVER_DAEMON_INTERNAL</key>
     <string>false</string>
   </dict>
   <key>WorkingDirectory</key>

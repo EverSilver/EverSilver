@@ -106,7 +106,7 @@ impl IntegrationClient {
                 // "connection refused/reset", …) are classified as
                 // `NetworkUnreachable` and skip Sentry — user-environment
                 // problems (VPN drop, captive portal, ISP block, TLS MITM)
-                // that no retry on our side can resolve (OPENHUMAN-TAURI-2G).
+                // that no retry on our side can resolve (EVERSILVER-TAURI-2G).
                 crate::core::observability::report_error_or_expected(
                     chain.as_str(),
                     "integrations",
@@ -122,7 +122,7 @@ impl IntegrationClient {
             let detail = extract_error_detail(&body_text, MAX_ERROR_BODY_LEN);
             let status_str = status.as_u16().to_string();
             // Route through `report_error_or_expected` so 4xx user-input /
-            // auth-state failures (e.g. OPENHUMAN-TAURI-BC: SharePoint
+            // auth-state failures (e.g. EVERSILVER-TAURI-BC: SharePoint
             // authorize 400 because the user didn't fill in the required
             // Tenant Name field) demote to a warn breadcrumb instead of
             // firing a Sentry event. 5xx and non-transient 4xx still
@@ -149,7 +149,7 @@ impl IntegrationClient {
             // Route through `report_error_or_expected` so user-state envelope
             // failures the backend wraps as 2xx + `success: false` (composio
             // "Toolkit X is not enabled", "Trigger type … not found",
-            // "Missing required fields: …" — OPENHUMAN-TAURI-3R / -3S / -34 /
+            // "Missing required fields: …" — EVERSILVER-TAURI-3R / -3S / -34 /
             // -97) demote to an info breadcrumb instead of firing a Sentry
             // event. Genuine backend bugs (unknown envelope shapes, internal
             // panics) still surface.
@@ -187,8 +187,8 @@ impl IntegrationClient {
                 }
                 // Mirrors the post() transport site — classify reqwest
                 // transport-level failures as NetworkUnreachable so they
-                // skip Sentry. OPENHUMAN-TAURI-2G: TLS handshake EOF
-                // against api.tinyhumans.ai from a SG user.
+                // skip Sentry. EVERSILVER-TAURI-2G: TLS handshake EOF
+                // against api.eversilver.local from a SG user.
                 crate::core::observability::report_error_or_expected(
                     chain.as_str(),
                     "integrations",
@@ -203,7 +203,7 @@ impl IntegrationClient {
             let body_text = resp.text().await.unwrap_or_default();
             let detail = extract_error_detail(&body_text, MAX_ERROR_BODY_LEN);
             let status_str = status.as_u16().to_string();
-            // Mirrors the post() site — see OPENHUMAN-TAURI-BC. 4xx
+            // Mirrors the post() site — see EVERSILVER-TAURI-BC. 4xx
             // user-input / auth-state shapes demote to a warn breadcrumb
             // via the observability classifier; 5xx and non-transient 4xx
             // still surface.
@@ -226,7 +226,7 @@ impl IntegrationClient {
                 .error
                 .unwrap_or_else(|| "unknown backend error".into());
             // Mirrors the post() envelope-error site — see the comment there
-            // for OPENHUMAN-TAURI-3R/-3S/-34/-97 rationale. User-state
+            // for EVERSILVER-TAURI-3R/-3S/-34/-97 rationale. User-state
             // envelope failures demote; genuine backend bugs still surface.
             crate::core::observability::report_error_or_expected(
                 msg.as_str(),
@@ -325,7 +325,7 @@ pub fn build_client(config: &crate::openhuman::config::Config) -> Option<Arc<Int
     // integration paths produces URLs like
     //   http://127.0.0.1:11434/v1/agent-integrations/composio/toolkits
     // which 404 against the local LLM and flooded Sentry
-    // (OPENHUMAN-TAURI-51 / -80 / -7Z). The helper falls through to env /
+    // (EVERSILVER-TAURI-51 / -80 / -7Z). The helper falls through to env /
     // default backend in that case so integrations actually work.
     let backend_url = crate::api::config::effective_backend_api_url(&config.api_url);
 

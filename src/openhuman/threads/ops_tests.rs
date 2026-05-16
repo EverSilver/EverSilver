@@ -426,7 +426,7 @@ async fn message_append_returns_typed_not_found_for_stale_thread() {
         .lock()
         .unwrap_or_else(|e| e.into_inner());
     let workspace = tempfile::tempdir().expect("workspace");
-    let _workspace_guard = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", workspace.path());
+    let _workspace_guard = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", workspace.path());
     let thread_id = "thread-missing";
 
     let err = message_append(AppendConversationMessageRequest {
@@ -458,7 +458,7 @@ async fn generate_title_returns_typed_not_found_for_stale_thread() {
         .lock()
         .unwrap_or_else(|e| e.into_inner());
     let workspace = tempfile::tempdir().expect("workspace");
-    let _workspace_guard = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", workspace.path());
+    let _workspace_guard = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", workspace.path());
     let thread_id = "thread-missing";
 
     let err = thread_generate_title(GenerateConversationThreadTitleRequest {

@@ -184,7 +184,7 @@ mod tests {
 
     /// Parks the global `local_ai::global(&config)` service state at
     /// "ready", runs the async test with `body`, then restores the prior
-    /// state and clears `OPENHUMAN_OLLAMA_BASE_URL`. Returns whatever
+    /// state and clears `EVERSILVER_OLLAMA_BASE_URL`. Returns whatever
     /// `body` returned so the caller can assert on it.
     ///
     /// The [`LOCAL_AI_TEST_MUTEX`] serialises every test in this module
@@ -199,11 +199,11 @@ mod tests {
         let previous = service.status.lock().state.clone();
         service.status.lock().state = "ready".into();
         unsafe {
-            std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+            std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
         }
         let out = body().await;
         unsafe {
-            std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+            std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
         }
         service.status.lock().state = previous;
         out

@@ -175,7 +175,7 @@ static DETECTION_RULES: Lazy<Vec<DetectionRule>> = Lazy::new(|| {
 });
 
 fn optional_classifier() -> Option<Box<dyn OptionalClassifier>> {
-    let choice = env::var("OPENHUMAN_PROMPT_INJECTION_CLASSIFIER")
+    let choice = env::var("EVERSILVER_PROMPT_INJECTION_CLASSIFIER")
         .unwrap_or_else(|_| "off".to_string())
         .to_ascii_lowercase();
     match choice.as_str() {

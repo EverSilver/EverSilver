@@ -29,7 +29,7 @@
 //! added by [`super::harness::builtin_definitions::all`] on top of the
 //! loader output.
 //!
-//! Workspace-level overrides (`$OPENHUMAN_WORKSPACE/agents/*.toml`) are
+//! Workspace-level overrides (`$EVERSILVER_WORKSPACE/agents/*.toml`) are
 //! handled separately by [`super::harness::definition_loader`] and merged
 //! into the global registry, where they replace built-ins on `id`
 //! collision.

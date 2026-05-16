@@ -1,7 +1,7 @@
 // Client for the backend mascot library — GET /mascots (summaries) and
 // GET /mascots/:id (full manifest with per-state SVGs + visemes).
 //
-// Backend: tinyhumansai/backend PR #770. Both endpoints are public
+// Backend: eversilver/backend PR #770. Both endpoints are public
 // (manifests only, no compute) so we skip auth.
 import type {
   GetMascotResponse,

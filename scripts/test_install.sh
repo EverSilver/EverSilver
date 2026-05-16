@@ -14,7 +14,7 @@ if ! source "$REPO_ROOT/scripts/install.sh" --source-only 2>/dev/null; then
 fi
 
 resolved=$(resolve_asset_url "$FIXTURE" "linux" "x86_64")
-expected="https://example.invalid/openhuman_0.0.0-test_amd64.AppImage"
+expected="https://example.invalid/eversilver_0.0.0-test_amd64.AppImage"
 if [[ "$resolved" != "$expected" ]]; then
   echo "FAIL: expected $expected, got $resolved"
   exit 1

@@ -25,7 +25,7 @@ export class DaemonHealthService {
 
     const pollOnce = async () => {
       try {
-        const payload = await callCoreRpc<unknown>({ method: 'openhuman.health_snapshot' });
+        const payload = await callCoreRpc<unknown>({ method: 'eversilver.health_snapshot' });
         const healthSnapshot = this.parseHealthSnapshot(payload);
         if (healthSnapshot) {
           this.updateDaemonStoreFromHealth(healthSnapshot);

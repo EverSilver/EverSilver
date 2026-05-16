@@ -60,7 +60,7 @@ fn annotated_capability_exposes_privacy_metadata() {
     let privacy = cap.privacy.expect("conversation.send_text annotated");
     assert!(privacy.leaves_device);
     assert_eq!(privacy.data_kind, PrivacyDataKind::Derived);
-    assert!(privacy.destinations.contains(&"OpenHuman backend"));
+    assert!(privacy.destinations.contains(&"Eversilver backend"));
 }
 
 #[test]

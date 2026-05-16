@@ -1,4 +1,4 @@
-//! JSON-RPC 2.0 server implementation for OpenHuman.
+//! JSON-RPC 2.0 server implementation for Eversilver.
 //!
 //! This module provides:
 //! - An Axum-based HTTP server for handling JSON-RPC requests.
@@ -78,7 +78,7 @@ pub async fn rpc_handler(State(state): State<AppState>, Json(req): Json<RpcReque
             // Param-validation failures ("unknown param 'x' for ns.fn",
             // "missing required param 'x'", "invalid params: …") are also
             // pure boundary mismatches: either the caller is a frontend on a
-            // different release than the running core (OPENHUMAN-TAURI-20:
+            // different release than the running core (EVERSILVER-TAURI-20:
             // v0.53.22 UI shipped `api_key` before the matching schema input
             // landed in #1467) or it is straight client-bug input. Sentry
             // cannot help — we can neither retro-fix already-shipped
@@ -209,7 +209,7 @@ pub async fn invoke_method(state: AppState, method: &str, params: Value) -> Resu
 /// the user mis-configured an OpenAI / Anthropic key). The strict
 /// classifier in `observability` is for the agent / web-channel
 /// `report_error_or_expected` call sites, where matching too loosely would
-/// silence actionable BYO-key configuration errors (OPENHUMAN-TAURI-26
+/// silence actionable BYO-key configuration errors (EVERSILVER-TAURI-26
 /// rationale: the agent-layer demote must NOT also swallow generic
 /// provider 401s).
 ///
@@ -353,7 +353,7 @@ fn success_html() -> String {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OpenHuman &#8212; Connected</title>
+    <title>Eversilver &#8212; Connected</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
@@ -367,7 +367,7 @@ fn success_html() -> String {
     <div class="card">
         <div class="icon">&#10004;</div>
         <h1>Connected!</h1>
-        <p>Your Telegram account has been connected to OpenHuman. You can close this tab.</p>
+        <p>Your Telegram account has been connected to Eversilver. You can close this tab.</p>
     </div>
 </body>
 </html>"#
@@ -392,7 +392,7 @@ fn error_html(message: &str) -> String {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OpenHuman &#8212; Error</title>
+    <title>Eversilver &#8212; Error</title>
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }}
@@ -730,7 +730,7 @@ async fn not_found_handler() -> impl IntoResponse {
 
 /// Resolves the port for the core server from environment variables or defaults.
 fn core_port() -> u16 {
-    std::env::var("OPENHUMAN_CORE_PORT")
+    std::env::var("EVERSILVER_CORE_PORT")
         .ok()
         .and_then(|v| v.parse::<u16>().ok())
         .unwrap_or(7788)
@@ -738,7 +738,7 @@ fn core_port() -> u16 {
 
 /// Resolves the bind address host for the core server from environment variables or defaults.
 fn core_host() -> String {
-    std::env::var("OPENHUMAN_CORE_HOST")
+    std::env::var("EVERSILVER_CORE_HOST")
         .ok()
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| "127.0.0.1".to_string())
@@ -779,7 +779,7 @@ async fn run_server_inner(
 
     // Initialize the per-process RPC bearer token.
     // Written to {workspace_dir}/core.token so the Tauri shell can read it.
-    let token_dir = crate::openhuman::config::default_root_openhuman_dir().unwrap_or_else(|_| {
+    let token_dir = crate::openhuman::config::default_root_eversilver_dir().unwrap_or_else(|_| {
         dirs::home_dir()
             .unwrap_or_else(|| std::path::PathBuf::from("."))
             .join(".openhuman")
@@ -794,7 +794,7 @@ async fn run_server_inner(
     {
         // Surface a config-load failure explicitly. Falling silently to
         // `Config::default()` would hide a serious operator-visible
-        // problem (corrupt toml, permissions, missing OPENHUMAN_WORKSPACE
+        // problem (corrupt toml, permissions, missing EVERSILVER_WORKSPACE
         // workspace dir) and the memory client would init against the
         // wrong workspace — leading to chunk loss / cross-workspace
         // bleed-over. We log loud, then proceed with default so the
@@ -806,7 +806,7 @@ async fn run_server_inner(
                 log::error!(
                     "[boot] memory::global init: Config::load_or_init failed ({e:#}); \
                      falling back to default workspace dir — fix your config.toml \
-                     or OPENHUMAN_WORKSPACE before relying on memory persistence"
+                     or EVERSILVER_WORKSPACE before relying on memory persistence"
                 );
                 Default::default()
             }
@@ -833,8 +833,8 @@ async fn run_server_inner(
         Some(p) => (p, "CLI --port"),
         None => (
             core_port(),
-            if std::env::var("OPENHUMAN_CORE_PORT").is_ok() {
-                "env OPENHUMAN_CORE_PORT"
+            if std::env::var("EVERSILVER_CORE_PORT").is_ok() {
+                "env EVERSILVER_CORE_PORT"
             } else {
                 "default"
             },
@@ -844,12 +844,12 @@ async fn run_server_inner(
         Some(h) => (h.to_string(), "CLI --host"),
         None => (
             core_host(),
-            if std::env::var("OPENHUMAN_CORE_HOST")
+            if std::env::var("EVERSILVER_CORE_HOST")
                 .ok()
                 .filter(|s| !s.is_empty())
                 .is_some()
             {
-                "env OPENHUMAN_CORE_HOST"
+                "env EVERSILVER_CORE_HOST"
             } else {
                 "default"
             },
@@ -876,7 +876,7 @@ async fn run_server_inner(
     bootstrap_skill_runtime(embedded_core).await;
 
     log::info!(
-        "[core] OpenHuman core is ready — listening on http://{bind_addr} (version {})",
+        "[core] Eversilver core is ready — listening on http://{bind_addr} (version {})",
         env!("CARGO_PKG_VERSION")
     );
     log::info!("[rpc:http] JSON-RPC — POST http://{bind_addr}/rpc (JSON-RPC 2.0)");
@@ -919,7 +919,7 @@ async fn run_server_inner(
                 });
 
                 // Check if a user is already logged in from a previous session.
-                let already_logged_in = crate::openhuman::config::default_root_openhuman_dir()
+                let already_logged_in = crate::openhuman::config::default_root_eversilver_dir()
                     .ok()
                     .and_then(|root| crate::openhuman::config::read_active_user_id(&root))
                     .is_some();
@@ -987,7 +987,7 @@ async fn run_server_inner(
     // Realtime channel listeners (Telegram getUpdates, Discord gateway, etc.) live in
     // `start_channels`. Without this task, `openhuman run` would only expose RPC while
     // inbound bot messages are never polled.
-    if std::env::var("OPENHUMAN_DISABLE_CHANNEL_LISTENERS")
+    if std::env::var("EVERSILVER_DISABLE_CHANNEL_LISTENERS")
         .ok()
         .filter(|s| s == "1" || s.eq_ignore_ascii_case("true"))
         .is_none()
@@ -1012,7 +1012,7 @@ async fn run_server_inner(
             }
         });
     } else {
-        log::info!("[channels] OPENHUMAN_DISABLE_CHANNEL_LISTENERS set — skipping start_channels");
+        log::info!("[channels] EVERSILVER_DISABLE_CHANNEL_LISTENERS set — skipping start_channels");
     }
 
     if let Some(shutdown_token) = shutdown_token {

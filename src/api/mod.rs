@@ -1,4 +1,4 @@
-//! HTTP and Socket.IO helpers for the TinyHumans / AlphaHuman hosted API.
+//! HTTP and Socket.IO helpers for the Eversilver / AlphaHuman hosted API.
 //!
 //! Use [`crate::api::config`] for default base URL and env normalization,
 //! [`crate::api::jwt`] for session token retrieval and bearer formatting,

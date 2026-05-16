@@ -48,7 +48,7 @@ pub struct ConnectivityDiagResponse {
 /// Mirrors the resolution order in `core_server::transport::http_listener`,
 /// but lighter — we only need a number for a TCP probe, not a bound listener.
 fn resolve_listen_port() -> u16 {
-    if let Ok(raw) = std::env::var("OPENHUMAN_CORE_PORT") {
+    if let Ok(raw) = std::env::var("EVERSILVER_CORE_PORT") {
         match raw.trim().parse::<u16>() {
             Ok(parsed) => {
                 debug!(
@@ -62,7 +62,7 @@ fn resolve_listen_port() -> u16 {
                 // than silently using the default. (addresses @coderabbitai
                 // on rpc.rs:56)
                 warn!(
-                    "[connectivity][rpc] resolve_listen_port: invalid OPENHUMAN_CORE_PORT='{}': {}",
+                    "[connectivity][rpc] resolve_listen_port: invalid EVERSILVER_CORE_PORT='{}': {}",
                     raw, err
                 );
             }
@@ -162,17 +162,17 @@ mod tests {
         // Use a UUID-ish guard so we don't clobber an env the test runner
         // genuinely needs. SAFETY: env mutation is process-global; we
         // restore at the end. See SAFETY note in `cargo test --doc`.
-        let prev = std::env::var("OPENHUMAN_CORE_PORT").ok();
+        let prev = std::env::var("EVERSILVER_CORE_PORT").ok();
         // SAFETY: standard Rust test pattern — env access is unsafe in 2024
         // edition because it isn't thread-safe. Tests are single-threaded
         // for this scope and we restore in the same body.
         unsafe {
-            std::env::remove_var("OPENHUMAN_CORE_PORT");
+            std::env::remove_var("EVERSILVER_CORE_PORT");
         }
         assert_eq!(resolve_listen_port(), 7788);
         if let Some(value) = prev {
             unsafe {
-                std::env::set_var("OPENHUMAN_CORE_PORT", value);
+                std::env::set_var("EVERSILVER_CORE_PORT", value);
             }
         }
     }
@@ -180,28 +180,28 @@ mod tests {
     #[test]
     fn resolve_listen_port_honours_env_override() {
         let _guard = ENV_LOCK.lock().unwrap_or_else(|p| p.into_inner());
-        let prev = std::env::var("OPENHUMAN_CORE_PORT").ok();
+        let prev = std::env::var("EVERSILVER_CORE_PORT").ok();
         unsafe {
-            std::env::set_var("OPENHUMAN_CORE_PORT", "65000");
+            std::env::set_var("EVERSILVER_CORE_PORT", "65000");
         }
         assert_eq!(resolve_listen_port(), 65000);
         match prev {
-            Some(value) => unsafe { std::env::set_var("OPENHUMAN_CORE_PORT", value) },
-            None => unsafe { std::env::remove_var("OPENHUMAN_CORE_PORT") },
+            Some(value) => unsafe { std::env::set_var("EVERSILVER_CORE_PORT", value) },
+            None => unsafe { std::env::remove_var("EVERSILVER_CORE_PORT") },
         }
     }
 
     #[test]
     fn resolve_listen_port_falls_back_on_invalid_env() {
         let _guard = ENV_LOCK.lock().unwrap_or_else(|p| p.into_inner());
-        let prev = std::env::var("OPENHUMAN_CORE_PORT").ok();
+        let prev = std::env::var("EVERSILVER_CORE_PORT").ok();
         unsafe {
-            std::env::set_var("OPENHUMAN_CORE_PORT", "not-a-number");
+            std::env::set_var("EVERSILVER_CORE_PORT", "not-a-number");
         }
         assert_eq!(resolve_listen_port(), 7788);
         match prev {
-            Some(value) => unsafe { std::env::set_var("OPENHUMAN_CORE_PORT", value) },
-            None => unsafe { std::env::remove_var("OPENHUMAN_CORE_PORT") },
+            Some(value) => unsafe { std::env::set_var("EVERSILVER_CORE_PORT", value) },
+            None => unsafe { std::env::remove_var("EVERSILVER_CORE_PORT") },
         }
     }
 

@@ -109,8 +109,8 @@ cat > "$EVENT_FILE" <<'JSON'
   "ref_name": "main",
   "ref_type": "branch",
   "repository": {
-    "name": "openhuman",
-    "full_name": "tinyhumansai/openhuman",
+    "name": "eversilver",
+    "full_name": "eversilver/eversilver",
     "default_branch": "main"
   },
   "inputs": {}
@@ -134,7 +134,7 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
 fi
 
 # act derives `github.repository` from the local checkout's parent dirs
-# (so a fork like `senamakel/openhuman` becomes the value). Pin it to the
+# (so a fork like `eversilver/eversilver` becomes the value). Pin it to the
 # upstream slug so steps that look up the GitHub App installation
 # (`tibdex/github-app-token`) and that hit the GitHub API for the right
 # repo (`gh release upload`, `gh api packages/...`) target the same repo
@@ -144,6 +144,6 @@ exec act workflow_dispatch \
   --eventpath "$EVENT_FILE" \
   --secret-file "$SECRETS_FILE" \
   --var-file "$VARS_FILE" \
-  --env GITHUB_REPOSITORY=tinyhumansai/openhuman \
-  --env GITHUB_REPOSITORY_OWNER=tinyhumansai \
+  --env GITHUB_REPOSITORY=eversilver/eversilver \
+  --env GITHUB_REPOSITORY_OWNER=eversilver \
   "$@"

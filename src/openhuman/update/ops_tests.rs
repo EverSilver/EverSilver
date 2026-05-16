@@ -232,11 +232,11 @@ async fn update_run_rejected_when_rpc_mutations_disabled() {
         ..crate::openhuman::config::UpdateConfig::default()
     };
     cfg.save().await.expect("save config");
-    std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+    std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
 
     let outcome = update_run().await;
 
-    std::env::remove_var("OPENHUMAN_WORKSPACE");
+    std::env::remove_var("EVERSILVER_WORKSPACE");
 
     // Should contain an error indicating the mutation was blocked.
     let err = outcome.value.get("error");

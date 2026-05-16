@@ -73,7 +73,7 @@ pub fn post_process(slug: &str, arguments: Option<&Value>, data: &mut Value) {
 /// Stash per-message slices of the response-level `markdownFormatted`
 /// onto the corresponding entries inside `data.messages[]`.
 ///
-/// The Composio backend (tinyhumansai/backend#683) ships ONE
+/// The Composio backend (eversilver/backend#683) ships ONE
 /// `markdownFormatted` string per tool call covering all messages —
 /// already URL-shortened, footer-stripped, and whitespace-normalised.
 /// To get per-email files in the raw archive we split that string

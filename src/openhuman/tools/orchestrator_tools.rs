@@ -36,7 +36,7 @@ use crate::openhuman::agent::harness::definition::{
 use crate::openhuman::context::prompt::ConnectedIntegration;
 
 // SpawnWorkerThreadTool import kept commented while the worker-thread spawn is
-// temporarily disabled (see tinyhumansai/openhuman#1624).
+// temporarily disabled (see eversilver/openhuman#1624).
 #[allow(unused_imports)]
 use super::SpawnWorkerThreadTool;
 use super::{ArchetypeDelegationTool, SkillDelegationTool, Tool};
@@ -82,7 +82,7 @@ pub fn collect_orchestrator_tools(
 
     // Orchestrator-only tool: spawn_worker_thread.
     // Temporarily disabled — worker threads do not yet have a proper UI
-    // showcase (see tinyhumansai/openhuman#1624). Re-enable once the
+    // showcase (see eversilver/openhuman#1624). Re-enable once the
     // dedicated worker-thread surface lands.
     // if definition.id == "orchestrator" {
     //     tools.push(Box::new(SpawnWorkerThreadTool::new()));
@@ -345,7 +345,7 @@ mod tests {
             names,
             vec![
                 // `spawn_worker_thread` is temporarily disabled upstream —
-                // see tinyhumansai/openhuman#1624. Re-add the leading entry
+                // see eversilver/openhuman#1624. Re-add the leading entry
                 // when the registration in `collect_orchestrator_tools` is
                 // restored.
                 "research",           // researcher's delegate_name override

@@ -443,7 +443,7 @@ encrypt = false
             .unwrap_or_else(|e| e.into_inner());
         test_mocks::reset();
         let tmp = tempdir().expect("tempdir");
-        let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+        let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
         write_subconscious_test_config(tmp.path(), false);
 
         test_mocks::mock_agent();
@@ -465,7 +465,7 @@ encrypt = false
             .unwrap_or_else(|e| e.into_inner());
         test_mocks::reset();
         let tmp = tempdir().expect("tempdir");
-        let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+        let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
         write_subconscious_test_config(tmp.path(), true);
 
         test_mocks::mock_local();

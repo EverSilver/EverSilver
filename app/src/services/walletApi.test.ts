@@ -27,7 +27,7 @@ describe('walletApi', () => {
     const { fetchWalletStatus } = await import('./walletApi');
     const result = await fetchWalletStatus();
 
-    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'openhuman.wallet_status' });
+    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'eversilver.wallet_status' });
     expect(result.configured).toBe(true);
   });
 
@@ -44,7 +44,7 @@ describe('walletApi', () => {
     await setupLocalWallet(payload);
 
     expect(mockCallCoreRpc).toHaveBeenCalledWith({
-      method: 'openhuman.wallet_setup',
+      method: 'eversilver.wallet_setup',
       params: payload,
     });
   });

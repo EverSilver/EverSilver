@@ -5,9 +5,9 @@ import { useT } from '../../../lib/i18n/I18nContext';
 import { tunnelsApi } from '../../../services/api/tunnelsApi';
 import { getCoreHttpBaseUrl } from '../../../services/coreRpcClient';
 import {
-  openhumanWebhooksClearLogs,
-  openhumanWebhooksListLogs,
-  openhumanWebhooksListRegistrations,
+  eversilverWebhooksClearLogs,
+  eversilverWebhooksListLogs,
+  eversilverWebhooksListRegistrations,
   type WebhookDebugEvent,
   type WebhookDebugLogEntry,
   type WebhookDebugRegistration,
@@ -56,8 +56,8 @@ const WebhooksDebugPanel = () => {
     setError(null);
     try {
       const [registrationsResponse, logsResponse] = await Promise.all([
-        openhumanWebhooksListRegistrations(),
-        openhumanWebhooksListLogs(LOG_LIMIT),
+        eversilverWebhooksListRegistrations(),
+        eversilverWebhooksListLogs(LOG_LIMIT),
       ]);
       setRegistrations(registrationsResponse.result.result.registrations);
       setLogs(logsResponse.result.result.logs);
@@ -130,7 +130,7 @@ const WebhooksDebugPanel = () => {
     setClearing(true);
     setError(null);
     try {
-      await openhumanWebhooksClearLogs();
+      await eversilverWebhooksClearLogs();
       await loadData();
     } catch (clearError) {
       setError(clearError instanceof Error ? clearError.message : 'Failed to clear webhook logs');

@@ -27,8 +27,8 @@ vi.mock('../../../../services/api/aiSettingsApi', () => ({
   setCloudProviderKey: vi.fn(),
   clearCloudProviderKey: vi.fn(),
   serializeProviderRef: vi.fn((r: { kind: string; providerSlug?: string; model?: string }) =>
-    r.kind === 'openhuman'
-      ? 'openhuman'
+    r.kind === 'eversilver'
+      ? 'eversilver'
       : r.kind === 'local'
         ? `ollama:${r.model}`
         : `${r.providerSlug}:${r.model}`
@@ -48,22 +48,22 @@ const baseSettings = {
   cloudProviders: [
     {
       id: 'p_oh_x',
-      slug: 'openhuman',
-      label: 'OpenHuman',
-      endpoint: 'https://api.openhuman.ai/v1',
-      auth_style: 'openhuman_jwt' as const,
+      slug: 'eversilver',
+      label: 'Eversilver',
+      endpoint: 'https://api.eversilver.ai/v1',
+      auth_style: 'eversilver_jwt' as const,
       has_api_key: false,
     },
   ],
   routing: {
-    reasoning: { kind: 'openhuman' as const },
-    agentic: { kind: 'openhuman' as const },
-    coding: { kind: 'openhuman' as const },
-    memory: { kind: 'openhuman' as const },
-    embeddings: { kind: 'openhuman' as const },
-    heartbeat: { kind: 'openhuman' as const },
-    learning: { kind: 'openhuman' as const },
-    subconscious: { kind: 'openhuman' as const },
+    reasoning: { kind: 'eversilver' as const },
+    agentic: { kind: 'eversilver' as const },
+    coding: { kind: 'eversilver' as const },
+    memory: { kind: 'eversilver' as const },
+    embeddings: { kind: 'eversilver' as const },
+    heartbeat: { kind: 'eversilver' as const },
+    learning: { kind: 'eversilver' as const },
+    subconscious: { kind: 'eversilver' as const },
   },
 };
 
@@ -88,12 +88,12 @@ describe('AIPanel', () => {
     expect(screen.getAllByText(/^Routing$/).length).toBeGreaterThan(0);
   });
 
-  it('renders the OpenHuman primary card after load', async () => {
+  it('renders the Eversilver primary card after load', async () => {
     renderWithProviders(<AIPanel />);
-    // The OpenHuman label now appears in multiple places (provider card,
-    // each workload routing row's "↳ OpenHuman" resolution hint), so we
+    // The Eversilver label now appears in multiple places (provider card,
+    // each workload routing row's "↳ Eversilver" resolution hint), so we
     // assert at-least-one match rather than getByText.
-    await waitFor(() => expect(screen.getAllByText(/OpenHuman/i).length).toBeGreaterThan(0));
+    await waitFor(() => expect(screen.getAllByText(/Eversilver/i).length).toBeGreaterThan(0));
   });
 
   it('renders all eight workload labels', async () => {
@@ -133,13 +133,13 @@ describe('AIPanel', () => {
           providerSlug: 'anthropic',
           model: 'claude-3-5-sonnet-20241022',
         },
-        agentic: { kind: 'openhuman' as const },
-        coding: { kind: 'openhuman' as const },
-        memory: { kind: 'openhuman' as const },
-        embeddings: { kind: 'openhuman' as const },
-        heartbeat: { kind: 'openhuman' as const },
-        learning: { kind: 'openhuman' as const },
-        subconscious: { kind: 'openhuman' as const },
+        agentic: { kind: 'eversilver' as const },
+        coding: { kind: 'eversilver' as const },
+        memory: { kind: 'eversilver' as const },
+        embeddings: { kind: 'eversilver' as const },
+        heartbeat: { kind: 'eversilver' as const },
+        learning: { kind: 'eversilver' as const },
+        subconscious: { kind: 'eversilver' as const },
       },
     };
 
@@ -229,12 +229,12 @@ describe('AIPanel', () => {
       routing: {
         reasoning: { kind: 'cloud' as const, providerSlug: 'openai', model: 'gpt-4o' },
         agentic: { kind: 'cloud' as const, providerSlug: 'openai', model: 'gpt-4o-mini' },
-        coding: { kind: 'openhuman' as const },
-        memory: { kind: 'openhuman' as const },
-        embeddings: { kind: 'openhuman' as const },
-        heartbeat: { kind: 'openhuman' as const },
-        learning: { kind: 'openhuman' as const },
-        subconscious: { kind: 'openhuman' as const },
+        coding: { kind: 'eversilver' as const },
+        memory: { kind: 'eversilver' as const },
+        embeddings: { kind: 'eversilver' as const },
+        heartbeat: { kind: 'eversilver' as const },
+        learning: { kind: 'eversilver' as const },
+        subconscious: { kind: 'eversilver' as const },
       },
     };
     vi.mocked(loadAISettings).mockResolvedValue(settingsWithOpenAI);
@@ -264,11 +264,11 @@ describe('AIPanel', () => {
       nextSettings.cloudProviders.find((p: { slug: string }) => p.slug === 'openai')
     ).toBeUndefined();
 
-    // Routing entries that were pinned to openai must be reset to openhuman.
-    expect(nextSettings.routing.reasoning).toEqual({ kind: 'openhuman' });
-    expect(nextSettings.routing.agentic).toEqual({ kind: 'openhuman' });
-    // Entries that were already openhuman remain unchanged.
-    expect(nextSettings.routing.coding).toEqual({ kind: 'openhuman' });
+    // Routing entries that were pinned to openai must be reset to eversilver.
+    expect(nextSettings.routing.reasoning).toEqual({ kind: 'eversilver' });
+    expect(nextSettings.routing.agentic).toEqual({ kind: 'eversilver' });
+    // Entries that were already eversilver remain unchanged.
+    expect(nextSettings.routing.coding).toEqual({ kind: 'eversilver' });
   });
 
   // ─── API-key dialog: failed setCloudProviderKey does not add provider ────────

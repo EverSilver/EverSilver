@@ -14,9 +14,9 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
-use openhuman_core::openhuman::config::MemoryConfig;
-use openhuman_core::openhuman::memory::store::AgentMemoryBackend;
-use openhuman_core::openhuman::memory::traits::{Memory, MemoryCategory, RecallOpts};
+use eversilver_core::openhuman::config::MemoryConfig;
+use eversilver_core::openhuman::memory::store::AgentMemoryBackend;
+use eversilver_core::openhuman::memory::traits::{Memory, MemoryCategory, RecallOpts};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone)]

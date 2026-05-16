@@ -554,7 +554,7 @@ fn key_loaded_once_then_cached() {
     // After the first read, subsequent decrypts must not depend on the key
     // file being readable. This is the property that protects us from
     // transient Windows sharing violations on `.secret_key` (Sentry
-    // OPENHUMAN-TAURI-58: "Failed to read secret key file" hammering
+    // EVERSILVER-TAURI-58: "Failed to read secret key file" hammering
     // app_state_snapshot).
     let tmp = TempDir::new().unwrap();
     let store = SecretStore::new(tmp.path(), true);

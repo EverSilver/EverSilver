@@ -1,11 +1,11 @@
 ---
-description: How OpenHuman tests its product - Vitest, cargo test, WDIO E2E. Where each test goes.
+description: How Eversilver tests its product - Vitest, cargo test, WDIO E2E. Where each test goes.
 icon: vial
 ---
 
 # Testing Strategy
 
-How OpenHuman tests its product. Source of truth for "where does my test go?". Companion to [`TEST-COVERAGE-MATRIX.md`](../../docs/TEST-COVERAGE-MATRIX.md).
+How Eversilver tests its product. Source of truth for "where does my test go?". Companion to [`TEST-COVERAGE-MATRIX.md`](../../docs/TEST-COVERAGE-MATRIX.md).
 
 ---
 
@@ -13,7 +13,7 @@ How OpenHuman tests its product. Source of truth for "where does my test go?". C
 
 | Layer                | Where it lives                                                                                                                                        | What it tests                                                                                                                                   | Driver                                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Rust unit**        | `#[cfg(test)] mod tests` inside the same `*.rs` file, or sibling `tests.rs`, or `tests/` subdir under a domain (e.g. `src/openhuman/channels/tests/`) | Pure domain logic, schemas, RPC handler shape, in-memory state machines                                                                         | `cargo test`                                                                                                               |
+| **Rust unit**        | `#[cfg(test)] mod tests` inside the same `*.rs` file, or sibling `tests.rs`, or `tests/` subdir under a domain (e.g. `src/eversilver/channels/tests/`) | Pure domain logic, schemas, RPC handler shape, in-memory state machines                                                                         | `cargo test`                                                                                                               |
 | **Rust integration** | `tests/*.rs` at repo root                                                                                                                             | Full domain wiring with real Tokio runtime, mock external services, JSON-RPC end-to-end (`tests/json_rpc_e2e.rs`), domain × domain interactions | `pnpm test:rust` (which calls `bash scripts/test-rust-with-mock.sh`)                                                       |
 | **Vitest unit**      | Co-located as `*.test.ts(x)` next to source under `app/src/**`, or under `app/src/**/__tests__/`                                                      | React components, hooks, store slices, pure utilities, service-layer adapters                                                                   | `pnpm test:unit`                                                                                                           |
 | **WDIO E2E**         | `app/test/e2e/specs/*.spec.ts`                                                                                                                        | Full desktop flow: UI → Tauri → core sidecar → JSON-RPC; user-visible behaviour                                                                 | Linux CI: `tauri-driver` (port 4444). macOS local: Appium Mac2 (port 4723). See [E2E Testing](e2e-testing.md). |
@@ -65,7 +65,7 @@ A spec that asserts only the happy path is incomplete.
 ## Determinism rules
 
 - No wall-clock waits, use `waitForApp`, `waitForAppReady`, `waitForWebView` helpers, or explicit element-readiness predicates.
-- No shared filesystem state, every E2E spec runs inside an isolated `OPENHUMAN_WORKSPACE` (created/cleaned by `app/scripts/e2e-run-spec.sh`).
+- No shared filesystem state, every E2E spec runs inside an isolated `EVERSILVER_WORKSPACE` (created/cleaned by `app/scripts/e2e-run-spec.sh`).
 - No order-dependent specs, each spec must pass when run alone.
 - No reliance on absolute coordinates or animation timing.
 - No real keyboard via `browser.keys()` on tauri-driver, synthesize via `browser.execute(...)` (see `command-palette.spec.ts` for the pattern).

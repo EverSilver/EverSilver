@@ -156,7 +156,7 @@ const WebviewHost = ({ accountId, provider }: WebviewHostProps) => {
         openWebviewAccount({ accountId, provider, bounds }).catch(() => {
           // Service-layer dispatched `setAccountStatus({ status: 'error', lastError })`
           // and emitted a Sentry breadcrumb already; swallowing here prevents the
-          // rejection from reaching `onunhandledrejection` (OPENHUMAN-REACT-K).
+          // rejection from reaching `onunhandledrejection` (EVERSILVER-REACT-K).
         });
       } else {
         void setWebviewAccountBounds(accountId, bounds);
@@ -252,7 +252,7 @@ const WebviewHost = ({ accountId, provider }: WebviewHostProps) => {
             onClick={() => {
               log('retry clicked account=%s provider=%s', accountId, provider);
               retryWebviewAccountLoad(accountId, provider).catch(() => {
-                // Same contract as the initial open (OPENHUMAN-REACT-K):
+                // Same contract as the initial open (EVERSILVER-REACT-K):
                 // service-layer dispatched error status + breadcrumb; absorbing
                 // the rejection keeps onunhandledrejection clean.
               });

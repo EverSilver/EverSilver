@@ -115,7 +115,7 @@ pub fn capture_screen_image_ref_for_context(
         use uuid::Uuid;
 
         let tmp_file = TemporaryScreenshotFile::new(std::env::temp_dir().join(format!(
-            "openhuman_screen_intelligence_{}.png",
+            "eversilver_screen_intelligence_{}.png",
             Uuid::new_v4()
         )));
 

@@ -44,7 +44,7 @@ use crate::openhuman::memory::tree::content_store::paths::{
 use crate::openhuman::memory::tree::types::{Chunk, SourceKind};
 
 pub const MEMORY_ARTIFACT_FORMAT: u32 = 2;
-pub const OPENHUMAN_CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
+pub const EVERSILVER_CORE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Build the canonical Obsidian `source/<slug>` tag for a given
 /// `source_id`. Used to seed the `tags:` block on every chunk and
@@ -419,8 +419,8 @@ fn build_summary_front_matter(r: &SummaryComposeInput<'_>) -> String {
     fm.push_str(&format!("time_range_end: {tre}\n"));
     fm.push_str(&format!("sealed_at: {sealed}\n"));
     fm.push_str(&format!(
-        "openhuman_core_version: {}\n",
-        yaml_scalar(OPENHUMAN_CORE_VERSION)
+        "eversilver_core_version: {}\n",
+        yaml_scalar(EVERSILVER_CORE_VERSION)
     ));
     fm.push_str(&format!(
         "memory_artifact_format: {}\n",
@@ -535,15 +535,15 @@ fn upsert_summary_provenance(front_matter: &str) -> String {
     let mut inserted = false;
 
     for raw in front_matter.lines() {
-        if raw.starts_with("openhuman_core_version: ")
+        if raw.starts_with("eversilver_core_version: ")
             || raw.starts_with("memory_artifact_format: ")
         {
             continue;
         }
         if !inserted && raw == "aliases:" {
             lines.push(format!(
-                "openhuman_core_version: {}",
-                yaml_scalar(OPENHUMAN_CORE_VERSION)
+                "eversilver_core_version: {}",
+                yaml_scalar(EVERSILVER_CORE_VERSION)
             ));
             lines.push(format!(
                 "memory_artifact_format: {}",
@@ -562,8 +562,8 @@ fn upsert_summary_provenance(front_matter: &str) -> String {
         lines.insert(
             insert_at,
             format!(
-                "openhuman_core_version: {}",
-                yaml_scalar(OPENHUMAN_CORE_VERSION)
+                "eversilver_core_version: {}",
+                yaml_scalar(EVERSILVER_CORE_VERSION)
             ),
         );
         lines.insert(
@@ -913,8 +913,8 @@ mod tests {
         assert!(fm.contains("child_count: 2"), "must have child_count");
         assert!(
             fm.contains(&format!(
-                "openhuman_core_version: {}",
-                OPENHUMAN_CORE_VERSION
+                "eversilver_core_version: {}",
+                EVERSILVER_CORE_VERSION
             )),
             "must stamp the core version"
         );
@@ -1186,8 +1186,8 @@ mod tests {
         assert!(rewritten_str.contains("  - topic/Memory"));
         assert!(!rewritten_str.contains("tags: []"));
         assert!(rewritten_str.contains(&format!(
-            "openhuman_core_version: {}",
-            OPENHUMAN_CORE_VERSION
+            "eversilver_core_version: {}",
+            EVERSILVER_CORE_VERSION
         )));
         assert!(rewritten_str.contains(&format!(
             "memory_artifact_format: {}",
@@ -1204,8 +1204,8 @@ mod tests {
         let rewritten = rewrite_summary_tags(file, &["person/Alice".to_string()]).unwrap();
         let rewritten_str = std::str::from_utf8(&rewritten).unwrap();
         assert!(rewritten_str.contains(&format!(
-            "openhuman_core_version: {}",
-            OPENHUMAN_CORE_VERSION
+            "eversilver_core_version: {}",
+            EVERSILVER_CORE_VERSION
         )));
         assert!(rewritten_str.contains(&format!(
             "memory_artifact_format: {}",

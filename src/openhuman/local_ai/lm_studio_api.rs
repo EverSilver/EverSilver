@@ -16,8 +16,8 @@ pub(crate) fn lm_studio_base_url(config: &Config) -> String {
 pub(crate) fn lm_studio_base_url_from_local_ai(local_ai: &LocalAiConfig) -> String {
     for (source, candidate) in [
         (
-            "OPENHUMAN_LM_STUDIO_BASE_URL",
-            std::env::var("OPENHUMAN_LM_STUDIO_BASE_URL").ok(),
+            "EVERSILVER_LM_STUDIO_BASE_URL",
+            std::env::var("EVERSILVER_LM_STUDIO_BASE_URL").ok(),
         ),
         (
             "LM_STUDIO_BASE_URL",

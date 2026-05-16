@@ -8,7 +8,7 @@
 //! ## Quick start
 //!
 //! ```rust
-//! use openhuman_core::openhuman::tokenjuice::{
+//! use eversilver_core::openhuman::tokenjuice::{
 //!     reduce::reduce_execution_with_rules,
 //!     rules::load_builtin_rules,
 //!     types::{ReduceOptions, ToolExecutionInput},

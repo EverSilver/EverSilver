@@ -1,6 +1,6 @@
 //! CEF cache-lock preflight check (macOS).
 //!
-//! When another OpenHuman instance is already running, it holds an exclusive
+//! When another Eversilver instance is already running, it holds an exclusive
 //! lock on the CEF user-data-dir at `~/Library/Caches/com.openhuman.app/cef`.
 //! The vendored `tauri-runtime-cef` crate calls `cef::initialize()` and
 //! asserts the result equals `1`; on lock collision it returns `0` and the
@@ -52,11 +52,11 @@ impl fmt::Display for CefLockError {
                 cache_path,
             } => write!(
                 f,
-                "CEF cache at {} is held by another OpenHuman instance \
+                "CEF cache at {} is held by another Eversilver instance \
                  (host {}, pid {}).\n\
                  Quit the running instance and try again.\n\
                  Workaround:\n  \
-                 pkill -f \"OpenHuman.app/Contents\"\n  \
+                 pkill -f \"Eversilver.app/Contents\"\n  \
                  pkill -f \"openhuman-core\"",
                 cache_path.display(),
                 host,
@@ -74,7 +74,7 @@ impl std::error::Error for CefLockError {}
 
 /// Resolves the macOS default CEF cache directory and runs the preflight.
 pub fn check_default_cache() -> Result<(), CefLockError> {
-    if let Some(configured) = std::env::var_os("OPENHUMAN_CEF_CACHE_PATH") {
+    if let Some(configured) = std::env::var_os("EVERSILVER_CEF_CACHE_PATH") {
         let configured = PathBuf::from(configured);
         log::debug!(
             "[cef-preflight] using configured cache_path={}",

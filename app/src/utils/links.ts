@@ -1,2 +1,2 @@
-export const DISCORD_INVITE_URL = 'https://discord.tinyhumans.ai';
-export const BILLING_DASHBOARD_URL = 'https://tinyhumans.ai/dashboard';
+export const DISCORD_INVITE_URL = 'https://discord.eversilver.local';
+export const BILLING_DASHBOARD_URL = 'https://eversilver.local/dashboard';

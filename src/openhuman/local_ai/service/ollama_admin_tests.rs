@@ -50,7 +50,7 @@ async fn has_model_detects_exact_and_prefixed_tag() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -61,7 +61,7 @@ async fn has_model_detects_exact_and_prefixed_tag() {
     assert!(!service.has_model("__missing__").await.unwrap());
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -75,7 +75,7 @@ async fn has_model_errors_on_non_success_tags_response() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -84,7 +84,7 @@ async fn has_model_errors_on_non_success_tags_response() {
     assert!(err.contains("500") || err.contains("tags failed"));
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -95,7 +95,7 @@ async fn ollama_healthy_returns_true_on_200_tags_response() {
     let app = Router::new().route("/api/tags", get(|| async { Json(json!({ "models": [] })) }));
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -103,7 +103,7 @@ async fn ollama_healthy_returns_true_on_200_tags_response() {
     assert!(service.ollama_healthy().await);
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -113,13 +113,13 @@ async fn ollama_healthy_returns_false_on_unreachable_url() {
 
     // Point at a port we never bind → connect fails → healthy = false.
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", "http://127.0.0.1:1");
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", "http://127.0.0.1:1");
     }
     let config = Config::default();
     let service = LocalAiService::new(&config);
     assert!(!service.ollama_healthy().await);
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -128,7 +128,7 @@ async fn diagnostics_reports_server_unreachable_when_url_unbound() {
     let _guard = crate::openhuman::local_ai::local_ai_test_guard();
 
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", "http://127.0.0.1:1");
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", "http://127.0.0.1:1");
     }
     let config = Config::default();
     let service = LocalAiService::new(&config);
@@ -155,7 +155,7 @@ async fn diagnostics_reports_server_unreachable_when_url_unbound() {
         "unreachable server must produce at least one repair action"
     );
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -166,7 +166,7 @@ async fn diagnostics_with_running_server_but_missing_models_flags_issues() {
     let app = Router::new().route("/api/tags", get(|| async { Json(json!({ "models": [] })) }));
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -193,7 +193,7 @@ async fn diagnostics_with_running_server_but_missing_models_flags_issues() {
         "missing models must produce pull_model repair action"
     );
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -223,7 +223,7 @@ async fn diagnostics_ok_when_expected_models_are_present() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let service = LocalAiService::new(&config);
@@ -248,7 +248,7 @@ async fn diagnostics_ok_when_expected_models_are_present() {
         "no issues should produce no repair actions"
     );
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -267,7 +267,7 @@ async fn resolve_binary_path_finds_binary_via_ollama_bin_env() {
     unsafe {
         std::env::set_var("OLLAMA_BIN", fake_bin.to_str().unwrap());
         // Point the base URL at a dead port so we don't depend on a real server.
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", "http://127.0.0.1:1");
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", "http://127.0.0.1:1");
     }
 
     let config = Config::default();
@@ -281,7 +281,7 @@ async fn resolve_binary_path_finds_binary_via_ollama_bin_env() {
 
     unsafe {
         std::env::remove_var("OLLAMA_BIN");
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -299,7 +299,7 @@ async fn diagnostics_repair_actions_include_start_server_when_binary_known() {
 
     unsafe {
         std::env::set_var("OLLAMA_BIN", fake_bin.to_str().unwrap());
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", "http://127.0.0.1:1");
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", "http://127.0.0.1:1");
     }
 
     let config = Config::default();
@@ -320,7 +320,7 @@ async fn diagnostics_repair_actions_include_start_server_when_binary_known() {
 
     unsafe {
         std::env::remove_var("OLLAMA_BIN");
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -331,7 +331,7 @@ async fn diagnostics_repair_actions_field_always_present() {
     let _guard = crate::openhuman::local_ai::local_ai_test_guard();
 
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", "http://127.0.0.1:1");
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", "http://127.0.0.1:1");
     }
     let config = Config::default();
     let service = LocalAiService::new(&config);
@@ -343,7 +343,7 @@ async fn diagnostics_repair_actions_field_always_present() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -364,7 +364,7 @@ async fn list_models_returns_parsed_payload() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -374,7 +374,7 @@ async fn list_models_returns_parsed_payload() {
     assert_eq!(models[0].name, "a:latest");
     assert_eq!(models[1].name, "b:v2");
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -388,7 +388,7 @@ async fn list_models_errors_on_non_success() {
     );
     let base = spawn_mock(app).await;
     unsafe {
-        std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+        std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
     }
 
     let config = Config::default();
@@ -396,7 +396,7 @@ async fn list_models_errors_on_non_success() {
     let err = service.list_models().await.unwrap_err();
     assert!(err.contains("503") || err.contains("tags failed"));
     unsafe {
-        std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+        std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
     }
 }
 
@@ -658,7 +658,7 @@ async fn shutdown_owned_ollama_clears_marker_and_kills_child() {
 
     // Redirect the workspace root to a tempdir so the marker file doesn't
     // touch the real `~/.openhuman/`. Per `paths::shared_root_dir`, when
-    // `default_root_openhuman_dir()` errors, it falls back to
+    // `default_root_eversilver_dir()` errors, it falls back to
     // `config_root_dir(config)` — which is `config.config_path.parent()`.
     let tmp = tempfile::tempdir().unwrap();
     let mut config = Config::default();
@@ -687,10 +687,10 @@ async fn shutdown_owned_ollama_clears_marker_and_kills_child() {
     // on a successful spawn) so we can verify shutdown clears it.
     //
     // NOTE: This test only verifies the shutdown path itself; it does not
-    // assert the marker survives the `default_root_openhuman_dir()`
+    // assert the marker survives the `default_root_eversilver_dir()`
     // resolution on every CI environment. On hosts where the fallback
     // resolves to a writable temp path, the write is exercised. On hosts
-    // where `default_root_openhuman_dir()` succeeds against the real home
+    // where `default_root_eversilver_dir()` succeeds against the real home
     // dir, we skip the marker assertion to avoid touching `~/.openhuman/`.
     let marker_path = crate::openhuman::local_ai::paths::ollama_spawn_marker_path(&config);
     let marker_writable = marker_path.starts_with(tmp.path());

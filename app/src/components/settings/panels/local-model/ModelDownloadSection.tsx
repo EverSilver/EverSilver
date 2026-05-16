@@ -149,7 +149,7 @@ const ModelDownloadSection = ({
           />
           <div className="flex items-center justify-between">
             <div className="text-xs text-stone-500">
-              Calls `openhuman.local_ai_summarize` via Rust core
+              Calls `eversilver.local_ai_summarize` via Rust core
             </div>
             <button
               onClick={onRunSummaryTest}

@@ -44,7 +44,7 @@ pub async fn whatsapp_data_ingest(req: IngestRequest) -> Result<RpcOutcome<Inges
         // the rusqlite error with `.with_context("upsert wa_chat <jid>")`,
         // so plain Display ({e}) only emits the outer context and drops
         // the underlying SQLite cause (database locked, schema mismatch,
-        // FK violation, …) before it reaches Sentry. See OPENHUMAN-TAURI-6B
+        // FK violation, …) before it reaches Sentry. See EVERSILVER-TAURI-6B
         // / TAURI-B2 for the canonical instance where this masked the
         // real failure.
         log::warn!("[whatsapp_data][rpc] ingest error: {e:#}");

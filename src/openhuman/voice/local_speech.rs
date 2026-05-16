@@ -131,7 +131,7 @@ pub async fn synthesize_piper(
         .to_string();
     debug!("{LOG_PREFIX} voice={voice_id} model_path={voice_path}");
 
-    let out_dir = std::env::temp_dir().join("openhuman_voice_output");
+    let out_dir = std::env::temp_dir().join("eversilver_voice_output");
     tokio::fs::create_dir_all(&out_dir)
         .await
         .map_err(|e| format!("{LOG_PREFIX} failed to create voice output directory: {e}"))?;

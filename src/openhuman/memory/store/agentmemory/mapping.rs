@@ -1,4 +1,4 @@
-//! Maps OpenHuman `MemoryEntry` / `MemoryCategory` to the agentmemory REST
+//! Maps Eversilver `MemoryEntry` / `MemoryCategory` to the agentmemory REST
 //! wire shapes and back.
 //!
 //! Wire contract: <https://github.com/rohitg00/agentmemory> — see the
@@ -7,13 +7,13 @@
 //! agentmemory has a richer wire shape (concepts, files, strength, version,
 //! supersedes) that the backend leaves at defaults — those fields are
 //! internal to agentmemory's lifecycle layer and don't need to round-trip
-//! through OpenHuman's trait. We map the OpenHuman-visible columns and let
+//! through Eversilver's trait. We map the Eversilver-visible columns and let
 //! agentmemory own the rest.
 
 use crate::openhuman::memory::traits::{MemoryCategory, MemoryEntry};
 use serde::{Deserialize, Serialize};
 
-/// Globally well-known "default" project name used when an OpenHuman caller
+/// Globally well-known "default" project name used when an Eversilver caller
 /// doesn't pass a namespace. Matches the trait's `GLOBAL_NAMESPACE` semantics.
 pub const DEFAULT_PROJECT: &str = "default";
 
@@ -102,7 +102,7 @@ pub struct ForgetRequest {
 }
 
 /// Generic agentmemory memory row. agentmemory carries more fields than this
-/// — we only deserialise what OpenHuman's `MemoryEntry` needs, leaving the
+/// — we only deserialise what Eversilver's `MemoryEntry` needs, leaving the
 /// rest in a flatten-bag if a future caller wants them.
 #[derive(Debug, Clone, Deserialize)]
 pub struct WireMemory {
@@ -129,7 +129,7 @@ pub struct WireMemory {
 }
 
 impl WireMemory {
-    /// Project the wire row into an OpenHuman `MemoryEntry`. `key` falls
+    /// Project the wire row into an Eversilver `MemoryEntry`. `key` falls
     /// back to the agentmemory `id` when no title is present — for raw
     /// observation rows that never went through `remember`.
     pub fn into_entry(self) -> MemoryEntry {

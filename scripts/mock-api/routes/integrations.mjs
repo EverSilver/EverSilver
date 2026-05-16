@@ -96,8 +96,8 @@ export function handleIntegrations(ctx) {
       data: [
         {
           id: "msg-1",
-          subject: "Welcome to OpenHuman",
-          from: "team@openhuman.com",
+          subject: "Welcome to Eversilver",
+          from: "team@eversilver.com",
           date: new Date().toISOString(),
           snippet: "Welcome to the platform!",
           hasAttachments: false,
@@ -287,7 +287,7 @@ export function handleIntegrations(ctx) {
             messages: [
               {
                 id: "e2e-gmail-message-1",
-                snippet: "Welcome to OpenHuman. No profile link is required for this run.",
+                snippet: "Welcome to Eversilver. No profile link is required for this run.",
               },
             ],
           }

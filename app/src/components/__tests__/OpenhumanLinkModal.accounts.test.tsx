@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import accountsReducer from '../../store/accountsSlice';
-import OpenhumanLinkModal, { OPENHUMAN_LINK_EVENT } from '../OpenhumanLinkModal';
+import OpenhumanLinkModal, { EVERSILVER_LINK_EVENT } from '../OpenhumanLinkModal';
 
 // Mock modules that require Tauri runtime
 vi.mock('@tauri-apps/api/core', () => ({ isTauri: vi.fn(() => false) }));
@@ -51,7 +51,7 @@ function renderModal(store = createStore()) {
 function openAccountsModal() {
   act(() => {
     window.dispatchEvent(
-      new CustomEvent(OPENHUMAN_LINK_EVENT, { detail: { path: 'accounts/setup' } })
+      new CustomEvent(EVERSILVER_LINK_EVENT, { detail: { path: 'accounts/setup' } })
     );
   });
 }

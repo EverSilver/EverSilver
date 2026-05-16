@@ -302,7 +302,7 @@ async fn sandbox_read_only_passes_through_read_scope_actions_to_downstream_gates
     //
     // A read-scoped slug clears the sandbox gate, so dispatch falls
     // through to `load_config_with_timeout()` (#1710 Wave 4). Hold
-    // `TEST_ENV_LOCK` and point `OPENHUMAN_WORKSPACE` at an isolated,
+    // `TEST_ENV_LOCK` and point `EVERSILVER_WORKSPACE` at an isolated,
     // persisted config so this test neither reads the dev's real
     // config nor races the shared env var against the other
     // config-loading composio tests.
@@ -311,7 +311,7 @@ async fn sandbox_read_only_passes_through_read_scope_actions_to_downstream_gates
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -334,7 +334,7 @@ async fn sandbox_read_only_passes_through_read_scope_actions_to_downstream_gates
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -346,7 +346,7 @@ async fn sandbox_unset_leaves_all_scopes_to_downstream_gates() {
     //
     // The sandbox gate is a no-op here, so dispatch falls through to
     // `load_config_with_timeout()` (#1710 Wave 4). Hold `TEST_ENV_LOCK`
-    // and point `OPENHUMAN_WORKSPACE` at an isolated, persisted config
+    // and point `EVERSILVER_WORKSPACE` at an isolated, persisted config
     // so this test neither reads the dev's real config nor races the
     // shared env var against the other config-loading composio tests.
     use crate::openhuman::config::TEST_ENV_LOCK;
@@ -354,7 +354,7 @@ async fn sandbox_unset_leaves_all_scopes_to_downstream_gates() {
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -374,7 +374,7 @@ async fn sandbox_unset_leaves_all_scopes_to_downstream_gates() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -386,7 +386,7 @@ async fn sandbox_sandboxed_mode_does_not_trigger_readonly_gate() {
     //
     // `Sandboxed` is a no-op for this gate, so dispatch falls through
     // to `load_config_with_timeout()` (#1710 Wave 4). Hold
-    // `TEST_ENV_LOCK` and point `OPENHUMAN_WORKSPACE` at an isolated,
+    // `TEST_ENV_LOCK` and point `EVERSILVER_WORKSPACE` at an isolated,
     // persisted config so this test neither reads the dev's real
     // config nor races the shared env var against the other
     // config-loading composio tests.
@@ -395,7 +395,7 @@ async fn sandbox_sandboxed_mode_does_not_trigger_readonly_gate() {
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -420,7 +420,7 @@ async fn sandbox_sandboxed_mode_does_not_trigger_readonly_gate() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -637,7 +637,7 @@ async fn list_tools_in_direct_mode_returns_empty_without_hitting_backend() {
     // ops.rs pattern for list_toolkits/list_connections). The critical
     // assertion is that this short-circuits **before** any backend
     // call — if it didn't, the tool would otherwise try to reach
-    // `staging-api.tinyhumans.ai` and fail with a network error, which
+    // `staging-api.eversilver.local` and fail with a network error, which
     // would still surface as an error ToolResult.
     //
     // Production `.execute(..)` calls `load_config_with_timeout()` per
@@ -648,7 +648,7 @@ async fn list_tools_in_direct_mode_returns_empty_without_hitting_backend() {
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -683,7 +683,7 @@ async fn list_tools_in_direct_mode_returns_empty_without_hitting_backend() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -700,16 +700,16 @@ async fn execute_tool_per_call_factory_means_no_baked_client() {
     //
     // Production `.execute(..)` calls `load_config_with_timeout()`
     // per call which reads from `~/.openhuman/config.toml` (or the
-    // workspace pointed at by `OPENHUMAN_WORKSPACE`). To isolate the
+    // workspace pointed at by `EVERSILVER_WORKSPACE`). To isolate the
     // test from the dev's real config we hold `TEST_ENV_LOCK`, point
-    // `OPENHUMAN_WORKSPACE` at a tempdir, and persist the test's
+    // `EVERSILVER_WORKSPACE` at a tempdir, and persist the test's
     // `Config` to that tempdir's `config.toml` before invoking the tool.
     use crate::openhuman::config::TEST_ENV_LOCK;
     let _env_guard = TEST_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
 
     let tmp = tempfile::tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -740,7 +740,7 @@ async fn execute_tool_per_call_factory_means_no_baked_client() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -749,9 +749,9 @@ async fn list_toolkits_in_direct_mode_returns_empty_without_hitting_backend() {
     // Same shape as `list_tools_in_direct_mode_returns_empty_without_hitting_backend`
     // — verifies the per-call factory routing for `composio_list_toolkits`.
     // Pre-fix this would have called
-    // `staging-api.tinyhumans.ai/agent-integrations/composio/toolkits`
+    // `staging-api.eversilver.local/agent-integrations/composio/toolkits`
     // regardless of mode and surfaced whatever the backend allowlist
-    // returned for the tinyhumans tenant.
+    // returned for the eversilver tenant.
     //
     // Production `.execute(..)` calls `load_config_with_timeout()` per
     // call which reads from disk — see the matching note on
@@ -761,7 +761,7 @@ async fn list_toolkits_in_direct_mode_returns_empty_without_hitting_backend() {
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -795,7 +795,7 @@ async fn list_toolkits_in_direct_mode_returns_empty_without_hitting_backend() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -834,7 +834,7 @@ async fn authorize_in_direct_mode_refuses_with_app_composio_dev_hint() {
 
     let tmp = tempfile::tempdir().expect("tempdir");
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let mut config = crate::openhuman::config::Config::default();
@@ -864,6 +864,6 @@ async fn authorize_in_direct_mode_refuses_with_app_composio_dev_hint() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }

@@ -1,6 +1,6 @@
 /**
  * Seeds the minimal QuickJS echo skill used by Rust `json_rpc_skills_runtime_start_tools_call_stop`
- * so the desktop core can run `openhuman.skills_start` → `skills_call_tool` against a real skill tree.
+ * so the desktop core can run `eversilver.skills_start` → `skills_call_tool` against a real skill tree.
  */
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -53,14 +53,14 @@ export function resolveE2eRuntimeSkillDirs(): string[] {
   const dirs: string[] = [];
   const homeDir = path.join(
     os.homedir(),
-    '.openhuman',
+    '.eversilver',
     'workspace',
     'skills',
     E2E_RUNTIME_SKILL_ID
   );
   dirs.push(homeDir);
 
-  const w = process.env.OPENHUMAN_WORKSPACE?.trim();
+  const w = process.env.EVERSILVER_WORKSPACE?.trim();
   if (w) {
     const resolved = path.resolve(w);
     const nested =

@@ -122,7 +122,7 @@ pub(crate) fn normalize_function_arguments(arguments: Option<serde_json::Value>)
             } else if serde_json::from_str::<serde_json::Value>(&raw).is_ok() {
                 raw
             } else {
-                // OPENHUMAN-TAURI-6F: model emitted malformed JSON in
+                // EVERSILVER-TAURI-6F: model emitted malformed JSON in
                 // `function.arguments`. Log the discard so it's traceable
                 // without leaking argument contents (which may contain PII).
                 log::warn!(

@@ -197,7 +197,7 @@ pub struct GitbooksConfig {
     /// When `true`, register `gitbooks_search` and `gitbooks_get_page`.
     #[serde(default = "defaults::default_true")]
     pub enabled: bool,
-    /// MCP endpoint URL for the OpenHuman GitBook docs.
+    /// MCP endpoint URL for the Eversilver GitBook docs.
     #[serde(default = "default_gitbooks_endpoint")]
     pub endpoint: String,
     /// Per-request timeout in seconds.
@@ -206,7 +206,7 @@ pub struct GitbooksConfig {
 }
 
 fn default_gitbooks_endpoint() -> String {
-    "https://tinyhumans.gitbook.io/openhuman/~gitbook/mcp".into()
+    "https://eversilver.gitbook.local/openhuman/~gitbook/mcp".into()
 }
 
 fn default_gitbooks_timeout_secs() -> u64 {
@@ -230,7 +230,7 @@ pub struct SeltzConfig {
     #[serde(default)]
     pub enabled: bool,
     /// Seltz API key. Can also be set via `SELTZ_API_KEY` or
-    /// `OPENHUMAN_SELTZ_API_KEY` env var.
+    /// `EVERSILVER_SELTZ_API_KEY` env var.
     #[serde(default)]
     pub api_key: Option<String>,
     /// Override the Seltz API base URL (default: `https://api.seltz.ai/v1`).
@@ -294,7 +294,7 @@ impl Default for WebSearchConfig {
 ///
 /// `"backend"` (default) — every Composio call (toolkits, connections,
 /// authorize, tools, execute, triggers, …) is proxied through the
-/// OpenHuman backend (`api.tinyhumans.ai/agent-integrations/composio/*`).
+/// Eversilver backend (`api.eversilver.local/agent-integrations/composio/*`).
 /// The backend owns the Composio API key, allowlist, billing/margin, and
 /// HMAC-verified trigger webhooks fanned out over socket.io.
 ///
@@ -332,7 +332,7 @@ pub struct ComposioConfig {
     pub triage_disabled_toolkits: Vec<String>,
 
     /// Routing mode for the main Composio integration flow. One of
-    /// [`COMPOSIO_MODE_BACKEND`] (default — proxied through the OpenHuman
+    /// [`COMPOSIO_MODE_BACKEND`] (default — proxied through the Eversilver
     /// backend) or [`COMPOSIO_MODE_DIRECT`] (BYO API key, calls
     /// `backend.composio.dev` directly).
     ///

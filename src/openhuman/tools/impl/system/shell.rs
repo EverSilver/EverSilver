@@ -392,9 +392,9 @@ mod tests {
 
         let tool = ShellTool::new(security.clone(), test_runtime());
         let command = if cfg!(windows) {
-            "mkdir openhuman_shell_approval_test"
+            "mkdir eversilver_shell_approval_test"
         } else {
-            "touch openhuman_shell_approval_test"
+            "touch eversilver_shell_approval_test"
         };
         let denied = tool.execute(json!({"command": command})).await.unwrap();
         assert!(denied.is_error);
@@ -409,7 +409,7 @@ mod tests {
             .unwrap();
         assert!(!allowed.is_error, "{}", allowed.output());
 
-        let cleanup = std::env::temp_dir().join("openhuman_shell_approval_test");
+        let cleanup = std::env::temp_dir().join("eversilver_shell_approval_test");
         if cfg!(windows) {
             let _ = tokio::fs::remove_dir_all(&cleanup).await;
         } else {

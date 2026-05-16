@@ -289,7 +289,7 @@ impl MeetAgentSession {
 
 /// Lowercase + drop punctuation + collapse whitespace, so the wake
 /// phrase matches regardless of how Meet's STT punctuated or cased
-/// it ("Hey, OpenHuman", "hey open-human", etc).
+/// it ("Hey, Eversilver", "hey eversilver", etc).
 fn normalize_for_wake(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     let mut prev_space = true;
@@ -430,7 +430,7 @@ mod tests {
     fn note_caption_handles_punctuated_wake() {
         let mut s = MeetAgentSession::new("p".into(), 16_000);
         // Meet often inserts a comma after "hey".
-        let fired = s.note_caption("Alice", "Hey, OpenHuman remember the launch", 1);
+        let fired = s.note_caption("Alice", "Hey, Eversilver remember the launch", 1);
         assert!(fired, "punctuated wake phrase should still fire");
         let prompt = s.take_pending_prompt().expect("prompt drained");
         assert_eq!(prompt, "remember the launch");
@@ -439,7 +439,7 @@ mod tests {
     #[test]
     fn note_caption_handles_split_brand() {
         let mut s = MeetAgentSession::new("p".into(), 16_000);
-        let fired = s.note_caption("Alice", "hey open-human, send the report", 1);
+        let fired = s.note_caption("Alice", "hey eversilver, send the report", 1);
         assert!(fired);
         let prompt = s.take_pending_prompt().expect("prompt drained");
         assert_eq!(prompt, "send the report");

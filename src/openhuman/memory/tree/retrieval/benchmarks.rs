@@ -1,7 +1,7 @@
 //! Memory retrieval benchmark fixtures — #1538
 //!
 //! Deterministic test scenarios that verify retrieval quality and safety
-//! for OpenHuman's memory tree. Each scenario exercises the full pipeline
+//! for Eversilver's memory tree. Each scenario exercises the full pipeline
 //! (ingest → extract → score → seal → retrieve) using synthetic fixture data
 //! so no real user data is required.
 //!
@@ -15,7 +15,7 @@
 //! | 4 | Contradiction handling | Disagreeing sources surface with provenance labels |
 //! | 5 | Long-source compression | Large source retrieves exact relevant leaf chunk |
 //!
-//! Run with: `cargo test --package openhuman_core -- retrieval_benchmarks`
+//! Run with: `cargo test --package eversilver_core -- retrieval_benchmarks`
 
 use chrono::{TimeZone, Utc};
 use tempfile::TempDir;

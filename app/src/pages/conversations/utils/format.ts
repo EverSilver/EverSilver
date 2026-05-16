@@ -72,7 +72,7 @@ export function isAllowedExternalHref(rawHref: string): boolean {
  * Custom inline tag the welcome agent (and any future agent) can drop
  * inside a chat bubble to render an in-app navigation pill, e.g.
  *
- *     <openhuman-link path="settings/notifications">Allow notifications</openhuman-link>
+ *     <eversilver-link path="settings/notifications">Allow notifications</eversilver-link>
  *
  * The conversation UI (`AgentMessageBubble`) parses these out of the
  * raw text, splitting the message into ordered text/link segments.
@@ -96,19 +96,19 @@ export interface TextSegment {
 
 export type BubbleSegment = TextSegment | OpenhumanLinkSegment;
 
-const OPENHUMAN_LINK_RE =
-  /<openhuman-link\s+path=(?:"([^"]+)"|'([^']+)')\s*>([\s\S]*?)<\/openhuman-link>/gi;
+const EVERSILVER_LINK_RE =
+  /<eversilver-link\s+path=(?:"([^"]+)"|'([^']+)')\s*>([\s\S]*?)<\/eversilver-link>/gi;
 
 export function parseBubbleSegments(content: string): BubbleSegment[] {
-  if (!content || !content.includes('<openhuman-link')) {
+  if (!content || !content.includes('<eversilver-link')) {
     return [{ kind: 'text', text: content }];
   }
   const segments: BubbleSegment[] = [];
   let cursor = 0;
   // Reset regex state between calls (the global flag preserves lastIndex).
-  OPENHUMAN_LINK_RE.lastIndex = 0;
+  EVERSILVER_LINK_RE.lastIndex = 0;
   let match: RegExpExecArray | null;
-  while ((match = OPENHUMAN_LINK_RE.exec(content)) !== null) {
+  while ((match = EVERSILVER_LINK_RE.exec(content)) !== null) {
     if (match.index > cursor) {
       segments.push({ kind: 'text', text: content.slice(cursor, match.index) });
     }

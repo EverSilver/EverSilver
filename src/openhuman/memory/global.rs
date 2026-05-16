@@ -56,7 +56,7 @@ pub fn init(workspace_dir: PathBuf) -> Result<MemoryClientRef, String> {
 /// handle (`OnceLock::set` is one-shot).
 #[cfg(test)]
 pub fn init_default() -> Result<MemoryClientRef, String> {
-    let workspace_dir = crate::openhuman::config::default_root_openhuman_dir()
+    let workspace_dir = crate::openhuman::config::default_root_eversilver_dir()
         .map_err(|e| e.to_string())?
         .join("workspace");
     init(workspace_dir)

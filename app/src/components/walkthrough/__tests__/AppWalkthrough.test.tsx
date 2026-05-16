@@ -63,8 +63,8 @@ vi.mock('react-joyride', () => ({
 
 // ── localStorage helpers ───────────────────────────────────────────────────
 
-const WALKTHROUGH_KEY = 'openhuman:walkthrough_completed';
-const WALKTHROUGH_PENDING_KEY = 'openhuman:walkthrough_pending';
+const WALKTHROUGH_KEY = 'eversilver:walkthrough_completed';
+const WALKTHROUGH_PENDING_KEY = 'eversilver:walkthrough_pending';
 
 beforeEach(() => {
   localStorage.clear();

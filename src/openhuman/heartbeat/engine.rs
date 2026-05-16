@@ -195,7 +195,7 @@ mod tests {
 
     #[tokio::test]
     async fn ensure_heartbeat_file_creates_file_with_defaults() {
-        let dir = std::env::temp_dir().join("openhuman_test_heartbeat_defaults");
+        let dir = std::env::temp_dir().join("eversilver_test_heartbeat_defaults");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
 
@@ -214,7 +214,7 @@ mod tests {
 
     #[tokio::test]
     async fn ensure_heartbeat_file_does_not_overwrite() {
-        let dir = std::env::temp_dir().join("openhuman_test_heartbeat_no_overwrite");
+        let dir = std::env::temp_dir().join("eversilver_test_heartbeat_no_overwrite");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
 

@@ -10,7 +10,7 @@
  * '@tauri-apps/api/core'".
  *
  * The Node path probes the core's port range, attaches the per-launch
- * bearer token written to `${tmpdir}/openhuman-e2e-rpc-token`, and does
+ * bearer token written to `${tmpdir}/eversilver-e2e-rpc-token`, and does
  * the JSON-RPC over plain HTTP — fully driver-agnostic.
  */
 import { callOpenhumanRpcNode } from './core-rpc-node';

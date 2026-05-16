@@ -1,4 +1,4 @@
-# Beginner's Guide to Contributing to OpenHuman
+# Beginner's Guide to Contributing to Eversilver
 
 New to open source or coding? This guide walks you through everything from zero to your first pull request — based on real setup pain points that new contributors hit.
 
@@ -23,7 +23,7 @@ For the full contributor reference, see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## What is this project?
 
-OpenHuman is a desktop AI assistant app. The codebase has three main parts:
+Eversilver is a desktop AI assistant app. The codebase has three main parts:
 
 | Part | Tech | What it does |
 |------|------|-------------|
@@ -81,15 +81,15 @@ cmake --version    # any recent version
 
 ### 2a. Fork on GitHub
 
-1. Go to [github.com/tinyhumansai/openhuman](https://github.com/tinyhumansai/openhuman)
+1. Go to [github.com/eversilver/eversilver](https://github.com/eversilver/eversilver)
 2. Click **Fork** (top right)
-3. This creates your own copy at `github.com/YOUR_USERNAME/openhuman`
+3. This creates your own copy at `github.com/YOUR_USERNAME/eversilver`
 
 ### 2b. Clone your fork locally
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/openhuman.git
-cd openhuman
+git clone https://github.com/YOUR_USERNAME/eversilver.git
+cd eversilver
 ```
 
 ### 2c. Add the upstream remote
@@ -97,15 +97,15 @@ cd openhuman
 This links your local copy to the original repo so you can pull in updates later:
 
 ```bash
-git remote add upstream https://github.com/tinyhumansai/openhuman.git
+git remote add upstream https://github.com/eversilver/eversilver.git
 ```
 
 Verify both remotes exist:
 
 ```bash
 git remote -v
-# origin    https://github.com/YOUR_USERNAME/openhuman.git  ← your fork
-# upstream  https://github.com/tinyhumansai/openhuman.git   ← the original
+# origin    https://github.com/YOUR_USERNAME/eversilver.git  ← your fork
+# upstream  https://github.com/eversilver/eversilver.git   ← the original
 ```
 
 ---
@@ -144,7 +144,7 @@ The defaults work for web-only development. You don't need to change anything to
 pnpm dev
 
 # Full desktop app (needs Rust + Tauri built first)
-pnpm --filter openhuman-app dev:app
+pnpm --filter eversilver-app dev:app
 ```
 
 For your first contribution, `pnpm dev` is all you need.
@@ -153,7 +153,7 @@ For your first contribution, `pnpm dev` is all you need.
 
 ## Step 4 — Find an issue to work on
 
-1. Go to [github.com/tinyhumansai/openhuman/issues](https://github.com/tinyhumansai/openhuman/issues)
+1. Go to [github.com/eversilver/eversilver/issues](https://github.com/eversilver/eversilver/issues)
 2. Filter by label — look for `good first issue`, `documentation`, or frontend-related labels
 3. Read the issue fully before starting
 4. Leave a comment saying you'd like to work on it — this avoids two people solving the same issue
@@ -223,9 +223,9 @@ git push -u origin your-branch-name
 
 ### Open the PR
 
-1. Go to your fork on GitHub: `github.com/YOUR_USERNAME/openhuman`
+1. Go to your fork on GitHub: `github.com/YOUR_USERNAME/eversilver`
 2. You'll see a **"Compare & pull request"** banner — click it
-3. Make sure the PR targets **`tinyhumansai/openhuman:main`** (not your fork)
+3. Make sure the PR targets **`eversilver/eversilver:main`** (not your fork)
 4. Fill in the PR template completely
 5. Link the issue with `Closes #ISSUE_NUMBER` in the description
 6. Submit
@@ -282,7 +282,7 @@ brew install node@24
 
 These may be pre-existing issues on `main` unrelated to your change. Note them in your PR description and proceed.
 
-### Desktop build fails (`pnpm --filter openhuman-app dev:app`)
+### Desktop build fails (`pnpm --filter eversilver-app dev:app`)
 
 The desktop build requires the full Rust toolchain and vendored Tauri setup. For your first contributions, stick to `pnpm dev` (web mode) and skip the desktop build entirely.
 
@@ -290,8 +290,8 @@ The desktop build requires the full Rust toolchain and vendored Tauri setup. For
 
 ## Still stuck?
 
-- Join the [Discord](https://discord.tinyhumans.ai/) and ask in the contributors channel
+- Join the [Discord](https://discord.eversilver.local/) and ask in the contributors channel
 - Comment on the issue you're working on
 - Check [`gitbooks/developing/getting-set-up.md`](gitbooks/developing/getting-set-up.md) for deeper setup docs
 
-Thank you for contributing to OpenHuman!
+Thank you for contributing to Eversilver!

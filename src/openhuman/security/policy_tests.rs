@@ -251,7 +251,7 @@ fn validate_command_rejects_background_chain_bypass() {
     assert!(result.unwrap_err().contains("not allowed"));
 }
 
-// Regression: OPENHUMAN-TAURI-GW (#1813). A multi-byte UTF-8 char straddling
+// Regression: EVERSILVER-TAURI-GW (#1813). A multi-byte UTF-8 char straddling
 // byte 80 of the command string used to panic the log truncator with
 // `byte index 80 is not a char boundary`, killing the core thread. All five
 // `&command[..80]` log sites must now round down to a UTF-8 boundary.
@@ -905,7 +905,7 @@ fn checklist_default_forbidden_paths_comprehensive() {
 
 #[test]
 fn resolved_path_blocks_outside_workspace() {
-    let workspace = std::env::temp_dir().join("openhuman_test_resolved_path");
+    let workspace = std::env::temp_dir().join("eversilver_test_resolved_path");
     let _ = std::fs::create_dir_all(&workspace);
 
     // Use the canonicalized workspace so starts_with checks match
@@ -929,7 +929,7 @@ fn resolved_path_blocks_outside_workspace() {
     let canonical_temp = std::env::temp_dir()
         .canonicalize()
         .unwrap_or_else(|_| std::env::temp_dir());
-    let outside = canonical_temp.join("outside_workspace_openhuman");
+    let outside = canonical_temp.join("outside_workspace_eversilver");
     assert!(
         !policy.is_resolved_path_allowed(&outside),
         "path outside workspace must be blocked"
@@ -941,7 +941,7 @@ fn resolved_path_blocks_outside_workspace() {
 #[test]
 fn resolved_path_blocks_root_escape() {
     let policy = SecurityPolicy {
-        workspace_dir: PathBuf::from("/home/openhuman_user/project"),
+        workspace_dir: PathBuf::from("/home/eversilver_user/project"),
         ..SecurityPolicy::default()
     };
 
@@ -960,7 +960,7 @@ fn resolved_path_blocks_root_escape() {
 fn resolved_path_blocks_symlink_escape() {
     use std::os::unix::fs::symlink;
 
-    let root = std::env::temp_dir().join("openhuman_test_symlink_escape");
+    let root = std::env::temp_dir().join("eversilver_test_symlink_escape");
     let workspace = root.join("workspace");
     let outside = root.join("outside_target");
 

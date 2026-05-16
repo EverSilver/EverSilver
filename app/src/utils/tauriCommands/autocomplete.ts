@@ -112,105 +112,105 @@ export interface AutocompleteClearHistoryResult {
   cleared: number;
 }
 
-export async function openhumanAutocompleteStatus(): Promise<CommandResponse<AutocompleteStatus>> {
+export async function eversilverAutocompleteStatus(): Promise<CommandResponse<AutocompleteStatus>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteStatus>>({
-    method: 'openhuman.autocomplete_status',
+    method: 'eversilver.autocomplete_status',
   });
 }
 
-export async function openhumanAutocompleteStart(
+export async function eversilverAutocompleteStart(
   params?: AutocompleteStartParams
 ): Promise<CommandResponse<AutocompleteStartResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteStartResult>>({
-    method: 'openhuman.autocomplete_start',
+    method: 'eversilver.autocomplete_start',
     params: params ?? {},
   });
 }
 
-export async function openhumanAutocompleteStop(
+export async function eversilverAutocompleteStop(
   params?: AutocompleteStopParams
 ): Promise<CommandResponse<AutocompleteStopResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteStopResult>>({
-    method: 'openhuman.autocomplete_stop',
+    method: 'eversilver.autocomplete_stop',
     params: params ?? {},
   });
 }
 
-export async function openhumanAutocompleteCurrent(
+export async function eversilverAutocompleteCurrent(
   params?: AutocompleteCurrentParams
 ): Promise<CommandResponse<AutocompleteCurrentResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteCurrentResult>>({
-    method: 'openhuman.autocomplete_current',
+    method: 'eversilver.autocomplete_current',
     params: params ?? {},
   });
 }
 
-export async function openhumanAutocompleteDebugFocus(): Promise<
+export async function eversilverAutocompleteDebugFocus(): Promise<
   CommandResponse<AutocompleteDebugFocusResult>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteDebugFocusResult>>({
-    method: 'openhuman.autocomplete_debug_focus',
+    method: 'eversilver.autocomplete_debug_focus',
   });
 }
 
-export async function openhumanAutocompleteAccept(
+export async function eversilverAutocompleteAccept(
   params?: AutocompleteAcceptParams
 ): Promise<CommandResponse<AutocompleteAcceptResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteAcceptResult>>({
-    method: 'openhuman.autocomplete_accept',
+    method: 'eversilver.autocomplete_accept',
     params: params ?? {},
   });
 }
 
-export async function openhumanAutocompleteSetStyle(
+export async function eversilverAutocompleteSetStyle(
   params: AutocompleteSetStyleParams
 ): Promise<CommandResponse<AutocompleteSetStyleResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteSetStyleResult>>({
-    method: 'openhuman.autocomplete_set_style',
+    method: 'eversilver.autocomplete_set_style',
     params,
   });
 }
 
-export async function openhumanAutocompleteHistory(params?: {
+export async function eversilverAutocompleteHistory(params?: {
   limit?: number;
 }): Promise<CommandResponse<AutocompleteHistoryResult>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteHistoryResult>>({
-    method: 'openhuman.autocomplete_history',
+    method: 'eversilver.autocomplete_history',
     params: params ?? {},
   });
 }
 
-export async function openhumanAutocompleteClearHistory(): Promise<
+export async function eversilverAutocompleteClearHistory(): Promise<
   CommandResponse<AutocompleteClearHistoryResult>
 > {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<AutocompleteClearHistoryResult>>({
-    method: 'openhuman.autocomplete_clear_history',
+    method: 'eversilver.autocomplete_clear_history',
   });
 }

@@ -10,12 +10,12 @@
 
 <p align="center" style="display: inline-block">
  <a href="https://trendshift.io/repositories/23680" target="_blank" style="display: inline-block">
-  <img src="https://trendshift.io/api/badge/repositories/23680" alt="tinyhumansai%2Fopenhuman | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
+  <img src="https://trendshift.io/api/badge/repositories/23680" alt="eversilver%2Feversilver | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
  </a>
 </p>
 
 <p align="center" style="display: inline-block">
- <a href="https://www.producthunt.com/products/openhuman?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-openhuman" target="_blank" rel="noopener noreferrer"><img alt="Eversilver - An open source AI harness built with the human in mind | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1136902&amp;theme=light&amp;t=1778829432446"></a>
+ <a href="https://www.producthunt.com/products/eversilver?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-eversilver" target="_blank" rel="noopener noreferrer"><img alt="Eversilver - An open source AI harness built with the human in mind | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1136902&amp;theme=light&amp;t=1778829432446"></a>
 </p>
 
 <p align="center">
@@ -24,50 +24,50 @@
 
 
 <p align="center">
- <a href="https://discord.tinyhumans.ai/">Discord</a> •
- <a href="https://www.reddit.com/r/tinyhumansai/">Reddit</a> •
- <a href="https://x.com/intent/follow?screen_name=tinyhumansai">X/Twitter</a> •
- <a href="https://tinyhumans.gitbook.io/openhuman/">文档</a> •
- <a href="https://x.com/intent/follow?screen_name=senamakel">关注 @senamakel（作者）</a>
+ <a href="https://discord.eversilver.local/">Discord</a> •
+ <a href="https://www.reddit.com/r/eversilver/">Reddit</a> •
+ <a href="https://x.com/intent/follow?screen_name=eversilver">X/Twitter</a> •
+ <a href="https://eversilver.gitbook.local/eversilver/">文档</a> •
+ <a href="https://x.com/intent/follow?screen_name=eversilver">关注 @eversilver（作者）</a>
 </p>
 
 <p align="center">
  <img src="https://img.shields.io/badge/status-early%20beta-orange" alt="早期测试版" />
- <a href="https://github.com/tinyhumansai/openhuman/releases/latest"><img src="https://img.shields.io/github/v/release/tinyhumansai/openhuman?label=latest" alt="最新版本" /></a>
- <a href="https://github.com/tinyhumansai/openhuman/stargazers"><img src="https://img.shields.io/github/stars/tinyhumansai/openhuman?style=flat" alt="GitHub Stars" /></a>
- <a href="./LICENSE"><img src="https://img.shields.io/github/license/tinyhumansai/openhuman" alt="许可证" /></a>
+ <a href="https://github.com/eversilver/eversilver/releases/latest"><img src="https://img.shields.io/github/v/release/eversilver/eversilver?label=latest" alt="最新版本" /></a>
+ <a href="https://github.com/eversilver/eversilver/stargazers"><img src="https://img.shields.io/github/stars/eversilver/eversilver?style=flat" alt="GitHub Stars" /></a>
+ <a href="./LICENSE"><img src="https://img.shields.io/github/license/eversilver/eversilver" alt="许可证" /></a>
  <a href="./README.md"><img src="https://img.shields.io/badge/lang-English-blue" alt="English" /></a>
 </p>
 
 > **早期测试版**：正在积极开发中，可能存在不完善之处。
 
-要安装或开始使用，请从 [tinyhumans.ai/openhuman](https://tinyhumans.ai/openhuman?utm_source=github&utm_medium=readme) 下载，或在终端中运行：
+要安装或开始使用，请从 [eversilver.local/eversilver](https://eversilver.local/eversilver?utm_source=github&utm_medium=readme) 下载，或在终端中运行：
 
 ```bash
-# 从 https://tinyhumans.ai/openhuman?utm_source=github&utm_medium=readme 下载 DMG、EXE，或在终端中运行
+# 从 https://eversilver.local/eversilver?utm_source=github&utm_medium=readme 下载 DMG、EXE，或在终端中运行
 
 # macOS 或 Linux x64
-curl -fsSL https://raw.githubusercontent.com/tinyhumansai/openhuman/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/eversilver/eversilver/main/scripts/install.sh | bash
 
 # Windows
-irm https://raw.githubusercontent.com/tinyhumansai/openhuman/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/eversilver/eversilver/main/scripts/install.ps1 | iex
 ```
 
 # 什么是 Eversilver？
 
-Eversilver 是一个开源智能助手，旨在融入你的日常生活。以下每条链接都指向[文档](https://tinyhumans.gitbook.io/openhuman/)中更详细的说明。
+Eversilver 是一个开源智能助手，旨在融入你的日常生活。以下每条链接都指向[文档](https://eversilver.gitbook.local/eversilver/)中更详细的说明。
 
-- **简洁、UI 优先、人性化** — 清爽的桌面体验和简短的入门流程让你从安装到拥有一个可用的智能体仅需几次点击——无需先配置，无需终端。智能体有[一张脸](https://tinyhumans.gitbook.io/openhuman/features/mascot)：一个桌面吉祥物，会说话、能感知周围环境、可作为真实参与者[加入你的 Google Meet 会议](https://tinyhumans.gitbook.io/openhuman/features/mascot/meeting-agents)、跨周记住你，即使你停止输入后仍在后台持续思考。
+- **简洁、UI 优先、人性化** — 清爽的桌面体验和简短的入门流程让你从安装到拥有一个可用的智能体仅需几次点击——无需先配置，无需终端。智能体有[一张脸](https://eversilver.gitbook.local/eversilver/features/mascot)：一个桌面吉祥物，会说话、能感知周围环境、可作为真实参与者[加入你的 Google Meet 会议](https://eversilver.gitbook.local/eversilver/features/mascot/meeting-agents)、跨周记住你，即使你停止输入后仍在后台持续思考。
 
-- **[118+ 第三方集成](https://tinyhumans.gitbook.io/openhuman/features/integrations) + [自动拉取](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki/auto-fetch)**：通过**一键 OAuth** 接入 Gmail、Notion、GitHub、Slack、Stripe、Calendar、Drive、Linear、Jira 以及你技术栈中的其他服务。每个连接都以类型化工具的形式暴露给智能体，核心每 20 分钟遍历每个活跃连接并将新数据拉入[记忆树](https://tinyhumans.gitbook.io/openhuman/features/integrations/auto-fetch)中。无需提示词，无需手动编写轮询循环，智能体在每天早上就已经拥有当天的上下文。
+- **[118+ 第三方集成](https://eversilver.gitbook.local/eversilver/features/integrations) + [自动拉取](https://eversilver.gitbook.local/eversilver/features/obsidian-wiki/auto-fetch)**：通过**一键 OAuth** 接入 Gmail、Notion、GitHub、Slack、Stripe、Calendar、Drive、Linear、Jira 以及你技术栈中的其他服务。每个连接都以类型化工具的形式暴露给智能体，核心每 20 分钟遍历每个活跃连接并将新数据拉入[记忆树](https://eversilver.gitbook.local/eversilver/features/integrations/auto-fetch)中。无需提示词，无需手动编写轮询循环，智能体在每天早上就已经拥有当天的上下文。
 
-- **[记忆树](https://tinyhumans.gitbook.io/openhuman/features/memory-tree) + [Obsidian Wiki](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki)**：一个基于你的数据和活动构建的本地优先知识库。你连接的所有内容都被规范化为不超过 3k token 的 Markdown 片段，经过评分后折叠成层级化的摘要树，存储在**你本机的 SQLite** 中。同样的片段以 `.md` 文件形式落地到兼容 Obsidian 的仓库中，你可以打开、浏览和编辑，灵感来源于 Karpathy 的 [obsidian-wiki 工作流](https://x.com/karpathy/status/2039805659525644595)。
+- **[记忆树](https://eversilver.gitbook.local/eversilver/features/memory-tree) + [Obsidian Wiki](https://eversilver.gitbook.local/eversilver/features/obsidian-wiki)**：一个基于你的数据和活动构建的本地优先知识库。你连接的所有内容都被规范化为不超过 3k token 的 Markdown 片段，经过评分后折叠成层级化的摘要树，存储在**你本机的 SQLite** 中。同样的片段以 `.md` 文件形式落地到兼容 Obsidian 的仓库中，你可以打开、浏览和编辑，灵感来源于 Karpathy 的 [obsidian-wiki 工作流](https://x.com/karpathy/status/2039805659525644595)。
 
-- **开箱即用**：默认内置网络搜索、网页抓取[爬虫](https://tinyhumans.gitbook.io/openhuman/features/native-tools)、完整的编码工具集（文件系统、git、lint、test、grep）以及[原生语音](https://tinyhumans.gitbook.io/openhuman/features/voice)（STT 输入、ElevenLabs TTS 输出、吉祥物口型同步、实时 Google Meet 智能体）。[模型路由](https://tinyhumans.gitbook.io/openhuman/features/model-routing)在一个订阅下将每个任务分派到合适的 LLM（推理型、快速型或视觉型）。没有"安装插件才能读文件"的摩擦。[可选通过 Ollama 使用本地 AI](https://tinyhumans.gitbook.io/openhuman/features/model-routing/local-ai) 处理端侧工作负载。
+- **开箱即用**：默认内置网络搜索、网页抓取[爬虫](https://eversilver.gitbook.local/eversilver/features/native-tools)、完整的编码工具集（文件系统、git、lint、test、grep）以及[原生语音](https://eversilver.gitbook.local/eversilver/features/voice)（STT 输入、ElevenLabs TTS 输出、吉祥物口型同步、实时 Google Meet 智能体）。[模型路由](https://eversilver.gitbook.local/eversilver/features/model-routing)在一个订阅下将每个任务分派到合适的 LLM（推理型、快速型或视觉型）。没有"安装插件才能读文件"的摩擦。[可选通过 Ollama 使用本地 AI](https://eversilver.gitbook.local/eversilver/features/model-routing/local-ai) 处理端侧工作负载。
 
-- **[智能 Token 压缩（TokenJuice）](https://tinyhumans.gitbook.io/openhuman/features/token-compression)**：每个工具调用、抓取结果、邮件正文和搜索载荷在触达任何 LLM 模型之前都会经过 token 压缩层处理。HTML 被转换为 Markdown，长 URL 被缩短，非 ASCII 字符被移除等等。你获得相同的信息，但 token 消耗仅为原来的几分之一。最多可降低 80% 的成本和延迟。
+- **[智能 Token 压缩（TokenJuice）](https://eversilver.gitbook.local/eversilver/features/token-compression)**：每个工具调用、抓取结果、邮件正文和搜索载荷在触达任何 LLM 模型之前都会经过 token 压缩层处理。HTML 被转换为 Markdown，长 URL 被缩短，非 ASCII 字符被移除等等。你获得相同的信息，但 token 消耗仅为原来的几分之一。最多可降低 80% 的成本和延迟。
 
-- **[消息渠道](https://tinyhumans.gitbook.io/openhuman/features/integrations#messaging-channels)** 与 **[隐私与安全](https://tinyhumans.gitbook.io/openhuman/features/privacy-and-security)**：通过你日常使用的渠道进行收发，工作流数据保留在设备上，本地加密，始终属于你。
+- **[消息渠道](https://eversilver.gitbook.local/eversilver/features/integrations#messaging-channels)** 与 **[隐私与安全](https://eversilver.gitbook.local/eversilver/features/privacy-and-security)**：通过你日常使用的渠道进行收发，工作流数据保留在设备上，本地加密，始终属于你。
 
 ## 从源码贡献
 
@@ -75,9 +75,9 @@ Eversilver 是一个开源智能助手，旨在融入你的日常生活。以下
 
 1. 安装 Git、Node.js 24+、pnpm 10.10.0、Rust 1.93.0（`rustfmt` + `clippy`）、CMake、Ninja、ripgrep，以及各平台桌面构建的前置依赖。
 2. Fork 并克隆仓库，然后运行 `git submodule update --init --recursive` 之后再执行 `pnpm install`，确保内置的 Tauri/CEF 源码就位。
-3. 使用 `pnpm dev` 进行纯 Web UI 开发，`pnpm --filter eversilver-app dev:app` 用于桌面壳，在提交 PR 之前运行针对性的检查如 `pnpm typecheck`、`pnpm format:check` 和 `cargo check -p openhuman --lib`。
+3. 使用 `pnpm dev` 进行纯 Web UI 开发，`pnpm --filter eversilver-app dev:app` 用于桌面壳，在提交 PR 之前运行针对性的检查如 `pnpm typecheck`、`pnpm format:check` 和 `cargo check -p eversilver --lib`。
 
-更多文档：[架构](https://tinyhumans.gitbook.io/openhuman/developing/architecture) · [环境搭建](https://tinyhumans.gitbook.io/openhuman/developing/getting-set-up) · [云端部署](./gitbooks/features/cloud-deploy.md)。
+更多文档：[架构](https://eversilver.gitbook.local/eversilver/developing/architecture) · [环境搭建](https://eversilver.gitbook.local/eversilver/developing/getting-set-up) · [云端部署](./gitbooks/features/cloud-deploy.md)。
 
 ## 几分钟内建立上下文，而非数周
 
@@ -89,11 +89,11 @@ Eversilver 是首个能在几分钟内了解你的智能体框架。灵感来源
 
 > Eversilver 将你的所有文档、邮件和聊天记录进行摘要和压缩，并创建一个记忆图谱，让你的智能体记住关于你的一切。
 
-Eversilver 跳过了等待期。连接你的账户，让[自动拉取](https://tinyhumans.gitbook.io/openhuman/features/integrations/auto-fetch)以 20 分钟为周期将数据拉到本地，然后由[记忆树](https://tinyhumans.gitbook.io/openhuman/features/memory-tree)将所有内容压缩为 Markdown 文件，智能存储在一个 [Karpathy 风格的 Obsidian wiki](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki) 中。
+Eversilver 跳过了等待期。连接你的账户，让[自动拉取](https://eversilver.gitbook.local/eversilver/features/integrations/auto-fetch)以 20 分钟为周期将数据拉到本地，然后由[记忆树](https://eversilver.gitbook.local/eversilver/features/memory-tree)将所有内容压缩为 Markdown 文件，智能存储在一个 [Karpathy 风格的 Obsidian wiki](https://eversilver.gitbook.local/eversilver/features/obsidian-wiki) 中。
 
 仅需一次同步，智能体就拥有了你收件箱、日历、仓库、文档、消息的完整（压缩后的）上下文。无需训练期，无需"给它几周时间"。它成为你，由你掌控。
 
-已经在其他编码智能体中自托管 [agentmemory](https://github.com/rohitg00/agentmemory)？Eversilver 提供可选的 `Memory` 后端来代理它——在 `config.toml` 中设置 `memory.backend = "agentmemory"`，同一个持久化存储将同时服务于 Eversilver 和 Claude Code、Cursor、Codex、OpenCode。详见 [agentmemory 后端](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki/agentmemory-backend)页面。
+已经在其他编码智能体中自托管 [agentmemory](https://github.com/rohitg00/agentmemory)？Eversilver 提供可选的 `Memory` 后端来代理它——在 `config.toml` 中设置 `memory.backend = "agentmemory"`，同一个持久化存储将同时服务于 Eversilver 和 Claude Code、Cursor、Codex、OpenCode。详见 [agentmemory 后端](https://eversilver.gitbook.local/eversilver/features/obsidian-wiki/agentmemory-backend)页面。
 
 ## Eversilver vs 其他智能体框架
 
@@ -116,19 +116,19 @@ Eversilver 跳过了等待期。连接你的账户，让[自动拉取](https://t
 _致力于 AGI 和人工意识？为仓库加星，帮助更多人找到这条路。_
 
 <p align="center">
- <a href="https://www.star-history.com/#tinyhumansai/openhuman&type=date&legend=top-left">
+ <a href="https://www.star-history.com/#eversilver/eversilver&type=date&legend=top-left">
  <picture>
- <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=tinyhumansai/openhuman&type=date&theme=dark&legend=top-left" />
- <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=tinyhumansai/openhuman&type=date&legend=top-left" />
- <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=tinyhumansai/openhuman&type=date&legend=top-left" />
+ <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=eversilver/eversilver&type=date&theme=dark&legend=top-left" />
+ <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=eversilver/eversilver&type=date&legend=top-left" />
+ <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=eversilver/eversilver&type=date&legend=top-left" />
  </picture>
  </a>
 </p>
 
 # 贡献者名人堂
 
-贡献一份力量，进入名人堂。贡献者可获得免费周边以及我们 [Discord](https://discord.tinyhumans.ai/) 的专属访问权限。
+贡献一份力量，进入名人堂。贡献者可获得免费周边以及我们 [Discord](https://discord.eversilver.local/) 的专属访问权限。
 
-<a href="https://github.com/tinyhumansai/openhuman/graphs/contributors">
- <img src="https://contrib.rocks/image?repo=tinyhumansai/openhuman" alt="Eversilver contributors" />
+<a href="https://github.com/eversilver/eversilver/graphs/contributors">
+ <img src="https://contrib.rocks/image?repo=eversilver/eversilver" alt="Eversilver contributors" />
 </a>

@@ -52,14 +52,14 @@ export interface CoreCronRun {
   duration_ms?: number | null;
 }
 
-export async function openhumanCronList(): Promise<CommandResponse<CoreCronJob[]>> {
+export async function eversilverCronList(): Promise<CommandResponse<CoreCronJob[]>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
-  return await callCoreRpc<CommandResponse<CoreCronJob[]>>({ method: 'openhuman.cron_list' });
+  return await callCoreRpc<CommandResponse<CoreCronJob[]>>({ method: 'eversilver.cron_list' });
 }
 
-export async function openhumanCronUpdate(
+export async function eversilverCronUpdate(
   jobId: string,
   patch: Record<string, unknown>
 ): Promise<CommandResponse<CoreCronJob>> {
@@ -67,24 +67,24 @@ export async function openhumanCronUpdate(
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<CoreCronJob>>({
-    method: 'openhuman.cron_update',
+    method: 'eversilver.cron_update',
     params: { job_id: jobId, patch },
   });
 }
 
-export async function openhumanCronRemove(
+export async function eversilverCronRemove(
   jobId: string
 ): Promise<CommandResponse<{ job_id: string; removed: boolean }>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<{ job_id: string; removed: boolean }>>({
-    method: 'openhuman.cron_remove',
+    method: 'eversilver.cron_remove',
     params: { job_id: jobId },
   });
 }
 
-export async function openhumanCronRun(
+export async function eversilverCronRun(
   jobId: string
 ): Promise<
   CommandResponse<{
@@ -104,10 +104,10 @@ export async function openhumanCronRun(
       duration_ms: number;
       output: string;
     }>
-  >({ method: 'openhuman.cron_run', params: { job_id: jobId } });
+  >({ method: 'eversilver.cron_run', params: { job_id: jobId } });
 }
 
-export async function openhumanCronRuns(
+export async function eversilverCronRuns(
   jobId: string,
   limit = 20
 ): Promise<CommandResponse<CoreCronRun[]>> {
@@ -115,7 +115,7 @@ export async function openhumanCronRuns(
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<CoreCronRun[]>>({
-    method: 'openhuman.cron_runs',
+    method: 'eversilver.cron_runs',
     params: { job_id: jobId, limit },
   });
 }

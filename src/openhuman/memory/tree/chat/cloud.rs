@@ -1,6 +1,6 @@
-//! Cloud chat provider — routes through the OpenHuman backend's
+//! Cloud chat provider — routes through the Eversilver backend's
 //! `/openai/v1/chat/completions` surface using the existing
-//! [`crate::openhuman::providers::openhuman_backend::OpenHumanBackendProvider`].
+//! [`crate::openhuman::providers::eversilver_backend::EversilverBackendProvider`].
 //!
 //! Used when `memory_tree.llm_backend = "cloud"` (the default). The
 //! request shape is the standard OpenAI-compatible chat-completions
@@ -16,7 +16,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 
-use crate::openhuman::providers::openhuman_backend::OpenHumanBackendProvider;
+use crate::openhuman::providers::eversilver_backend::EversilverBackendProvider;
 use crate::openhuman::providers::traits::{ChatMessage, Provider};
 use crate::openhuman::providers::ProviderRuntimeOptions;
 
@@ -38,11 +38,11 @@ fn is_model_unavailable_error(err: &anyhow::Error) -> bool {
     msg.contains("not available for your organization")
 }
 
-/// Cloud-routed chat provider. Holds an [`OpenHumanBackendProvider`] and
+/// Cloud-routed chat provider. Holds an [`EversilverBackendProvider`] and
 /// forwards each [`ChatProvider::chat_for_json`] call through its
 /// `chat_with_history` method.
 pub struct CloudChatProvider {
-    inner: OpenHumanBackendProvider,
+    inner: EversilverBackendProvider,
     model: String,
     /// Cached display name `"cloud:<model>"` for logs.
     display: String,
@@ -52,26 +52,26 @@ impl CloudChatProvider {
     /// Build a new cloud provider against `api_url` (or the default
     /// `effective_api_url` when `None`) for `model`. The provider does NOT
     /// resolve the bearer token at construction — it does so per request,
-    /// matching the existing `OpenHumanBackendProvider` contract. That way
+    /// matching the existing `EversilverBackendProvider` contract. That way
     /// a session refresh between memory-tree calls is picked up
     /// transparently.
     ///
-    /// `openhuman_dir` is the directory containing `auth-profiles.json` (i.e.
+    /// `eversilver_dir` is the directory containing `auth-profiles.json` (i.e.
     /// the parent of `config.config_path`). Without it the inner provider
     /// would fall back to `~/.openhuman` and fail with "No backend session"
     /// on workspaces not located at the home default.
     pub fn new(
         api_url: Option<String>,
         model: String,
-        openhuman_dir: Option<PathBuf>,
+        eversilver_dir: Option<PathBuf>,
         secrets_encrypt: bool,
     ) -> Self {
         let opts = ProviderRuntimeOptions {
-            openhuman_dir,
+            eversilver_dir,
             secrets_encrypt,
             ..ProviderRuntimeOptions::default()
         };
-        let inner = OpenHumanBackendProvider::new(api_url.as_deref(), &opts);
+        let inner = EversilverBackendProvider::new(api_url.as_deref(), &opts);
         let display = format!("cloud:{model}");
         Self {
             inner,
@@ -226,7 +226,7 @@ mod tests {
     #[test]
     fn detects_model_unavailable_error() {
         let err = anyhow::anyhow!(
-            "OpenHuman API error (404 Not Found): {{\"success\":false,\"error\":\"GMI model \
+            "Eversilver API error (404 Not Found): {{\"success\":false,\"error\":\"GMI model \
              'deepseek-ai/DeepSeek-V4-Flash' is not available for your organization.\"}}"
         );
         assert!(is_model_unavailable_error(&err));
@@ -243,7 +243,7 @@ mod tests {
         // A generic 404 mentioning "model" should NOT trigger fallback —
         // only the explicit "not available for your organization" phrase should.
         let err =
-            anyhow::anyhow!("OpenHuman API error (404 Not Found): model endpoint returned 404");
+            anyhow::anyhow!("Eversilver API error (404 Not Found): model endpoint returned 404");
         assert!(!is_model_unavailable_error(&err));
     }
 

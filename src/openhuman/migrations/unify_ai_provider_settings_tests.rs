@@ -23,18 +23,18 @@ fn make_legacy_config_local_on() -> Config {
 }
 
 #[test]
-fn empty_config_seeds_openhuman_entry() {
+fn empty_config_seeds_eversilver_entry() {
     let mut c = Config::default();
     let stats = run(&mut c).expect("migration must succeed");
 
     assert_eq!(stats.cloud_providers_seeded, 1);
     assert_eq!(c.cloud_providers.len(), 1);
     assert_eq!(c.cloud_providers[0].slug, "openhuman");
-    assert!(c.cloud_providers[0].id.starts_with("p_openhuman_"));
+    assert!(c.cloud_providers[0].id.starts_with("p_eversilver_"));
 }
 
 #[test]
-fn primary_cloud_defaults_to_openhuman_id() {
+fn primary_cloud_defaults_to_eversilver_id() {
     let mut c = Config::default();
     let stats = run(&mut c).expect("migration must succeed");
 
@@ -65,7 +65,7 @@ fn legacy_inference_url_becomes_custom_entry() {
 }
 
 #[test]
-fn openhuman_inference_url_does_not_seed_custom() {
+fn eversilver_inference_url_does_not_seed_custom() {
     let mut c = Config::default();
     c.inference_url = Some("https://api.openhuman.ai/v1".into());
     let _ = run(&mut c).expect("migration must succeed");

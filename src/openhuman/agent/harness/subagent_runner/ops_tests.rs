@@ -120,7 +120,7 @@ fn subagent_mode_as_str_roundtrip() {
 fn append_subagent_role_contract_adds_role_and_brevity_rules() {
     let rendered = append_subagent_role_contract("base prompt".to_string(), "researcher");
     assert!(rendered.contains("## Sub-agent Role Contract"));
-    assert!(rendered.contains("You are a sub-agent working for a parent OpenHuman agent"));
+    assert!(rendered.contains("You are a sub-agent working for a parent Eversilver agent"));
     assert!(rendered.contains("Keep your final response concise and synthesis-ready"));
 }
 
@@ -358,7 +358,7 @@ async fn typed_mode_system_prompt_includes_subagent_role_contract() {
     assert!(system_msg.content.contains("## Sub-agent Role Contract"));
     assert!(system_msg
         .content
-        .contains("You are a sub-agent working for a parent OpenHuman agent"));
+        .contains("You are a sub-agent working for a parent Eversilver agent"));
     assert!(system_msg
         .content
         .contains("Keep your final response concise and synthesis-ready"));
@@ -737,7 +737,7 @@ fn resolve_subagent_provider_exact_overrides_only_model() {
 fn resolve_subagent_provider_hint_with_no_config_falls_back() {
     // The async config load failed (transient I/O, missing file, etc.).
     // The Hint arm must NOT silently swallow the failure and synthesise
-    // `{workload}-v1` — that's the OpenHuman-only naming that breaks
+    // `{workload}-v1` — that's the Eversilver-only naming that breaks
     // Anthropic/OpenAI. Fall back to the parent's known-good
     // (provider, model) instead.
     let parent: Arc<dyn Provider> = ScriptedProvider::new(vec![]);
@@ -762,13 +762,13 @@ fn resolve_subagent_provider_hint_with_no_config_falls_back() {
 fn resolve_subagent_provider_hint_with_config_routes_via_factory() {
     // The Hint arm with a real config takes the workload-factory path.
     // We don't assert the *resulting* provider identity here (the
-    // factory may return a fresh OpenHuman backend or whatever
+    // factory may return a fresh Eversilver backend or whatever
     // primary_cloud resolves to), but we DO assert the resolved model
     // matches the workload's configured exact id — not the legacy
     // `{workload}-v1` synthesis.
     use crate::openhuman::config::Config;
     let mut config = Config::default();
-    // Route `agentic` to OpenHuman backend explicitly. The backend
+    // Route `agentic` to Eversilver backend explicitly. The backend
     // returns the configured default_model, which we set to a known
     // string so the assertion is meaningful.
     config.agentic_provider = Some("openhuman".to_string());

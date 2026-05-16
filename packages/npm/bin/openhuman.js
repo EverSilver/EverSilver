@@ -5,7 +5,7 @@ const { spawnSync } = require('child_process');
 const path = require('path');
 
 const isWin = process.platform === 'win32';
-const binName = isWin ? 'openhuman-bin.exe' : 'openhuman-bin';
+const binName = isWin ? 'eversilver-bin.exe' : 'eversilver-bin';
 const binPath = path.join(__dirname, binName);
 
 const result = spawnSync(binPath, process.argv.slice(2), {
@@ -16,10 +16,10 @@ const result = spawnSync(binPath, process.argv.slice(2), {
 if (result.error) {
   if (result.error.code === 'ENOENT') {
     process.stderr.write(
-      'openhuman binary not found. Try reinstalling: npm install -g openhuman\n'
+      'eversilver binary not found. Try reinstalling: npm install -g eversilver\n'
     );
   } else {
-    process.stderr.write(`openhuman: ${result.error.message}\n`);
+    process.stderr.write(`eversilver: ${result.error.message}\n`);
   }
   process.exit(1);
 }

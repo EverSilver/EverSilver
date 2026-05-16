@@ -13,7 +13,7 @@
 //! - Every decision point emits a grep-friendly `[wallet]` debug log.
 //!
 //! On-chain RPC providers are not yet configured (#1395 ships the keystore;
-//! provider config lives behind `OPENHUMAN_WALLET_RPC_*` env vars). Until a
+//! provider config lives behind `EVERSILVER_WALLET_RPC_*` env vars). Until a
 //! provider is wired, balances surface `provider_status: "unconfigured"`
 //! with zero values rather than fabricating numbers.
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -266,10 +266,10 @@ fn native_asset(chain: WalletChain) -> SupportedAsset {
 
 fn provider_env_set(chain: WalletChain) -> bool {
     let key = match chain {
-        WalletChain::Evm => "OPENHUMAN_WALLET_RPC_EVM",
-        WalletChain::Btc => "OPENHUMAN_WALLET_RPC_BTC",
-        WalletChain::Solana => "OPENHUMAN_WALLET_RPC_SOLANA",
-        WalletChain::Tron => "OPENHUMAN_WALLET_RPC_TRON",
+        WalletChain::Evm => "EVERSILVER_WALLET_RPC_EVM",
+        WalletChain::Btc => "EVERSILVER_WALLET_RPC_BTC",
+        WalletChain::Solana => "EVERSILVER_WALLET_RPC_SOLANA",
+        WalletChain::Tron => "EVERSILVER_WALLET_RPC_TRON",
     };
     std::env::var(key)
         .map(|v| !v.trim().is_empty())

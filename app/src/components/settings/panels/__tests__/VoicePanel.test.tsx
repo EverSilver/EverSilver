@@ -12,14 +12,14 @@ import { renderWithProviders } from '../../../../test/test-utils';
 import {
   type CommandResponse,
   type ConfigSnapshot,
-  openhumanGetVoiceServerSettings,
-  openhumanLocalAiAssetsStatus,
-  openhumanUpdateVoiceServerSettings,
-  openhumanVoiceServerStart,
-  openhumanVoiceServerStatus,
-  openhumanVoiceServerStop,
-  openhumanVoiceSetProviders,
-  openhumanVoiceStatus,
+  eversilverGetVoiceServerSettings,
+  eversilverLocalAiAssetsStatus,
+  eversilverUpdateVoiceServerSettings,
+  eversilverVoiceServerStart,
+  eversilverVoiceServerStatus,
+  eversilverVoiceServerStop,
+  eversilverVoiceSetProviders,
+  eversilverVoiceStatus,
   type VoiceServerSettings,
   type VoiceServerStatus,
   type VoiceStatus,
@@ -27,14 +27,14 @@ import {
 import VoicePanel from '../VoicePanel';
 
 vi.mock('../../../../utils/tauriCommands', () => ({
-  openhumanGetVoiceServerSettings: vi.fn(),
-  openhumanLocalAiAssetsStatus: vi.fn(),
-  openhumanUpdateVoiceServerSettings: vi.fn(),
-  openhumanVoiceServerStart: vi.fn(),
-  openhumanVoiceServerStatus: vi.fn(),
-  openhumanVoiceServerStop: vi.fn(),
-  openhumanVoiceSetProviders: vi.fn(),
-  openhumanVoiceStatus: vi.fn(),
+  eversilverGetVoiceServerSettings: vi.fn(),
+  eversilverLocalAiAssetsStatus: vi.fn(),
+  eversilverUpdateVoiceServerSettings: vi.fn(),
+  eversilverVoiceServerStart: vi.fn(),
+  eversilverVoiceServerStatus: vi.fn(),
+  eversilverVoiceServerStop: vi.fn(),
+  eversilverVoiceSetProviders: vi.fn(),
+  eversilverVoiceStatus: vi.fn(),
 }));
 
 vi.mock('../../../../services/api/voiceInstallApi', () => ({
@@ -83,8 +83,8 @@ const makeInstallStatus = (
 const makeConfigSnapshot = (): CommandResponse<ConfigSnapshot> => ({
   result: {
     config: {},
-    workspace_dir: '/tmp/openhuman-ui',
-    config_path: '/tmp/openhuman-ui/config.toml',
+    workspace_dir: '/tmp/eversilver-ui',
+    config_path: '/tmp/eversilver-ui/config.toml',
   },
   logs: [],
 });
@@ -131,26 +131,26 @@ describe('VoicePanel', () => {
       piperStatus: makeInstallStatus('piper'),
     };
 
-    vi.mocked(openhumanGetVoiceServerSettings).mockImplementation(async () => ({
+    vi.mocked(eversilverGetVoiceServerSettings).mockImplementation(async () => ({
       result: { ...runtime.settings },
       logs: [],
     }));
-    vi.mocked(openhumanVoiceServerStatus).mockImplementation(async () => ({
+    vi.mocked(eversilverVoiceServerStatus).mockImplementation(async () => ({
       ...runtime.serverStatus,
     }));
-    vi.mocked(openhumanVoiceStatus).mockImplementation(async () => ({ ...runtime.voiceStatus }));
-    vi.mocked(openhumanLocalAiAssetsStatus).mockImplementation(async () => ({
+    vi.mocked(eversilverVoiceStatus).mockImplementation(async () => ({ ...runtime.voiceStatus }));
+    vi.mocked(eversilverLocalAiAssetsStatus).mockImplementation(async () => ({
       result: {
         quantization: 'q4',
         stt: { id: runtime.voiceStatus.stt_model_id, state: runtime.sttState },
       } as never,
       logs: [],
     }));
-    vi.mocked(openhumanUpdateVoiceServerSettings).mockImplementation(async update => {
+    vi.mocked(eversilverUpdateVoiceServerSettings).mockImplementation(async update => {
       runtime.settings = { ...runtime.settings, ...update };
       return makeConfigSnapshot();
     });
-    vi.mocked(openhumanVoiceServerStart).mockImplementation(async params => {
+    vi.mocked(eversilverVoiceServerStart).mockImplementation(async params => {
       runtime.serverStatus = {
         ...runtime.serverStatus,
         state: 'idle',
@@ -159,11 +159,11 @@ describe('VoicePanel', () => {
       };
       return { ...runtime.serverStatus };
     });
-    vi.mocked(openhumanVoiceServerStop).mockImplementation(async () => {
+    vi.mocked(eversilverVoiceServerStop).mockImplementation(async () => {
       runtime.serverStatus = { ...runtime.serverStatus, state: 'stopped' };
       return { ...runtime.serverStatus };
     });
-    vi.mocked(openhumanVoiceSetProviders).mockImplementation(async update => {
+    vi.mocked(eversilverVoiceSetProviders).mockImplementation(async update => {
       if (update.stt_provider) runtime.voiceStatus.stt_provider = update.stt_provider;
       if (update.tts_provider) runtime.voiceStatus.tts_provider = update.tts_provider;
       if (update.stt_model) runtime.voiceStatus.stt_model_id = update.stt_model;
@@ -224,7 +224,7 @@ describe('VoicePanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start Voice Server' }));
 
     await waitFor(() => {
-      expect(openhumanUpdateVoiceServerSettings).toHaveBeenCalledWith({
+      expect(eversilverUpdateVoiceServerSettings).toHaveBeenCalledWith({
         auto_start: false,
         hotkey: 'F6',
         activation_mode: 'push',
@@ -234,7 +234,7 @@ describe('VoicePanel', () => {
         custom_dictionary: [],
       });
     });
-    expect(openhumanVoiceServerStart).toHaveBeenCalledWith({
+    expect(eversilverVoiceServerStart).toHaveBeenCalledWith({
       hotkey: 'F6',
       activation_mode: 'push',
       skip_cleanup: true,
@@ -255,7 +255,7 @@ describe('VoicePanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Voice Settings' }));
 
     await waitFor(() => {
-      expect(openhumanUpdateVoiceServerSettings).toHaveBeenCalledWith({
+      expect(eversilverUpdateVoiceServerSettings).toHaveBeenCalledWith({
         auto_start: true,
         hotkey: 'Fn',
         activation_mode: 'push',
@@ -265,8 +265,8 @@ describe('VoicePanel', () => {
         custom_dictionary: [],
       });
     });
-    expect(openhumanVoiceServerStop).toHaveBeenCalled();
-    expect(openhumanVoiceServerStart).toHaveBeenCalledWith({
+    expect(eversilverVoiceServerStop).toHaveBeenCalled();
+    expect(eversilverVoiceServerStart).toHaveBeenCalledWith({
       hotkey: 'Fn',
       activation_mode: 'push',
       skip_cleanup: true,
@@ -295,14 +295,14 @@ describe('VoicePanel', () => {
     expect(screen.queryByTestId('tts-voice-input')).not.toBeInTheDocument();
   });
 
-  it('persists STT provider changes through openhumanVoiceSetProviders', async () => {
+  it('persists STT provider changes through eversilverVoiceSetProviders', async () => {
     renderWithProviders(<VoicePanel />, { initialEntries: ['/settings/voice'] });
 
     const sttSelect = (await screen.findByTestId('stt-provider-select')) as HTMLSelectElement;
     fireEvent.change(sttSelect, { target: { value: 'whisper' } });
 
     await waitFor(() =>
-      expect(vi.mocked(openhumanVoiceSetProviders)).toHaveBeenCalledWith(
+      expect(vi.mocked(eversilverVoiceSetProviders)).toHaveBeenCalledWith(
         expect.objectContaining({ stt_provider: 'whisper' })
       )
     );
@@ -310,14 +310,14 @@ describe('VoicePanel', () => {
     expect(await screen.findByText(/Voice providers saved/i)).toBeInTheDocument();
   });
 
-  it('persists TTS provider changes through openhumanVoiceSetProviders', async () => {
+  it('persists TTS provider changes through eversilverVoiceSetProviders', async () => {
     renderWithProviders(<VoicePanel />, { initialEntries: ['/settings/voice'] });
 
     const ttsSelect = (await screen.findByTestId('tts-provider-select')) as HTMLSelectElement;
     fireEvent.change(ttsSelect, { target: { value: 'piper' } });
 
     await waitFor(() =>
-      expect(vi.mocked(openhumanVoiceSetProviders)).toHaveBeenCalledWith(
+      expect(vi.mocked(eversilverVoiceSetProviders)).toHaveBeenCalledWith(
         expect.objectContaining({ tts_provider: 'piper' })
       )
     );
@@ -443,7 +443,7 @@ describe('VoicePanel', () => {
     // Freeze subsequent loadData calls so the error isn't cleared by the
     // automatic reload that fires in the finally block.
     vi.mocked(installWhisper).mockRejectedValueOnce(new Error('disk full'));
-    vi.mocked(openhumanGetVoiceServerSettings).mockImplementation(
+    vi.mocked(eversilverGetVoiceServerSettings).mockImplementation(
       () => new Promise(() => {}) // hang — prevents error being wiped by reload
     );
     renderWithProviders(<VoicePanel />, { initialEntries: ['/settings/voice'] });
@@ -459,7 +459,7 @@ describe('VoicePanel', () => {
 
   it('shows an error notice when installPiper rejects', async () => {
     vi.mocked(installPiper).mockRejectedValueOnce(new Error('no space left'));
-    vi.mocked(openhumanGetVoiceServerSettings).mockImplementation(
+    vi.mocked(eversilverGetVoiceServerSettings).mockImplementation(
       () => new Promise(() => {}) // hang — prevents error being wiped by reload
     );
     renderWithProviders(<VoicePanel />, { initialEntries: ['/settings/voice'] });
@@ -472,7 +472,7 @@ describe('VoicePanel', () => {
   });
 
   it('shows an error when persistProviders fails', async () => {
-    vi.mocked(openhumanVoiceSetProviders).mockRejectedValueOnce(new Error('RPC timeout'));
+    vi.mocked(eversilverVoiceSetProviders).mockRejectedValueOnce(new Error('RPC timeout'));
     renderWithProviders(<VoicePanel />, { initialEntries: ['/settings/voice'] });
 
     const sttSelect = (await screen.findByTestId('stt-provider-select')) as HTMLSelectElement;
@@ -505,14 +505,14 @@ describe('VoicePanel', () => {
     fireEvent.change(voiceSelect, { target: { value: 'en_US-ryan-medium' } });
 
     await waitFor(() =>
-      expect(vi.mocked(openhumanVoiceSetProviders)).toHaveBeenCalledWith(
+      expect(vi.mocked(eversilverVoiceSetProviders)).toHaveBeenCalledWith(
         expect.objectContaining({ tts_voice: 'en_US-ryan-medium' })
       )
     );
   });
 
   // Issue #1762 — Mascot Voice picker tests. Nested inside the outer
-  // describe so the runtime mocks (openhumanVoiceStatus seeded with
+  // describe so the runtime mocks (eversilverVoiceStatus seeded with
   // tts_provider='cloud', etc.) are inherited. The section only renders
   // when the cloud (ElevenLabs proxy) TTS provider is active; local
   // Piper has its own picker above. The slice handles validation +
@@ -534,7 +534,7 @@ describe('VoicePanel', () => {
       // — the section should be hidden in that case (local voices use the
       // Piper picker above, not the ElevenLabs one).
       const { default: VoicePanel } = await import('../VoicePanel');
-      vi.mocked(openhumanVoiceStatus).mockResolvedValueOnce({
+      vi.mocked(eversilverVoiceStatus).mockResolvedValueOnce({
         stt_available: true,
         tts_available: true,
         stt_model_id: 'ggml-tiny-q5_1.bin',

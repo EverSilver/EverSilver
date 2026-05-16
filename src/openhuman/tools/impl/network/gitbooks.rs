@@ -1,4 +1,4 @@
-//! `gitbooks` — answer questions about OpenHuman by talking to the
+//! `gitbooks` — answer questions about Eversilver by talking to the
 //! GitBook MCP server.
 //!
 //! GitBook hosts a stateless Streamable-HTTP MCP server that exposes
@@ -191,8 +191,8 @@ impl Tool for GitbooksSearchTool {
     }
 
     fn description(&self) -> &str {
-        "Search the OpenHuman product documentation. Use this to answer questions about how \
-        OpenHuman works, find features, look up configuration, or locate guides. Returns \
+        "Search the Eversilver product documentation. Use this to answer questions about how \
+        Eversilver works, find features, look up configuration, or locate guides. Returns \
         excerpts with page titles and links — follow up with `gitbooks_get_page` for the \
         full markdown of a page."
     }
@@ -203,7 +203,7 @@ impl Tool for GitbooksSearchTool {
             "properties": {
                 "query": {
                     "type": "string",
-                    "description": "Natural-language question or keyword query about OpenHuman."
+                    "description": "Natural-language question or keyword query about Eversilver."
                 }
             },
             "required": ["query"]
@@ -255,7 +255,7 @@ impl Tool for GitbooksGetPageTool {
     }
 
     fn description(&self) -> &str {
-        "Fetch the full markdown of a specific OpenHuman documentation page by URL. Pair this \
+        "Fetch the full markdown of a specific Eversilver documentation page by URL. Pair this \
         with `gitbooks_search` — search returns partial excerpts; use this to get the \
         complete page when more detail is needed."
     }
@@ -266,7 +266,7 @@ impl Tool for GitbooksGetPageTool {
             "properties": {
                 "url": {
                     "type": "string",
-                    "description": "The full URL of the OpenHuman documentation page (e.g. https://tinyhumans.gitbook.io/openhuman/getting-started)."
+                    "description": "The full URL of the Eversilver documentation page (e.g. https://eversilver.gitbook.local/openhuman/getting-started)."
                 }
             },
             "required": ["url"]
@@ -304,8 +304,8 @@ mod tests {
     #[test]
     fn redact_endpoint_keeps_only_origin() {
         assert_eq!(
-            redact_endpoint("https://tinyhumans.gitbook.io/openhuman/~gitbook/mcp"),
-            "https://tinyhumans.gitbook.io"
+            redact_endpoint("https://eversilver.gitbook.local/openhuman/~gitbook/mcp"),
+            "https://eversilver.gitbook.local"
         );
         assert_eq!(
             redact_endpoint("http://example.com:8080/path?token=secret"),
@@ -396,11 +396,11 @@ mod tests {
     }
 
     /// Live integration test against the real GitBook MCP endpoint.
-    /// Gated behind `OPENHUMAN_GITBOOKS_LIVE_TEST=1` so CI / offline
+    /// Gated behind `EVERSILVER_GITBOOKS_LIVE_TEST=1` so CI / offline
     /// builds don't depend on the public network.
     #[tokio::test]
     async fn live_search_smoke() {
-        if std::env::var("OPENHUMAN_GITBOOKS_LIVE_TEST")
+        if std::env::var("EVERSILVER_GITBOOKS_LIVE_TEST")
             .ok()
             .as_deref()
             != Some("1")
@@ -408,7 +408,7 @@ mod tests {
             return;
         }
         let t = GitbooksSearchTool::new(
-            "https://tinyhumans.gitbook.io/openhuman/~gitbook/mcp".into(),
+            "https://eversilver.gitbook.local/openhuman/~gitbook/mcp".into(),
             30,
         );
         let result = t

@@ -23,22 +23,22 @@ const ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const DEBUG = args.includes('--debug');
 
-const CORE_PORT = process.env.OPENHUMAN_CORE_PORT || '7788';
-const CORE_HOST = process.env.OPENHUMAN_CORE_HOST || '127.0.0.1';
+const CORE_PORT = process.env.EVERSILVER_CORE_PORT || '7788';
+const CORE_HOST = process.env.EVERSILVER_CORE_HOST || '127.0.0.1';
 const CORE_URL = `http://${CORE_HOST}:${CORE_PORT}`;
 
 import { readdirSync } from 'fs';
 
-const OPENHUMAN_HOME = process.env.OPENHUMAN_WORKSPACE
-  ? path.join(process.env.OPENHUMAN_WORKSPACE)
-  : path.join(homedir(), '.openhuman');
+const EVERSILVER_HOME = process.env.EVERSILVER_WORKSPACE
+  ? path.join(process.env.EVERSILVER_WORKSPACE)
+  : path.join(homedir(), '.eversilver');
 
-// Config lives in a per-user subdirectory (e.g. ~/.openhuman/users/<id>/config.toml)
+// Config lives in a per-user subdirectory (e.g. ~/.eversilver/users/<id>/config.toml)
 // when authenticated, or at the root for fresh installs. Find the right one.
-// Set OPENHUMAN_USER_ID to pin to a specific user directory deterministically.
+// Set EVERSILVER_USER_ID to pin to a specific user directory deterministically.
 function findConfigPath() {
-  const usersDir = path.join(OPENHUMAN_HOME, 'users');
-  const pinnedId = process.env.OPENHUMAN_USER_ID;
+  const usersDir = path.join(EVERSILVER_HOME, 'users');
+  const pinnedId = process.env.EVERSILVER_USER_ID;
   if (pinnedId) {
     const candidate = path.join(usersDir, pinnedId, 'config.toml');
     if (existsSync(candidate)) return candidate;
@@ -52,7 +52,7 @@ function findConfigPath() {
       }
     } catch { /* fall through */ }
   }
-  return path.join(OPENHUMAN_HOME, 'config.toml');
+  return path.join(EVERSILVER_HOME, 'config.toml');
 }
 const CONFIG_PATH = findConfigPath();
 
@@ -341,16 +341,16 @@ function printJudgment(conversation) {
     mentionsConnect ? 'Found app connection guidance' : 'Never mentioned connecting apps'
   );
 
-  // 5. Uses <openhuman-link> for accounts/setup
-  const hasAccountsLink = allText.includes('openhuman-link') && allText.includes('accounts/setup');
+  // 5. Uses <eversilver-link> for accounts/setup
+  const hasAccountsLink = allText.includes('eversilver-link') && allText.includes('accounts/setup');
   check(
-    'Uses <openhuman-link path="accounts/setup"> at some point',
+    'Uses <eversilver-link path="accounts/setup"> at some point',
     hasAccountsLink,
     hasAccountsLink ? 'Link found' : 'No accounts/setup link found'
   );
 
-  // 6. Tone: no "as an AI", no "I'm OpenHuman"
-  const badPhrases = ['as an ai', "i'm openhuman", 'i am openhuman', 'as an artificial'];
+  // 6. Tone: no "as an AI", no "I'm Eversilver"
+  const badPhrases = ['as an ai', "i'm eversilver", 'i am eversilver', 'as an artificial'];
   const foundBad = badPhrases.find((p) => lowerText.includes(p));
   check(
     'No robotic self-identification',

@@ -61,7 +61,7 @@ pub async fn resolve_provider_with_config(config: &Config) -> anyhow::Result<Res
 ///
 /// The returned provider is a thin `OpenAiCompatibleProvider` pointed
 /// at the configured local inference base (Ollama by default,
-/// overridable via `OPENHUMAN_LOCAL_INFERENCE_URL`). It mirrors the
+/// overridable via `EVERSILVER_LOCAL_INFERENCE_URL`). It mirrors the
 /// wiring `routing::factory::new_provider` uses for the local arm of
 /// `IntelligentRoutingProvider` so the same model that serves
 /// lightweight chat also serves the triage fallback.
@@ -78,7 +78,7 @@ pub fn build_local_provider_with_config(config: &Config) -> Option<ResolvedProvi
         return None;
     }
 
-    let override_base = std::env::var("OPENHUMAN_LOCAL_INFERENCE_URL")
+    let override_base = std::env::var("EVERSILVER_LOCAL_INFERENCE_URL")
         .ok()
         .map(|s| s.trim().trim_end_matches('/').to_string())
         .filter(|s| !s.is_empty());
@@ -145,7 +145,7 @@ fn build_remote_provider(config: &Config) -> anyhow::Result<ResolvedProvider> {
         .unwrap_or_else(|| crate::openhuman::config::DEFAULT_MODEL.to_string());
     let options = ProviderRuntimeOptions {
         auth_profile_override: None,
-        openhuman_dir: config.config_path.parent().map(std::path::PathBuf::from),
+        eversilver_dir: config.config_path.parent().map(std::path::PathBuf::from),
         secrets_encrypt: config.secrets.encrypt,
         reasoning_enabled: config.runtime.reasoning_enabled,
     };

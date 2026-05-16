@@ -13,12 +13,12 @@ const USER_ID = 'e2e-tool-filesystem';
  * Filesystem tool E2E spec — coverage matrix rows 6.1.1 (read), 6.1.2 (write),
  * and 6.1.3 (path-restriction denial). Tracked by issue #967.
  *
- * Drives the workspace-restricted file I/O surface — `openhuman.memory_write_file`,
- * `openhuman.memory_read_file`, `openhuman.memory_list_files` — which is the
+ * Drives the workspace-restricted file I/O surface — `eversilver.memory_write_file`,
+ * `eversilver.memory_read_file`, `eversilver.memory_list_files` — which is the
  * same security contract the agent-facing `file_read` / `file_write` tools
  * enforce: workspace-relative paths only, parent-traversal blocked, absolute
- * paths blocked, all writes confined to `OPENHUMAN_WORKSPACE`. The Rust unit
- * tests in `src/openhuman/tools/impl/filesystem/file_read.rs` /
+ * paths blocked, all writes confined to `EVERSILVER_WORKSPACE`. The Rust unit
+ * tests in `src/eversilver/tools/impl/filesystem/file_read.rs` /
  * `file_write.rs` cover the in-process tool path; this WDIO spec proves the
  * UI⇄Tauri⇄sidecar wiring honours the same gates over JSON-RPC.
  *
@@ -27,7 +27,7 @@ const USER_ID = 'e2e-tool-filesystem';
  *
  * Side-effect verification: every successful write is asserted twice — once
  * from the response payload (bytes_written) and once by reading the resulting
- * file from disk via Node `fs` against the temp `OPENHUMAN_WORKSPACE` exported
+ * file from disk via Node `fs` against the temp `EVERSILVER_WORKSPACE` exported
  * by `app/scripts/e2e-run-spec.sh`. This catches transport mismatches that
  * would otherwise pass a payload-only assertion.
  */
@@ -42,15 +42,15 @@ function stepLog(message: string, context?: unknown): void {
 
 const TEST_RELATIVE_PATH = 'memory/e2e-967-filesystem-canary.txt';
 const TEST_CONTENT =
-  'OpenHuman filesystem tool canary fact — issue #967 — bytes asserted both via RPC and disk';
+  'Eversilver filesystem tool canary fact — issue #967 — bytes asserted both via RPC and disk';
 const TRAVERSAL_PATH = '../escape-967.txt';
-const ABSOLUTE_PATH = '/tmp/openhuman-967-absolute-escape.txt';
+const ABSOLUTE_PATH = '/tmp/eversilver-967-absolute-escape.txt';
 
 function workspaceDir(): string {
-  const ws = process.env.OPENHUMAN_WORKSPACE;
+  const ws = process.env.EVERSILVER_WORKSPACE;
   if (!ws) {
     throw new Error(
-      'OPENHUMAN_WORKSPACE not set; this spec must be launched via app/scripts/e2e-run-spec.sh'
+      'EVERSILVER_WORKSPACE not set; this spec must be launched via app/scripts/e2e-run-spec.sh'
     );
   }
   return ws;
@@ -95,7 +95,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
       relative_path: TEST_RELATIVE_PATH,
       bytes: TEST_CONTENT.length,
     });
-    const writeResult = await callOpenhumanRpc<WriteResultEnvelope>('openhuman.memory_write_file', {
+    const writeResult = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: TEST_RELATIVE_PATH,
       content: TEST_CONTENT,
     });
@@ -109,7 +109,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
 
     // Disk-side assertion: the byte payload must round-trip via the workspace.
     // This is the load-bearing "side effect proof" that the sidecar actually
-    // wrote to OPENHUMAN_WORKSPACE rather than only echoing a success payload.
+    // wrote to EVERSILVER_WORKSPACE rather than only echoing a success payload.
     const onDisk = await fs.readFile(path.join(workspaceDir(), TEST_RELATIVE_PATH), 'utf8');
     expect(onDisk).toBe(TEST_CONTENT);
   });
@@ -121,7 +121,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     await fs.writeFile(path.join(workspaceDir(), TEST_RELATIVE_PATH), TEST_CONTENT, 'utf8');
 
     stepLog('issuing memory_read_file', { relative_path: TEST_RELATIVE_PATH });
-    const readResult = await callOpenhumanRpc<ReadResultEnvelope>('openhuman.memory_read_file', {
+    const readResult = await callOpenhumanRpc<ReadResultEnvelope>('eversilver.memory_read_file', {
       relative_path: TEST_RELATIVE_PATH,
     });
     stepLog('read response', readResult);
@@ -131,7 +131,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
 
     // Cross-check with memory_list_files to prove directory listing also
     // honours the workspace boundary and surfaces the canary.
-    const listResult = await callOpenhumanRpc<ListResultEnvelope>('openhuman.memory_list_files', {
+    const listResult = await callOpenhumanRpc<ListResultEnvelope>('eversilver.memory_list_files', {
       relative_dir: 'memory',
     });
     stepLog('list response', listResult);
@@ -147,7 +147,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     stepLog('issuing memory_write_file with parent-traversal payload', {
       relative_path: TRAVERSAL_PATH,
     });
-    const traversal = await callOpenhumanRpc<WriteResultEnvelope>('openhuman.memory_write_file', {
+    const traversal = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: TRAVERSAL_PATH,
       content: 'should never be written',
     });
@@ -159,7 +159,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     // 6.1.3b — absolute paths must also be denied; this guards a different
     // branch of the validator (`is_absolute()` short-circuit).
     stepLog('issuing memory_write_file with absolute payload', { relative_path: ABSOLUTE_PATH });
-    const absolute = await callOpenhumanRpc<WriteResultEnvelope>('openhuman.memory_write_file', {
+    const absolute = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: ABSOLUTE_PATH,
       content: 'should never be written',
     });

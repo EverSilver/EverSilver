@@ -1,6 +1,6 @@
 //! # Memory Client
 //!
-//! High-level client interface for interacting with the OpenHuman memory system.
+//! High-level client interface for interacting with the Eversilver memory system.
 //!
 //! The `MemoryClient` provides a simplified API for storing and retrieving
 //! information from the memory store, handling background tasks like graph
@@ -36,7 +36,7 @@ pub struct MemoryState(pub std::sync::Mutex<Option<MemoryClientRef>>);
 /// Storage (documents, vectors, graph) remains on-device via [`UnifiedMemory`].
 /// Embedding generation is delegated to whichever provider the
 /// [`MemoryConfig.embedding_provider`](crate::openhuman::config::MemoryConfig)
-/// resolves to — cloud (OpenHuman backend, the default returned by
+/// resolves to — cloud (Eversilver backend, the default returned by
 /// [`crate::openhuman::embeddings::default_embedding_provider`]) or local Ollama
 /// when explicitly opted into. The cloud embedder resolves its session JWT
 /// lazily, so an unauthenticated session will surface as a clear error on the
@@ -84,7 +84,7 @@ impl MemoryClient {
     /// Returns an error string if the home directory cannot be resolved or if
     /// initialization fails.
     pub fn new_local() -> Result<Self, String> {
-        let workspace_dir = crate::openhuman::config::default_root_openhuman_dir()
+        let workspace_dir = crate::openhuman::config::default_root_eversilver_dir()
             .map_err(|e| e.to_string())?
             .join("workspace");
         Self::from_workspace_dir(workspace_dir)
@@ -104,7 +104,7 @@ impl MemoryClient {
         std::fs::create_dir_all(&workspace_dir)
             .map_err(|e| format!("Create workspace dir {}: {e}", workspace_dir.display()))?;
 
-        // Default to cloud embeddings (OpenHuman backend, Voyage-backed). The
+        // Default to cloud embeddings (Eversilver backend, Voyage-backed). The
         // cloud embedder is lazy: JWT + API URL are resolved per call, so an
         // unauthenticated session produces a clear error on first embed rather
         // than blocking client construction. Callers that need the local

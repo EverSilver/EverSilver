@@ -104,9 +104,9 @@ fn classify_string_treats_auth_failure_as_fatal() {
 
 #[test]
 fn classify_string_recognises_budget_exceeded_as_budget_exhausted() {
-    // Matches the real payload that fired OPENHUMAN-TAURI-X in Sentry.
+    // Matches the real payload that fired EVERSILVER-TAURI-X in Sentry.
     let err = classify_error(
-        "OpenHuman API error (400 Bad Request): {\"success\":false,\
+        "Eversilver API error (400 Bad Request): {\"success\":false,\
          \"error\":\"Budget exceeded — add credits to continue\"}"
             .to_string(),
     );
@@ -183,7 +183,7 @@ fn arm_error_label(err: &ArmError) -> &'static str {
 
 #[test]
 fn classify_string_recognises_prompt_guard_rejection_as_safety_flagged() {
-    // OPENHUMAN-TAURI-X regression: the exact phrase our prompt-injection
+    // EVERSILVER-TAURI-X regression: the exact phrase our prompt-injection
     // guard emits from `agent::bus::enforce_prompt_input` /
     // `agent::harness::session::runtime` when it refuses to dispatch a
     // turn. Was previously classified as Fatal, which paged Sentry for
@@ -469,7 +469,7 @@ async fn fatal_cloud_error_short_circuits_without_local_attempt() {
 
 #[tokio::test]
 async fn cloud_budget_exhausted_skips_retry_and_falls_to_local() {
-    // Regression for OPENHUMAN-TAURI-X: when the cloud arm returns
+    // Regression for EVERSILVER-TAURI-X: when the cloud arm returns
     // "Budget exceeded — add credits to continue" we must not retry
     // the cloud arm (the second call would burn the same wall) and
     // we must not surface the error as Fatal (that paged Sentry).
@@ -483,7 +483,7 @@ async fn cloud_budget_exhausted_skips_retry_and_falls_to_local() {
             let n = counter.fetch_add(1, Ordering::SeqCst);
             if n == 0 {
                 assert_eq!(req.provider_name, "stub-cloud", "first call must hit cloud");
-                Err("OpenHuman API error (400 Bad Request): \
+                Err("Eversilver API error (400 Bad Request): \
                      {\"success\":false,\"error\":\"Budget exceeded — add credits to continue\"}"
                     .to_string())
             } else {
@@ -516,7 +516,7 @@ async fn cloud_budget_exhausted_skips_retry_and_falls_to_local() {
 
 #[tokio::test]
 async fn cloud_budget_exhausted_on_retry_falls_through_to_local() {
-    // Variant of OPENHUMAN-TAURI-X: cloud arm trips a transient first
+    // Variant of EVERSILVER-TAURI-X: cloud arm trips a transient first
     // (so we *do* schedule the cloud retry), but the retry itself
     // comes back as Budget exceeded. We must not run a third cloud
     // call, and we must fall through to local rather than surface
@@ -539,7 +539,7 @@ async fn cloud_budget_exhausted_on_retry_falls_through_to_local() {
                         req.provider_name, "stub-cloud",
                         "second call must be the cloud retry"
                     );
-                    Err("OpenHuman API error (400 Bad Request): \
+                    Err("Eversilver API error (400 Bad Request): \
                          {\"success\":false,\"error\":\"Budget exceeded — add credits to continue\"}"
                         .to_string())
                 }
@@ -585,7 +585,7 @@ async fn cloud_budget_exhausted_without_local_returns_deferred_not_err() {
         async move {
             counter.fetch_add(1, Ordering::SeqCst);
             Err(
-                "OpenHuman API error (400 Bad Request): Budget exceeded — add credits to continue"
+                "Eversilver API error (400 Bad Request): Budget exceeded — add credits to continue"
                     .to_string(),
             )
         }
@@ -614,7 +614,7 @@ async fn cloud_budget_exhausted_without_local_returns_deferred_not_err() {
 
 #[tokio::test]
 async fn cloud_safety_flagged_then_local_flagged_defers_not_errs() {
-    // Regression for OPENHUMAN-TAURI-X (regressed): the prompt-injection
+    // Regression for EVERSILVER-TAURI-X (regressed): the prompt-injection
     // guard fires the same verdict on cloud and local arms (the guard
     // runs in `agent::bus::run_turn` before either model is contacted),
     // so the realistic path is cloud-flagged → local-flagged → defer.

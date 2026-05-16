@@ -457,7 +457,7 @@ pub async fn channel_status(
 }
 
 /// Return the slugs of all messaging channels currently connected,
-/// merging the two storage layers OpenHuman uses for connection state.
+/// merging the two storage layers Eversilver uses for connection state.
 ///
 /// Two equally-authoritative sources exist today:
 ///
@@ -577,15 +577,15 @@ pub async fn test_channel(
 // Managed Telegram login flow
 // ---------------------------------------------------------------------------
 
-/// Default managed Telegram bot when `OPENHUMAN_APP_ENV` is staging and no username override is set.
+/// Default managed Telegram bot when `EVERSILVER_APP_ENV` is staging and no username override is set.
 const DEFAULT_TELEGRAM_BOT_USERNAME_STAGING: &str = "alphahumantest_bot";
 /// Default managed Telegram bot when app env is production (or unset) and no username override is set.
-const DEFAULT_TELEGRAM_BOT_USERNAME_PRODUCTION: &str = "openhumanaibot";
+const DEFAULT_TELEGRAM_BOT_USERNAME_PRODUCTION: &str = "eversilveraibot";
 
 /// Resolve the managed Telegram bot username from env, or from staging vs production defaults using
-/// `OPENHUMAN_APP_ENV` / `VITE_OPENHUMAN_APP_ENV` (via `app_env_from_env`).
+/// `EVERSILVER_APP_ENV` / `VITE_EVERSILVER_APP_ENV` (via `app_env_from_env`).
 fn telegram_bot_username() -> String {
-    if let Ok(v) = std::env::var("OPENHUMAN_TELEGRAM_BOT_USERNAME") {
+    if let Ok(v) = std::env::var("EVERSILVER_TELEGRAM_BOT_USERNAME") {
         return v;
     }
     if let Ok(v) = std::env::var("VITE_TELEGRAM_BOT_USERNAME") {
@@ -822,7 +822,7 @@ pub async fn discord_link_start(
     }
 
     let instructions =
-        format!("In Discord, send this message to the OpenHuman bot: !start {link_token}");
+        format!("In Discord, send this message to the Eversilver bot: !start {link_token}");
 
     log::debug!(
         "[discord-link] link token created, length={}",

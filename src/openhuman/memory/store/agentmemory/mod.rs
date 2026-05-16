@@ -1,12 +1,12 @@
 //! # AgentMemory Backend
 //!
-//! Thin REST adapter that implements OpenHuman's `Memory` trait against a
+//! Thin REST adapter that implements Eversilver's `Memory` trait against a
 //! locally-running [agentmemory](https://github.com/rohitg00/agentmemory)
 //! server. Selected via `MemoryConfig.backend = "agentmemory"`; the default
 //! backend stays `sqlite` and the rest of the codebase is unaffected.
 //!
 //! Embedding model selection is owned by agentmemory's own config
-//! (`~/.agentmemory/.env`) — OpenHuman's `embedding_provider` /
+//! (`~/.agentmemory/.env`) — Eversilver's `embedding_provider` /
 //! `embedding_model` / `embedding_dimensions` fields are ignored when this
 //! backend is selected, because the agentmemory daemon does its own hybrid
 //! BM25 + vector + graph retrieval and would otherwise re-embed every

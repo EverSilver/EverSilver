@@ -243,8 +243,8 @@ impl TelegramChannel {
         let home = UserDirs::new()
             .map(|u| u.home_dir().to_path_buf())
             .context("Could not find home directory")?;
-        let openhuman_dir = home.join(".openhuman");
-        let config_path = openhuman_dir.join("config.toml");
+        let eversilver_dir = home.join(".openhuman");
+        let config_path = eversilver_dir.join("config.toml");
 
         let contents = fs::read_to_string(&config_path)
             .await
@@ -252,7 +252,7 @@ impl TelegramChannel {
         let mut config: Config = toml::from_str(&contents)
             .context("Failed to parse config file for Telegram binding")?;
         config.config_path = config_path;
-        config.workspace_dir = openhuman_dir.join("workspace");
+        config.workspace_dir = eversilver_dir.join("workspace");
         Ok(config)
     }
 

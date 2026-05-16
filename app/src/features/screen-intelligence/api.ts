@@ -2,14 +2,14 @@ import {
   type AccessibilityPermissionKind,
   type AccessibilityStartSessionParams,
   type AccessibilityStatus,
-  openhumanAccessibilityRequestPermission,
-  openhumanAccessibilityStartSession,
-  openhumanAccessibilityStatus,
-  openhumanAccessibilityStopSession,
-  openhumanAccessibilityVisionFlush,
-  openhumanAccessibilityVisionRecent,
-  openhumanScreenIntelligenceCaptureTest,
-  openhumanServiceRestart,
+  eversilverAccessibilityRequestPermission,
+  eversilverAccessibilityStartSession,
+  eversilverAccessibilityStatus,
+  eversilverAccessibilityStopSession,
+  eversilverAccessibilityVisionFlush,
+  eversilverAccessibilityVisionRecent,
+  eversilverScreenIntelligenceCaptureTest,
+  eversilverServiceRestart,
 } from '../../utils/tauriCommands';
 
 const ACCESSIBILITY_ERROR_PREFIX = '[screen-intelligence]';
@@ -47,14 +47,14 @@ export interface RefreshPermissionsResult {
 }
 
 export async function fetchScreenIntelligenceStatus(): Promise<AccessibilityStatus> {
-  const response = await openhumanAccessibilityStatus();
+  const response = await eversilverAccessibilityStatus();
   return response.result;
 }
 
 export async function requestScreenIntelligencePermission(
   permission: AccessibilityPermissionKind
 ): Promise<AccessibilityStatus> {
-  await openhumanAccessibilityRequestPermission(permission);
+  await eversilverAccessibilityRequestPermission(permission);
   return await fetchScreenIntelligenceStatus();
 }
 
@@ -66,7 +66,7 @@ export async function refreshScreenIntelligencePermissionsWithRestart(
     console.debug(
       `${ACCESSIBILITY_ERROR_PREFIX} refreshPermissionsWithRestart: requesting core self-restart`
     );
-    await openhumanServiceRestart('screen-intelligence-ui', 'refresh_permissions');
+    await eversilverServiceRestart('screen-intelligence-ui', 'refresh_permissions');
     console.debug(
       `${ACCESSIBILITY_ERROR_PREFIX} refreshPermissionsWithRestart: waiting for sidecar ready`
     );
@@ -129,27 +129,27 @@ export async function refreshScreenIntelligencePermissionsWithRestart(
 export async function startScreenIntelligenceSession(
   params: AccessibilityStartSessionParams
 ): Promise<AccessibilityStatus> {
-  await openhumanAccessibilityStartSession(params);
+  await eversilverAccessibilityStartSession(params);
   return await fetchScreenIntelligenceStatus();
 }
 
 export async function stopScreenIntelligenceSession(reason?: string): Promise<AccessibilityStatus> {
-  await openhumanAccessibilityStopSession(reason ? { reason } : undefined);
+  await eversilverAccessibilityStopSession(reason ? { reason } : undefined);
   return await fetchScreenIntelligenceStatus();
 }
 
 export async function fetchScreenIntelligenceVisionRecent(limit?: number) {
-  const response = await openhumanAccessibilityVisionRecent(limit);
+  const response = await eversilverAccessibilityVisionRecent(limit);
   return response.result.summaries;
 }
 
 export async function flushScreenIntelligenceVision() {
-  const response = await openhumanAccessibilityVisionFlush();
+  const response = await eversilverAccessibilityVisionFlush();
   return response.result.summary;
 }
 
 export async function runScreenIntelligenceCaptureTest() {
-  const response = await openhumanScreenIntelligenceCaptureTest();
+  const response = await eversilverScreenIntelligenceCaptureTest();
   return response.result;
 }
 

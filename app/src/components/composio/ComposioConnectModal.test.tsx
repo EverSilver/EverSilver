@@ -104,21 +104,21 @@ describe('isMissingRequiredFieldsError', () => {
 describe('sanitizeAuthError', () => {
   it('returns a generic message for missing-required-fields errors', () => {
     const err = new Error(
-      'Authorization failed: [composio] authorize failed: Backend returned 400 Bad Request for POST https://api.tinyhumans.ai/agent-integrations/composio/authorize: Composio authorization failed: 400 {"error":{"slug":"ConnectedAccount_MissingRequiredFields","code":612}}'
+      'Authorization failed: [composio] authorize failed: Backend returned 400 Bad Request for POST https://api.eversilver.local/agent-integrations/composio/authorize: Composio authorization failed: 400 {"error":{"slug":"ConnectedAccount_MissingRequiredFields","code":612}}'
     );
     const result = sanitizeAuthError(err);
     expect(result).not.toContain('ConnectedAccount_MissingRequiredFields');
-    expect(result).not.toContain('api.tinyhumans.ai');
+    expect(result).not.toContain('api.eversilver.local');
     expect(result).not.toContain('612');
     expect(result).toContain('required field');
   });
 
   it('strips backend URLs from plain authorization errors', () => {
     const err = new Error(
-      'Authorization failed: Backend returned 500 Internal Server Error for POST https://api.tinyhumans.ai/agent-integrations/composio/authorize: internal error'
+      'Authorization failed: Backend returned 500 Internal Server Error for POST https://api.eversilver.local/agent-integrations/composio/authorize: internal error'
     );
     const result = sanitizeAuthError(err);
-    expect(result).not.toContain('api.tinyhumans.ai');
+    expect(result).not.toContain('api.eversilver.local');
     expect(result).not.toContain('https://');
   });
 
@@ -432,7 +432,7 @@ describe('<ComposioConnectModal> — needs-subdomain recovery phase', () => {
   it('surfaces a sanitized (non-raw) error for unrelated authorization failures', async () => {
     vi.mocked(authorize).mockRejectedValueOnce(
       new Error(
-        'Authorization failed: Backend returned 500 Internal Server Error for POST https://api.tinyhumans.ai/agent-integrations/composio/authorize: {"error":{"message":"internal server error payload","code":500}}'
+        'Authorization failed: Backend returned 500 Internal Server Error for POST https://api.eversilver.local/agent-integrations/composio/authorize: {"error":{"message":"internal server error payload","code":500}}'
       )
     );
 
@@ -444,7 +444,7 @@ describe('<ComposioConnectModal> — needs-subdomain recovery phase', () => {
       // Should be in error phase, not needs-subdomain
       expect(screen.getByRole('button', { name: /Dismiss/i })).toBeInTheDocument();
       // Raw URL should not be shown
-      expect(screen.queryByText(/api.tinyhumans.ai/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/api.eversilver.local/i)).not.toBeInTheDocument();
       // Raw JSON payload should not be shown
       expect(screen.queryByText(/internal server error payload/i)).not.toBeInTheDocument();
     });

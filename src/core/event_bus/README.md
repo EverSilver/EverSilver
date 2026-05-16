@@ -23,20 +23,20 @@ In-process pub/sub plus typed request/response. Owns the global `EventBus` singl
 
 - `tokio::sync::broadcast` for the broadcast channel.
 - `async_trait` and `tokio::task::JoinHandle` for handler plumbing.
-- No openhuman-domain dependencies — this module sits below every domain.
+- No eversilver-domain dependencies — this module sits below every domain.
 
 ## Called by
 
 - ~33 sites across the workspace. Hot consumers:
-- `src/openhuman/agent/bus.rs`, `agent/triage/{events,evaluator,escalation}.rs`, `tools/impl/agent/{dispatch,spawn_subagent}.rs` — agent + sub-agent events.
-- `src/openhuman/memory/conversations/bus.rs` — conversation persistence subscriber.
-- `src/openhuman/channels/bus.rs` — `ChannelInboundSubscriber`.
-- `src/openhuman/cron/{bus,scheduler}.rs` — `CronDeliverySubscriber` + `CronJobTriggered` emission.
-- `src/openhuman/webhooks/bus.rs` — `WebhookRequestSubscriber`.
-- `src/openhuman/health/bus.rs` — health-event subscriber.
-- `src/openhuman/update/scheduler.rs` — update-cycle events.
-- `src/openhuman/tree_summarizer/{engine,bus}.rs` — async summarisation triggers.
-- `src/openhuman/composio/bus.rs`, `notifications/`, `learning/` — analytics fan-out.
+- `src/eversilver/agent/bus.rs`, `agent/triage/{events,evaluator,escalation}.rs`, `tools/impl/agent/{dispatch,spawn_subagent}.rs` — agent + sub-agent events.
+- `src/eversilver/memory/conversations/bus.rs` — conversation persistence subscriber.
+- `src/eversilver/channels/bus.rs` — `ChannelInboundSubscriber`.
+- `src/eversilver/cron/{bus,scheduler}.rs` — `CronDeliverySubscriber` + `CronJobTriggered` emission.
+- `src/eversilver/webhooks/bus.rs` — `WebhookRequestSubscriber`.
+- `src/eversilver/health/bus.rs` — health-event subscriber.
+- `src/eversilver/update/scheduler.rs` — update-cycle events.
+- `src/eversilver/tree_summarizer/{engine,bus}.rs` — async summarisation triggers.
+- `src/eversilver/composio/bus.rs`, `notifications/`, `learning/` — analytics fan-out.
 
 ## Tests
 

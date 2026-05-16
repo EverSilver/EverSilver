@@ -8,7 +8,7 @@
 //!
 //! A future iteration could park the overflow in a "stored surrogate"
 //! and reference it later if the model asks for the full body. For now
-//! OpenHuman does the simpler thing: truncate in-place with a size
+//! Eversilver does the simpler thing: truncate in-place with a size
 //! marker the model can use to decide whether to re-run the tool with a
 //! narrower query.
 //!

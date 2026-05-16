@@ -177,7 +177,7 @@ fn telegram_definition() -> ChannelDefinition {
         auth_modes: vec![
             AuthModeSpec {
                 mode: ChannelAuthMode::ManagedDm,
-                description: "Message the OpenHuman Telegram bot directly.",
+                description: "Message the Eversilver Telegram bot directly.",
                 fields: vec![],
                 auth_action: Some("telegram_managed_dm"),
             },
@@ -249,13 +249,13 @@ fn discord_definition() -> ChannelDefinition {
             },
             AuthModeSpec {
                 mode: ChannelAuthMode::OAuth,
-                description: "Install the OpenHuman bot to your Discord server via OAuth.",
+                description: "Install the Eversilver bot to your Discord server via OAuth.",
                 fields: vec![],
                 auth_action: Some("discord_oauth"),
             },
             AuthModeSpec {
                 mode: ChannelAuthMode::ManagedDm,
-                description: "Link your personal Discord account to the OpenHuman bot.",
+                description: "Link your personal Discord account to the Eversilver bot.",
                 fields: vec![],
                 auth_action: Some("discord_managed_link"),
             },
@@ -297,7 +297,7 @@ fn imessage_definition() -> ChannelDefinition {
         icon: "imessage",
         auth_modes: vec![AuthModeSpec {
             mode: ChannelAuthMode::ManagedDm,
-            description: "Local-only — no credentials. Grant Full Disk Access to OpenHuman.",
+            description: "Local-only — no credentials. Grant Full Disk Access to Eversilver.",
             fields: vec![FieldRequirement {
                 key: "allowed_contacts",
                 label: "Allowed Contacts",

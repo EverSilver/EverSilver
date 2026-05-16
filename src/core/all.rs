@@ -1,4 +1,4 @@
-//! Registry and dispatch logic for all OpenHuman controllers.
+//! Registry and dispatch logic for all Eversilver controllers.
 //!
 //! This module serves as the central hub for registering domain-specific
 //! controllers (e.g., memory, skills, config) and providing a unified

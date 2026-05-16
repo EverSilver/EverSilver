@@ -26,7 +26,7 @@ pub(super) fn make_workspace() -> TempDir {
     std::fs::write(tmp.path().join("SOUL.md"), "# Soul\nBe helpful.").unwrap();
     std::fs::write(
         tmp.path().join("IDENTITY.md"),
-        "# Identity\nName: OpenHuman",
+        "# Identity\nName: Eversilver",
     )
     .unwrap();
     std::fs::write(

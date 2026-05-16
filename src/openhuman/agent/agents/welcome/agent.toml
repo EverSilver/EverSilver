@@ -32,7 +32,7 @@ hint = "fast"
 # complete_onboarding: finalize the welcome flow once ready_to_complete is true.
 # memory_recall: pull additional user details beyond injected context.
 # composio_authorize: start an OAuth flow for a toolkit (e.g. gmail).
-# gitbooks_*: answer "how does X work" / "what can OpenHuman do" questions
+# gitbooks_*: answer "how does X work" / "what can Eversilver do" questions
 #   during onboarding from the real product docs instead of guessing.
 named = [
     "check_onboarding_status",

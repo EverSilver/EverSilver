@@ -28,7 +28,7 @@ use std::sync::Arc;
 /// Drop entries with duplicate `name` fields, first occurrence wins.
 ///
 /// Anthropic (and other strict providers) rejects a chat/completions
-/// request that lists two tools with the same name — OpenHuman's own
+/// request that lists two tools with the same name — Eversilver's own
 /// backend and OpenAI silently accept duplicates, which hid the
 /// underlying collision (researcher sub-agent's `delegate_name =
 /// "research"` shadowing a same-named skill tool) until #1710's
@@ -343,7 +343,7 @@ impl AgentBuilder {
 
         // Dedupe by tool name. Anthropic (and other strict providers)
         // rejects a chat/completions request that lists two tools with
-        // the same name — OpenHuman's own backend and OpenAI silently
+        // the same name — Eversilver's own backend and OpenAI silently
         // accept duplicates, which hid this bug until #1710's per-role
         // routing started sending the same tool list to Anthropic.
         let visible_tool_specs: Vec<ToolSpec> =
@@ -752,7 +752,7 @@ impl Agent {
         // "reasoning-v1" tier name to Anthropic would 404).
         //
         // When `reasoning_provider` is unset or `"cloud"`, the factory
-        // resolves to the primary cloud (OpenHuman by default), so the
+        // resolves to the primary cloud (Eversilver by default), so the
         // baseline behaviour is identical to the legacy
         // `create_intelligent_routing_provider` path.
         //
@@ -764,7 +764,7 @@ impl Agent {
         // re-introducing the routing bypass.
         let _ = providers::ProviderRuntimeOptions {
             auth_profile_override: None,
-            openhuman_dir: config.config_path.parent().map(std::path::PathBuf::from),
+            eversilver_dir: config.config_path.parent().map(std::path::PathBuf::from),
             secrets_encrypt: config.secrets.encrypt,
             reasoning_enabled: config.runtime.reasoning_enabled,
         };

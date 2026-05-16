@@ -17,21 +17,21 @@ On-device inference stack. Owns the bundled Ollama runtime, LM Studio local-serv
 
 ## Calls into
 
-- `src/openhuman/config/` — provider selection, model IDs, local server URL override, device-profile inputs.
-- `src/openhuman/encryption/` — Tenor / asset keys at rest.
+- `src/eversilver/config/` — provider selection, model IDs, local server URL override, device-profile inputs.
+- `src/eversilver/encryption/` — Tenor / asset keys at rest.
 - Bundled binaries: Ollama (HTTP `OLLAMA_BASE_URL`), whisper.cpp, Piper.
 - LM Studio local server via OpenAI-compatible `GET /v1/models` and `POST /v1/chat/completions`.
 - HTTP for Tenor GIF search.
-- Filesystem under `~/.openhuman/local-ai/` for downloaded model artifacts.
+- Filesystem under `~/.eversilver/local-ai/` for downloaded model artifacts.
 
 ## Called by
 
-- `src/openhuman/agent/` — `local_ai::rpc::agent_chat` / `agent_chat_simple` are the primary chat backends; triage uses `agent::triage::routing` to decide local vs remote.
-- `src/openhuman/voice/{streaming,postprocess,ops,types}.rs` — speech-to-text + text-to-speech.
-- `src/openhuman/screen_intelligence/processing_worker.rs` — vision embedding + summarisation.
-- `src/openhuman/autocomplete/core/engine.rs` — local-AI completions.
-- `src/openhuman/tree_summarizer/ops.rs` — summarisation backend.
-- `src/openhuman/app_state/ops.rs` — `LocalAiStatus` snapshot.
+- `src/eversilver/agent/` — `local_ai::rpc::agent_chat` / `agent_chat_simple` are the primary chat backends; triage uses `agent::triage::routing` to decide local vs remote.
+- `src/eversilver/voice/{streaming,postprocess,ops,types}.rs` — speech-to-text + text-to-speech.
+- `src/eversilver/screen_intelligence/processing_worker.rs` — vision embedding + summarisation.
+- `src/eversilver/autocomplete/core/engine.rs` — local-AI completions.
+- `src/eversilver/tree_summarizer/ops.rs` — summarisation backend.
+- `src/eversilver/app_state/ops.rs` — `LocalAiStatus` snapshot.
 - `src/core/all.rs` — registers `all_local_ai_*`.
 
 ## Tests
@@ -42,6 +42,6 @@ On-device inference stack. Owns the bundled Ollama runtime, LM Studio local-serv
 
 ## LM Studio
 
-Set `local_ai.provider = "lm_studio"`, `local_ai.runtime_enabled = true`, and `local_ai.opt_in_confirmed = true`, then run LM Studio's local server with the OpenAI-compatible API enabled. The default base URL is `http://localhost:1234/v1`; override it with `local_ai.base_url`, `OPENHUMAN_LM_STUDIO_BASE_URL`, or `LM_STUDIO_BASE_URL`.
+Set `local_ai.provider = "lm_studio"`, `local_ai.runtime_enabled = true`, and `local_ai.opt_in_confirmed = true`, then run LM Studio's local server with the OpenAI-compatible API enabled. The default base URL is `http://localhost:1234/v1`; override it with `local_ai.base_url`, `EVERSILVER_LM_STUDIO_BASE_URL`, or `LM_STUDIO_BASE_URL`.
 
-This first provider slice covers connection validation, model discovery, diagnostics, direct local chat/prompt requests, and intelligent-routing local chat through LM Studio. LM Studio manages its own model downloads and loading; OpenHuman reports missing chat models as actionable status instead of trying to pull them. Vision and embeddings stay on the existing Ollama-specific paths until those provider surfaces are split.
+This first provider slice covers connection validation, model discovery, diagnostics, direct local chat/prompt requests, and intelligent-routing local chat through LM Studio. LM Studio manages its own model downloads and loading; Eversilver reports missing chat models as actionable status instead of trying to pull them. Vision and embeddings stay on the existing Ollama-specific paths until those provider surfaces are split.

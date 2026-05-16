@@ -974,7 +974,7 @@ async fn composio_disable_trigger_propagates_backend_error() {
 // `composio_list_toolkits` / `composio_list_connections` ops must NOT
 // silently fall through to the backend tenant's data — that's the
 // bug the user reported in #1710 (toggled to Direct, still saw
-// tinyhumans-tenant connections). We return empty responses with
+// eversilver-tenant connections). We return empty responses with
 // explicit log lines so the UI / agent surface stays honest about
 // where the data is (or isn't) coming from.
 
@@ -1058,7 +1058,7 @@ async fn composio_list_connections_routes_through_direct_mode() {
 /// `backend.composio.dev`, which immediately fails with HTTP 401 on the
 /// fake key — exactly the shape we want the contract to preserve:
 ///
-///   * NEVER fall back to the tinyhumans backend tenant (no
+///   * NEVER fall back to the eversilver backend tenant (no
 ///     `"no backend session"` text in the error)
 ///   * Surface the failure with the `composio` grep prefix so it routes
 ///     through normal observability
@@ -1163,13 +1163,13 @@ async fn composio_execute_routes_through_direct_mode() {
 
 #[test]
 fn composio_failure_tag_is_non_2xx_for_backend_returned_502() {
-    // OPENHUMAN-TAURI-35 / -2H wire shape — the dominant leak. The
+    // EVERSILVER-TAURI-35 / -2H wire shape — the dominant leak. The
     // integrations layer renders this on a 5xx response; composio's op
     // layer wraps the chain and re-reports under `domain=composio`. The
     // tag MUST be `non_2xx` so the existing transient-status filter
     // branch matches.
     let rendered = "Backend returned 502 Bad Gateway for POST \
-                    https://api.tinyhumans.ai/agent-integrations/composio/connections: \
+                    https://api.eversilver.local/agent-integrations/composio/connections: \
                     upstream temporarily unavailable";
     assert_eq!(classify_composio_failure_tag(rendered), "non_2xx");
 }
@@ -1178,20 +1178,20 @@ fn composio_failure_tag_is_non_2xx_for_backend_returned_502() {
 fn composio_failure_tag_is_non_2xx_for_envelope_error() {
     // Envelope errors don't carry a transport phrase or "error sending
     // request" anchor; default to non_2xx.
-    let rendered = "Backend error for POST https://api.tinyhumans.ai/x: \
+    let rendered = "Backend error for POST https://api.eversilver.local/x: \
                     unknown backend error";
     assert_eq!(classify_composio_failure_tag(rendered), "non_2xx");
 }
 
 #[test]
 fn composio_failure_tag_is_transport_for_operation_timed_out() {
-    // OPENHUMAN-TAURI-18 / -G shape — `composio/execute` reqwest chain
+    // EVERSILVER-TAURI-18 / -G shape — `composio/execute` reqwest chain
     // surfaces `operation timed out` (one of `TRANSIENT_TRANSPORT_PHRASES`).
     // Tag MUST be `transport` so the filter's transport-phrase branch fires
     // even though the report carries no `status`.
-    let rendered = "POST https://api.tinyhumans.ai/agent-integrations/composio/execute \
+    let rendered = "POST https://api.eversilver.local/agent-integrations/composio/execute \
                     failed: error sending request for url \
-                    (https://api.tinyhumans.ai/agent-integrations/composio/execute) → \
+                    (https://api.eversilver.local/agent-integrations/composio/execute) → \
                     client error (SendRequest) → connection error → \
                     Operation timed out (os error 60)";
     assert_eq!(classify_composio_failure_tag(rendered), "transport");
@@ -1237,13 +1237,13 @@ fn composio_failure_tag_does_not_misclassify_unrelated_messages() {
 // stays in lockstep with the `Backend returned <status> ...` rendering
 // the integrations layer produces. Without the digit anchor the
 // `before_send` filter's transient-status branch can't distinguish a 502
-// from a 401, and the dominant leak shape (OPENHUMAN-TAURI-35 / -2H)
+// from a 401, and the dominant leak shape (EVERSILVER-TAURI-35 / -2H)
 // re-opens.
 
 #[test]
 fn extract_backend_returned_status_parses_three_digit_status() {
     let rendered = "Backend returned 502 Bad Gateway for POST \
-                    https://api.tinyhumans.ai/agent-integrations/composio/connections: \
+                    https://api.eversilver.local/agent-integrations/composio/connections: \
                     upstream temporarily unavailable";
     assert_eq!(
         extract_backend_returned_status(rendered),
@@ -1263,7 +1263,7 @@ fn extract_backend_returned_status_handles_mixed_case() {
     // Some renders upper-case the prefix; the helper lowercases before
     // matching so both shapes resolve to the same status string.
     let rendered = "BACKEND RETURNED 429 Too Many Requests for GET \
-                    https://api.tinyhumans.ai/agent-integrations/composio/triggers";
+                    https://api.eversilver.local/agent-integrations/composio/triggers";
     assert_eq!(
         extract_backend_returned_status(rendered),
         Some("429".to_string())

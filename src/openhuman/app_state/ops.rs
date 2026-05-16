@@ -430,7 +430,7 @@ async fn build_runtime_snapshot(config: &Config) -> RuntimeSnapshot {
             ServiceStatus {
                 state: ServiceState::Unknown(message.clone()),
                 unit_path: None,
-                label: "OpenHuman".to_string(),
+                label: "Eversilver".to_string(),
                 details: Some(message),
             }
         }

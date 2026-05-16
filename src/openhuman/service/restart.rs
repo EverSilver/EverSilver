@@ -16,7 +16,7 @@ use serde::Serialize;
 use crate::core::event_bus::{self, DomainEvent};
 use crate::rpc::RpcOutcome;
 
-const RESTART_DELAY_ENV: &str = "OPENHUMAN_RESTART_DELAY_MS";
+const RESTART_DELAY_ENV: &str = "EVERSILVER_RESTART_DELAY_MS";
 const DEFAULT_RESTART_DELAY_MS: u64 = 350;
 
 static RESTART_IN_PROGRESS: AtomicBool = AtomicBool::new(false);

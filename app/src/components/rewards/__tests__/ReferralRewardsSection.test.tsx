@@ -70,8 +70,8 @@ describe('ReferralRewardsSection', () => {
 
     await waitFor(() => {
       expect(share).toHaveBeenCalledWith({
-        title: 'OpenHuman',
-        text: expect.stringContaining(`Download OpenHuman: ${LATEST_APP_DOWNLOAD_URL}`),
+        title: 'Eversilver',
+        text: expect.stringContaining(`Download Eversilver: ${LATEST_APP_DOWNLOAD_URL}`),
       });
     });
     expect(share).not.toHaveBeenCalledWith(
@@ -91,7 +91,7 @@ describe('ReferralRewardsSection', () => {
       expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Referral code: GQ9F7LEV'));
     });
     expect(writeText).toHaveBeenCalledWith(
-      expect.not.stringContaining('https://tinyhumans.ai/signup?ref=')
+      expect.not.stringContaining('https://eversilver.local/signup?ref=')
     );
     expect(await screen.findByText('Copied')).toBeInTheDocument();
   });

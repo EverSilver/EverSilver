@@ -6,7 +6,7 @@ import { MemoryChunkMentioned } from '../MemoryChunkMentioned';
 
 const ENTITIES: EntityRef[] = [
   { entity_id: 'person:steve', kind: 'person', surface: 'Steven Enamakel', count: 4 },
-  { entity_id: 'org:tinyhumans', kind: 'organization', surface: 'TinyHumans', count: 1 },
+  { entity_id: 'org:eversilver', kind: 'organization', surface: 'Eversilver', count: 1 },
   { entity_id: 'event:launch', kind: 'event', surface: 'Phoenix launch', count: 7 },
 ];
 
@@ -19,7 +19,7 @@ describe('MemoryChunkMentioned', () => {
   it('renders one row per entity with kind, surface, and a pluralised count', () => {
     render(<MemoryChunkMentioned entities={ENTITIES} onSelectEntity={vi.fn()} />);
     expect(screen.getByText('Steven Enamakel')).toBeInTheDocument();
-    expect(screen.getByText('TinyHumans')).toBeInTheDocument();
+    expect(screen.getByText('Eversilver')).toBeInTheDocument();
     expect(screen.getByText('Phoenix launch')).toBeInTheDocument();
 
     // Singular vs plural — the surface display has to switch on count.
@@ -32,7 +32,7 @@ describe('MemoryChunkMentioned', () => {
     const onSelectEntity = vi.fn();
     render(<MemoryChunkMentioned entities={ENTITIES} onSelectEntity={onSelectEntity} />);
 
-    fireEvent.click(screen.getByText('TinyHumans').closest('button')!);
+    fireEvent.click(screen.getByText('Eversilver').closest('button')!);
     expect(onSelectEntity).toHaveBeenCalledTimes(1);
     expect(onSelectEntity).toHaveBeenCalledWith(ENTITIES[1]);
   });

@@ -151,7 +151,7 @@ pub(super) fn classify_entity(name: &str, known_people: &HashMap<String, String>
     }
     if matches!(
         upper.as_str(),
-        "OPENHUMAN" | "JSON-RPC" | "JSON-RPC 2.0" | "NEOCORTEX_V2" | "NEOCORTEX V2"
+        "EVERSILVER" | "JSON-RPC" | "JSON-RPC 2.0" | "NEOCORTEX_V2" | "NEOCORTEX V2"
     ) {
         return "PRODUCT";
     }
@@ -179,7 +179,7 @@ pub(super) fn classify_entity(name: &str, known_people: &HashMap<String, String>
     {
         return "ROOM";
     }
-    if upper.contains("TINYHUMANS") || upper.ends_with("CORE") {
+    if upper.contains("EVERSILVER") || upper.ends_with("CORE") {
         return "ORGANIZATION";
     }
     if (upper.contains('-') || upper.contains('_')) && !upper.contains(' ') {

@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Invoke OpenHuman core JSON-RPC from the Tauri WebView (same transport as `callCoreRpc` in the app).
+ * Invoke Eversilver core JSON-RPC from the Tauri WebView (same transport as `callCoreRpc` in the app).
  * Uses `invoke('core_rpc_url')` so the test follows the live sidecar port.
  */
 

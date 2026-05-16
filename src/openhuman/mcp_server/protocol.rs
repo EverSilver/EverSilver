@@ -227,7 +227,7 @@ fn initialize_result(params: Value) -> Value {
             "name": "openhuman-core",
             "version": env!("CARGO_PKG_VERSION")
         },
-        "instructions": "OpenHuman MCP exposes a small read-only memory surface. Use memory.search or memory.recall first, then tree.read_chunk for source text."
+        "instructions": "Eversilver MCP exposes a small read-only memory surface. Use memory.search or memory.recall first, then tree.read_chunk for source text."
     })
 }
 

@@ -7,7 +7,7 @@
  *   1. ONE Appium session for the whole run (see wdio.conf.ts). We never
  *      restart the app between specs.
  *   2. Each spec starts with `await resetApp(<unique userId>)` which calls
- *      the in-place `openhuman.test_reset` RPC, reloads the renderer, and
+ *      the in-place `eversilver.test_reset` RPC, reloads the renderer, and
  *      walks the real onboarding UI. After that the app is in the same
  *      state a brand-new install would be in.
  *   3. The rest of the spec drives the product through real UI: clicks on
@@ -133,7 +133,7 @@ describe('Cron jobs settings panel (real UI flow)', () => {
 
   it('completing onboarding lands the user on the home screen', async () => {
     const home = await waitForAnyText(
-      ['Message OpenHuman', 'Good morning', 'Good afternoon', 'Good evening', 'Upgrade to Premium'],
+      ['Message Eversilver', 'Good morning', 'Good afternoon', 'Good evening', 'Upgrade to Premium'],
       15_000
     );
     expect(home).toBeTruthy();
@@ -190,7 +190,7 @@ describe('Cron jobs settings panel (real UI flow)', () => {
     expect(await textExists('No core cron jobs found.')).toBe(true);
 
     // Single oracle RPC: confirm the sidecar agrees with the UI.
-    const list = await callOpenhumanRpc('openhuman.cron_list', {});
+    const list = await callOpenhumanRpc('eversilver.cron_list', {});
     expect(list.ok).toBe(true);
     const inner = (list.result as { result?: unknown } | undefined)?.result ?? list.result;
     const jobs = Array.isArray(inner) ? inner : [];

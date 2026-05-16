@@ -143,7 +143,7 @@ fn non_fetch_slug_is_noop() {
 
 #[test]
 fn prefers_backend_markdown_formatted_when_present() {
-    // Composio backend (tinyhumansai/backend#683 +) ships
+    // Composio backend (eversilver/backend#683 +) ships
     // `markdownFormatted` already URL-shortened + footer-stripped
     // per message (after `apply_response_level_markdown` slices the
     // response-level field). When present, our post-processor must

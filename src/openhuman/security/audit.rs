@@ -164,8 +164,8 @@ pub struct CommandExecutionLog<'a> {
 
 impl AuditLogger {
     /// Create a new audit logger
-    pub fn new(config: AuditConfig, openhuman_dir: PathBuf) -> Result<Self> {
-        let log_path = openhuman_dir.join(&config.log_path);
+    pub fn new(config: AuditConfig, eversilver_dir: PathBuf) -> Result<Self> {
+        let log_path = eversilver_dir.join(&config.log_path);
         log::info!(
             "[openhuman:audit] Logger initialized: enabled={}, path={}",
             config.enabled,

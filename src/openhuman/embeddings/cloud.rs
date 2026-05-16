@@ -1,6 +1,6 @@
-//! Cloud embedding provider — routes through the OpenHuman backend's
+//! Cloud embedding provider — routes through the Eversilver backend's
 //! `POST /openai/v1/embeddings` surface (Voyage-backed) using the same
-//! session JWT that the `OpenHumanBackendProvider` chat path uses.
+//! session JWT that the `EversilverBackendProvider` chat path uses.
 //!
 //! This is the default embedder for a fresh install. The local Ollama path
 //! stays available, but the user has to explicitly opt in (either by setting
@@ -9,7 +9,7 @@
 //!
 //! The JWT and API URL are resolved per call so a session refresh between
 //! embed batches is picked up transparently — matching
-//! [`crate::openhuman::providers::openhuman_backend::OpenHumanBackendProvider`].
+//! [`crate::openhuman::providers::eversilver_backend::EversilverBackendProvider`].
 
 use std::path::PathBuf;
 
@@ -21,28 +21,28 @@ use crate::api::config::effective_api_url;
 use crate::openhuman::credentials::{AuthService, APP_SESSION_PROVIDER};
 
 /// Default cloud embedding model — backed by `voyage-3.5` (1024 dims) on the
-/// OpenHuman backend. See `tinyhumansai/backend#746`.
+/// Eversilver backend. See `eversilver/backend#746`.
 pub const DEFAULT_CLOUD_EMBEDDING_MODEL: &str = "embedding-v1";
 
 /// Default output dimensionality for [`DEFAULT_CLOUD_EMBEDDING_MODEL`].
 pub const DEFAULT_CLOUD_EMBEDDING_DIMENSIONS: usize = 1024;
 
-/// OpenHuman-backend-backed embedding provider.
-pub struct OpenHumanCloudEmbedding {
+/// Eversilver-backend-backed embedding provider.
+pub struct EversilverCloudEmbedding {
     api_url: Option<String>,
-    openhuman_dir: Option<PathBuf>,
+    eversilver_dir: Option<PathBuf>,
     secrets_encrypt: bool,
     model: String,
     dims: usize,
 }
 
-impl OpenHumanCloudEmbedding {
-    /// Construct a cloud embedder. `api_url` and `openhuman_dir` are looked up
+impl EversilverCloudEmbedding {
+    /// Construct a cloud embedder. `api_url` and `eversilver_dir` are looked up
     /// per request; pass `None` to fall back to the runtime defaults
     /// ([`effective_api_url`] / `~/.openhuman`).
     pub fn new(
         api_url: Option<String>,
-        openhuman_dir: Option<PathBuf>,
+        eversilver_dir: Option<PathBuf>,
         secrets_encrypt: bool,
         model: impl Into<String>,
         dims: usize,
@@ -51,7 +51,7 @@ impl OpenHumanCloudEmbedding {
             api_url: api_url
                 .map(|s| s.trim().to_string())
                 .filter(|s| !s.is_empty()),
-            openhuman_dir,
+            eversilver_dir,
             secrets_encrypt,
             model: model.into(),
             dims,
@@ -59,7 +59,7 @@ impl OpenHumanCloudEmbedding {
     }
 
     fn state_dir(&self) -> PathBuf {
-        self.openhuman_dir.clone().unwrap_or_else(|| {
+        self.eversilver_dir.clone().unwrap_or_else(|| {
             directories::UserDirs::new()
                 .map(|d| d.home_dir().join(".openhuman"))
                 .unwrap_or_else(|| PathBuf::from(".openhuman"))
@@ -75,7 +75,7 @@ impl OpenHumanCloudEmbedding {
             return Ok(t);
         }
         anyhow::bail!(
-            "No backend session for cloud embeddings: log in to OpenHuman, or set \
+            "No backend session for cloud embeddings: log in to Eversilver, or set \
              memory.embedding_provider to \"ollama\" / \"none\" in config.toml"
         )
     }
@@ -87,7 +87,7 @@ impl OpenHumanCloudEmbedding {
 }
 
 #[async_trait]
-impl EmbeddingProvider for OpenHumanCloudEmbedding {
+impl EmbeddingProvider for EversilverCloudEmbedding {
     fn name(&self) -> &str {
         "cloud"
     }
@@ -112,7 +112,7 @@ mod tests {
 
     #[test]
     fn name_and_dimensions() {
-        let p = OpenHumanCloudEmbedding::new(
+        let p = EversilverCloudEmbedding::new(
             None,
             None,
             true,
@@ -125,7 +125,7 @@ mod tests {
 
     #[test]
     fn base_url_appends_openai_v1() {
-        let p = OpenHumanCloudEmbedding::new(
+        let p = EversilverCloudEmbedding::new(
             Some("https://api.openhuman.example/".into()),
             None,
             true,
@@ -140,7 +140,7 @@ mod tests {
         // Empty input should short-circuit *before* hitting the AuthService —
         // otherwise the no-op path would spuriously fail in unauthenticated
         // contexts (e.g. ingestion of an empty chunk batch).
-        let p = OpenHumanCloudEmbedding::new(
+        let p = EversilverCloudEmbedding::new(
             None,
             None,
             false,

@@ -43,11 +43,11 @@ static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 pub enum CliLogDefault {
     /// Typical server/CLI logging (`info`, or `debug` when `verbose`).
     Global,
-    /// Silence other modules; only `openhuman_core::openhuman::autocomplete::*` emits logs.
+    /// Silence other modules; only `eversilver_core::openhuman::autocomplete::*` emits logs.
     AutocompleteOnly,
 }
 
-/// Custom log formatter for the OpenHuman CLI.
+/// Custom log formatter for the Eversilver CLI.
 ///
 /// It produces a clean, readable output on stderr:
 /// `14:32:01 INF:jsonrpc: Listening on http://127.0.0.1:7788`
@@ -114,7 +114,7 @@ fn level_tag(level: &Level) -> &'static str {
     }
 }
 
-/// Shortens a Rust module path (e.g., `openhuman_core::rpc` -> `rpc`).
+/// Shortens a Rust module path (e.g., `eversilver_core::rpc` -> `rpc`).
 fn short_target(target: &str) -> &str {
     target.rsplit("::").next().unwrap_or(target)
 }
@@ -123,7 +123,7 @@ fn short_target(target: &str) -> &str {
 ///
 /// Used to filter logs to specific parts of the codebase.
 fn parse_log_file_constraints() -> Vec<String> {
-    std::env::var("OPENHUMAN_LOG_FILE_CONSTRAINTS")
+    std::env::var("EVERSILVER_LOG_FILE_CONSTRAINTS")
         .ok()
         .map(|raw| {
             raw.split(',')
@@ -329,7 +329,7 @@ fn seed_rust_log(verbose: bool, default_scope: CliLogDefault) {
         }
         CliLogDefault::AutocompleteOnly => {
             let level = if verbose { "trace" } else { "debug" };
-            format!("off,openhuman_core::openhuman::autocomplete={level}")
+            format!("off,eversilver_core::openhuman::autocomplete={level}")
         }
     };
     std::env::set_var("RUST_LOG", default);
@@ -343,7 +343,7 @@ fn build_env_filter(verbose: bool, default_scope: CliLogDefault) -> tracing_subs
         CliLogDefault::AutocompleteOnly => {
             let level = if verbose { "trace" } else { "debug" };
             tracing_subscriber::EnvFilter::new(format!(
-                "off,openhuman_core::openhuman::autocomplete={level}"
+                "off,eversilver_core::openhuman::autocomplete={level}"
             ))
         }
     })
@@ -373,7 +373,7 @@ where
 mod tests {
     use super::*;
 
-    /// Serialize tests that mutate `RUST_LOG` / `OPENHUMAN_LOG_FILE_CONSTRAINTS` —
+    /// Serialize tests that mutate `RUST_LOG` / `EVERSILVER_LOG_FILE_CONSTRAINTS` —
     /// Cargo runs unit tests in parallel threads in the same process, so
     /// concurrent env-var writes would race.
     static ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
@@ -401,7 +401,7 @@ mod tests {
 
     #[test]
     fn short_target_strips_module_path() {
-        assert_eq!(short_target("openhuman_core::core::rpc"), "rpc");
+        assert_eq!(short_target("eversilver_core::core::rpc"), "rpc");
         // Non-namespaced target stays as-is.
         assert_eq!(short_target("plain"), "plain");
     }
@@ -428,14 +428,14 @@ mod tests {
             seed_rust_log(false, CliLogDefault::AutocompleteOnly);
             assert_eq!(
                 std::env::var("RUST_LOG").unwrap(),
-                "off,openhuman_core::openhuman::autocomplete=debug"
+                "off,eversilver_core::openhuman::autocomplete=debug"
             );
         });
         with_clean_rust_log(|| {
             seed_rust_log(true, CliLogDefault::AutocompleteOnly);
             assert_eq!(
                 std::env::var("RUST_LOG").unwrap(),
-                "off,openhuman_core::openhuman::autocomplete=trace"
+                "off,eversilver_core::openhuman::autocomplete=trace"
             );
         });
     }
@@ -464,17 +464,17 @@ mod tests {
     #[test]
     fn parse_log_file_constraints_handles_csv_and_whitespace() {
         let _guard = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let prior = std::env::var("OPENHUMAN_LOG_FILE_CONSTRAINTS").ok();
-        std::env::set_var("OPENHUMAN_LOG_FILE_CONSTRAINTS", "rpc, , agent ,memory");
+        let prior = std::env::var("EVERSILVER_LOG_FILE_CONSTRAINTS").ok();
+        std::env::set_var("EVERSILVER_LOG_FILE_CONSTRAINTS", "rpc, , agent ,memory");
         let parsed = parse_log_file_constraints();
         assert_eq!(parsed, vec!["rpc", "agent", "memory"]);
 
-        std::env::remove_var("OPENHUMAN_LOG_FILE_CONSTRAINTS");
+        std::env::remove_var("EVERSILVER_LOG_FILE_CONSTRAINTS");
         assert!(parse_log_file_constraints().is_empty());
 
         match prior {
-            Some(v) => std::env::set_var("OPENHUMAN_LOG_FILE_CONSTRAINTS", v),
-            None => std::env::remove_var("OPENHUMAN_LOG_FILE_CONSTRAINTS"),
+            Some(v) => std::env::set_var("EVERSILVER_LOG_FILE_CONSTRAINTS", v),
+            None => std::env::remove_var("EVERSILVER_LOG_FILE_CONSTRAINTS"),
         }
     }
 

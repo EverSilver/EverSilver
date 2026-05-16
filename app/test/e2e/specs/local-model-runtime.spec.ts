@@ -26,7 +26,7 @@ async function waitForRequest(method, urlFragment, timeout = 15_000) {
 async function waitForHome(timeout = 20_000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
-    if (await textExists('Message OpenHuman')) return true;
+    if (await textExists('Message Eversilver')) return true;
     await browser.pause(700);
   }
   return false;

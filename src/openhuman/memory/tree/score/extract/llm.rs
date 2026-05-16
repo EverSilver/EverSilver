@@ -10,7 +10,7 @@
 //! requires a model. Originally we used a small local LLM (Ollama default:
 //! `qwen2.5:0.5b`) because openhuman already ran Ollama for embeddings.
 //! After the cloud-default refactor, the same prompt now routes through
-//! whichever backend the workspace selected — typically the OpenHuman
+//! whichever backend the workspace selected — typically the Eversilver
 //! backend's `summarization-v1`. The extractor itself is unchanged below the
 //! HTTP layer; only the transport moved.
 //!
@@ -275,10 +275,10 @@ Schema:
 
 Kinds guide:
   person       named human                            (\"Alice\", \"Steven Enamakel\")
-  organization company / team / project               (\"Anthropic\", \"TinyHumans\")
+  organization company / team / project               (\"Anthropic\", \"Eversilver\")
   location     place                                  (\"SF office\", \"London\")
   event        scheduled occurrence                   (\"Q2 launch\", \"design review\")
-  product      commercial offering                    (\"Claude Code\", \"OpenHuman\")
+  product      commercial offering                    (\"Claude Code\", \"Eversilver\")
   datetime     temporal expression                    (\"Friday\", \"Q2 2026\", \"EOD tomorrow\")
   technology   tool / framework / language / service  (\"Rust\", \"OAuth\", \"Slack API\")
   artifact     code / ticket / doc reference          (\"PR #934\", \"src/foo.rs\", \"OH-42\")

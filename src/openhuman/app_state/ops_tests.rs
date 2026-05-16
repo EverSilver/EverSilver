@@ -13,7 +13,7 @@ fn sanitize_snapshot_user_drops_empty_payloads() {
 
 fn make_cached_entry(age: Duration) -> CachedCurrentUser {
     CachedCurrentUser {
-        api_base: "https://staging-api.tinyhumans.ai".to_string(),
+        api_base: "https://staging-api.eversilver.local".to_string(),
         token: "tok".to_string(),
         fetched_at: Instant::now() - age,
         user: json!({ "firstName": "steven" }),

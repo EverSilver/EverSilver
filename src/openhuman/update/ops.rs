@@ -493,7 +493,7 @@ mod tests {
     // ── update_apply rejection paths ──────────────────────────────
 
     // `update_apply` reads the mutation-policy config from disk, whose
-    // path is resolved through the process-global `OPENHUMAN_WORKSPACE`
+    // path is resolved through the process-global `EVERSILVER_WORKSPACE`
     // env var. Tests that don't lock against the disabled-mutations
     // case can race with it: the disabled test sets the env var, the
     // sibling test (running on another thread) clears or shadows it
@@ -538,13 +538,13 @@ mod tests {
     struct WorkspaceEnvGuard;
     impl WorkspaceEnvGuard {
         fn set(path: &std::path::Path) -> Self {
-            std::env::set_var("OPENHUMAN_WORKSPACE", path);
+            std::env::set_var("EVERSILVER_WORKSPACE", path);
             Self
         }
     }
     impl Drop for WorkspaceEnvGuard {
         fn drop(&mut self) {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 

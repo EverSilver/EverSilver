@@ -81,11 +81,11 @@ pub(super) fn show_overflow_badge(
 
         // Notification fallback when overlay helper fails
         let title = match kind {
-            "ready" => "OpenHuman suggestion",
-            "accepted" => "OpenHuman applied",
-            "rejected" => "OpenHuman dismissed",
-            "error" => "OpenHuman autocomplete error",
-            _ => "OpenHuman autocomplete",
+            "ready" => "Eversilver suggestion",
+            "accepted" => "Eversilver applied",
+            "rejected" => "Eversilver dismissed",
+            "error" => "Eversilver autocomplete error",
+            _ => "Eversilver autocomplete",
         };
 
         let mut body = match kind {

@@ -211,7 +211,7 @@ where
     // than the generic "both arms failed" copy.
     let mut cloud_budget_exhausted: Option<anyhow::Error> = None;
     // Track whether the cloud arm bailed because the prompt-guard
-    // flagged the content (OPENHUMAN-TAURI-X). The guard runs before
+    // flagged the content (EVERSILVER-TAURI-X). The guard runs before
     // dispatch and is shared across arms, so a flag on cloud will
     // repeat on local — surface the verdict in the Deferred reason
     // for operator-facing telemetry.
@@ -411,7 +411,7 @@ enum ArmError {
     /// the turn. The guard runs *before* either model is contacted, so
     /// trying the same prompt again — on cloud or local — produces the
     /// same verdict. This is **not** a fatal error: the guard is doing
-    /// its job (OPENHUMAN-TAURI-X regression: an adversarial Gmail
+    /// its job (EVERSILVER-TAURI-X regression: an adversarial Gmail
     /// message reliably trips the guard, and every fire paged Sentry).
     /// Route the same way as `BudgetExhausted` so the local-arm fallthrough
     /// lands in `TriageOutcome::Deferred` rather than `Err(_)`.
@@ -580,7 +580,7 @@ fn classify_error(message: String) -> ArmError {
     // local — no point retrying. Treat as Deferred-eligible so the
     // chain ends in `TriageOutcome::Deferred` rather than Fatal,
     // which was paging Sentry for adversarial-email triage attempts
-    // (OPENHUMAN-TAURI-X regression).
+    // (EVERSILVER-TAURI-X regression).
     if is_prompt_guard_rejection(&message) {
         return ArmError::SafetyFlagged(err);
     }
@@ -613,7 +613,7 @@ fn is_prompt_guard_rejection(message: &str) -> bool {
 /// call because the user's inference budget or credit balance is empty —
 /// meaning a retry would hit the same wall.
 ///
-/// The vocabulary matches the OpenHuman backend's error copy and common
+/// The vocabulary matches the Eversilver backend's error copy and common
 /// third-party provider phrasing. It does **not** mirror the
 /// *semantics* of `channels/providers/web.rs` (a different code path);
 /// it is an independent, conservative allowlist evaluated inline so the

@@ -618,7 +618,7 @@ async fn resolve_workspace_dir() -> PathBuf {
 }
 
 fn fallback_workspace_dir() -> PathBuf {
-    crate::openhuman::config::default_root_openhuman_dir()
+    crate::openhuman::config::default_root_eversilver_dir()
         .unwrap_or_else(|_| PathBuf::from(".openhuman"))
         .join("workspace")
 }

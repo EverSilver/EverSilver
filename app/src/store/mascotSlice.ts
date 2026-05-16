@@ -54,7 +54,7 @@ export interface MascotState {
   voiceId: string | null;
   /**
    * Server-side mascot id selected from the backend mascot library
-   * (PR tinyhumansai/backend#770). `null` keeps the local YellowMascot
+   * (PR eversilver/backend#770). `null` keeps the local YellowMascot
    * renderer; any non-empty value tells `BackendMascot` (loaded via
    * `mascotService`) to take over. The id is opaque server-side and
    * length-capped at the same threshold as voiceId to keep the

@@ -5,7 +5,7 @@
 //! Messages). Their HTTP cookies live in a single shared Chromium
 //! cookie store at `{CEF_USER_DATA_DIR}/Default/Cookies` — a SQLite
 //! database. The core runs as a child sidecar and has no direct handle
-//! to CEF, so the Tauri shell exports `OPENHUMAN_CEF_COOKIES_DB`
+//! to CEF, so the Tauri shell exports `EVERSILVER_CEF_COOKIES_DB`
 //! pointing at that file before spawning core.
 //!
 //! The `ops` submodule opens the DB read-only and asks a simple

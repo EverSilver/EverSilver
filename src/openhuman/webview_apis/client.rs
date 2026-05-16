@@ -9,7 +9,7 @@
 //! and spawns a reader task. If the connection drops, the next request
 //! reconnects.
 //!
-//! Port discovery: `OPENHUMAN_WEBVIEW_APIS_PORT` — set by the Tauri
+//! Port discovery: `EVERSILVER_WEBVIEW_APIS_PORT` — set by the Tauri
 //! host (`webview_apis::server::PORT_ENV`) before spawning this
 //! process. If missing, requests return an actionable error so
 //! operators can see the misconfiguration immediately.
@@ -26,7 +26,7 @@ use tokio::sync::{mpsc, oneshot, Mutex};
 use tokio_tungstenite::tungstenite::Message;
 
 /// Env var the Tauri host writes before spawning core.
-pub const PORT_ENV: &str = "OPENHUMAN_WEBVIEW_APIS_PORT";
+pub const PORT_ENV: &str = "EVERSILVER_WEBVIEW_APIS_PORT";
 
 /// Total time a single request will wait for a response. Gmail ops can
 /// involve a DOM snapshot or a short navigate; 15s is a generous but

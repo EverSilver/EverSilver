@@ -4,7 +4,7 @@
 //
 // Inputs:
 //   - A JSON file with the slim post-processed shape produced by
-//     `src/openhuman/composio/providers/gmail/post_process.rs`. Each entry
+//     `src/eversilver/composio/providers/gmail/post_process.rs`. Each entry
 //     under `messages[]` looks like:
 //       { id, threadId, subject, from, to, date, labels, markdown, attachments }
 //     Default fixture: tests/fixtures/memory/composio_gmail_inbox.json
@@ -13,15 +13,15 @@
 //   - Groups messages by `threadId` so a single ingest call covers a whole
 //     email thread (this is what the canonicaliser expects — one
 //     EmailThread per source_id).
-//   - For each thread calls `openhuman.memory_tree_ingest` with
+//   - For each thread calls `eversilver.memory_tree_ingest` with
 //     source_kind=email + an EmailThread payload (see
-//     src/openhuman/memory/tree/canonicalize/email.rs).
-//   - Verifies via `openhuman.memory_tree_list_chunks` that chunks landed.
+//     src/eversilver/memory/tree/canonicalize/email.rs).
+//   - Verifies via `eversilver.memory_tree_list_chunks` that chunks landed.
 //
 // Pre-reqs: the core server must already be serving JSON-RPC on $RPC_URL
 // (default http://127.0.0.1:7810/rpc). Start it with:
 //
-//   cargo run --bin openhuman -- serve
+//   cargo run --bin eversilver -- serve
 //
 // Usage:
 //   node scripts/test-memory-email-ingest.mjs [path/to/inbox.json]
@@ -110,7 +110,7 @@ async function main() {
   // Sanity-check that the core is up.
   await rpc("openhuman.health_snapshot", {}).catch((err) => {
     throw new Error(
-      `core not reachable at ${RPC_URL} — start it with \`cargo run --bin openhuman -- serve\`. (${err.message})`,
+      `core not reachable at ${RPC_URL} — start it with \`cargo run --bin eversilver -- serve\`. (${err.message})`,
     );
   });
 

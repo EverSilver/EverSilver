@@ -60,7 +60,7 @@ pub fn tool_specs() -> Vec<McpToolSpec> {
         McpToolSpec {
             name: "memory.search",
             title: "Search Memory",
-            description: "Keyword-search OpenHuman's local memory tree and return matching chunks ordered by recency.",
+            description: "Keyword-search Eversilver's local memory tree and return matching chunks ordered by recency.",
             rpc_method: "openhuman.memory_tree_search",
             input_schema: query_schema("Substring to match against stored memory chunks."),
         },

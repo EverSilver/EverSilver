@@ -1,8 +1,8 @@
 /**
  * About-app capability catalog client.
  *
- * Thin wrapper around the `openhuman.about_app_*` JSON-RPC methods exposed by
- * the Rust core (`src/openhuman/about_app/schemas.rs`). The Privacy surface is
+ * Thin wrapper around the `eversilver.about_app_*` JSON-RPC methods exposed by
+ * the Rust core (`src/eversilver/about_app/schemas.rs`). The Privacy surface is
  * the first consumer; future panels can reuse the same types.
  */
 import { callCoreRpc } from '../../services/coreRpcClient';
@@ -43,7 +43,7 @@ export interface Capability {
 
 export async function listCapabilities(category?: CapabilityCategory): Promise<Capability[]> {
   const response = await callCoreRpc<CommandResponse<Capability[]> | Capability[]>({
-    method: 'openhuman.about_app_list',
+    method: 'eversilver.about_app_list',
     params: category ? { category } : {},
   });
   // RpcOutcome::single_log emits {result, logs}; bare arrays are handled too

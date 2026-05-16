@@ -1,7 +1,7 @@
 // Meeting bots entry point on the Skills "Integrations" section.
 //
 // Surfaces as a compact, fun banner: clicking opens a modal that wraps
-// the backend mascot bot (PR tinyhumansai/backend#773). Joining a
+// the backend mascot bot (PR eversilver/backend#773). Joining a
 // Google Meet kicks off the Camoufox-driven mascot in the backend,
 // which streams the mascot's WebRTC video into the call as an
 // anonymous guest. Zoom and Teams are shown as "coming soon" — the
@@ -87,14 +87,14 @@ function MeetingBotsBanner({ onClick }: { onClick: () => void }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h2 className="text-sm font-semibold text-stone-900">
-              Send OpenHuman to a meeting
+              Send Eversilver to a meeting
             </h2>
             <span className="rounded-full bg-primary-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-700">
               New
             </span>
           </div>
           <p className="mt-0.5 line-clamp-1 text-[11px] leading-relaxed text-stone-600">
-            Drop a Google Meet link and OpenHuman joins as a guest, talks, listens, and waves
+            Drop a Google Meet link and Eversilver joins as a guest, talks, listens, and waves
             back.
           </p>
         </div>
@@ -117,7 +117,7 @@ interface ModalProps {
 function MeetingBotsModal({ onClose, onToast }: ModalProps) {
   const [platform, setPlatform] = useState<MascotMeetPlatform>('gmeet');
   const [meetUrl, setMeetUrl] = useState('');
-  const [displayName, setDisplayName] = useState('OpenHuman');
+  const [displayName, setDisplayName] = useState('Eversilver');
   const [submitting, setSubmitting] = useState(false);
   const [capacityGated, setCapacityGated] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -147,7 +147,7 @@ function MeetingBotsModal({ onClose, onToast }: ModalProps) {
       await joinMeetingViaMascotBot({ platform, meetUrl, displayName });
       onToast?.({
         type: 'success',
-        title: 'OpenHuman is joining the meeting',
+        title: 'Eversilver is joining the meeting',
         message: 'It should appear as a participant in a few seconds.',
       });
       setMeetUrl('');
@@ -159,13 +159,13 @@ function MeetingBotsModal({ onClose, onToast }: ModalProps) {
         setError(message);
         onToast?.({
           type: 'error',
-          title: err.isCapacityGated ? 'OpenHuman is busy' : 'Could not start OpenHuman',
+          title: err.isCapacityGated ? 'Eversilver is busy' : 'Could not start Eversilver',
           message,
         });
       } else {
-        const message = err instanceof Error ? err.message : 'Failed to start OpenHuman.';
+        const message = err instanceof Error ? err.message : 'Failed to start Eversilver.';
         setError(message);
-        onToast?.({ type: 'error', title: 'Could not start OpenHuman', message });
+        onToast?.({ type: 'error', title: 'Could not start Eversilver', message });
       }
     } finally {
       setSubmitting(false);
@@ -176,7 +176,7 @@ function MeetingBotsModal({ onClose, onToast }: ModalProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Send OpenHuman to a meeting"
+      aria-label="Send Eversilver to a meeting"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}>
       <div
@@ -192,9 +192,9 @@ function MeetingBotsModal({ onClose, onToast }: ModalProps) {
             className="absolute right-3 top-3 rounded-full p-1 text-stone-500 hover:bg-white/80 hover:text-stone-800">
             ✕
           </button>
-          <h2 className="text-base font-semibold text-stone-900">Send OpenHuman to a meeting</h2>
+          <h2 className="text-base font-semibold text-stone-900">Send Eversilver to a meeting</h2>
           <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            OpenHuman joins as an anonymous guest, streams its video into the call, and replies
+            Eversilver joins as an anonymous guest, streams its video into the call, and replies
             via the agent.
           </p>
         </div>

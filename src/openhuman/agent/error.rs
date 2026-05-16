@@ -189,7 +189,7 @@ mod tests {
         // the channels dispatch / web_channel sites flatten the typed error
         // through a `String` boundary, so any drift between the constant
         // and `Display` silently re-enables Sentry emission for the cap
-        // (OPENHUMAN-TAURI-99 / -98).
+        // (EVERSILVER-TAURI-99 / -98).
         let rendered = AgentError::MaxIterationsExceeded { max: 8 }.to_string();
         assert!(is_max_iterations_error(&rendered));
         assert!(is_max_iterations_error(

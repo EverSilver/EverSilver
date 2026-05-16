@@ -468,14 +468,14 @@ pub async fn start_chat(
                 // outcome surfaced to the user via the existing
                 // `WebChannelEvent::chat_error` event below. Skip the
                 // Sentry funnel entirely for that variant
-                // (OPENHUMAN-TAURI-98). Substring match is required here
+                // (EVERSILVER-TAURI-98). Substring match is required here
                 // because the typed `AgentError` was flattened to a
                 // `String` at the native-bus boundary.
                 //
                 // Other errors flow through `report_error_or_expected`
                 // so transport-level transient failures (DNS/TCP/TLS
-                // handshake, ISP blocks — OPENHUMAN-TAURI-32 for the RU
-                // user who couldn't reach api.tinyhumans.ai at all) get
+                // handshake, ISP blocks — EVERSILVER-TAURI-32 for the RU
+                // user who couldn't reach api.eversilver.local at all) get
                 // logged as warn-level breadcrumbs instead of error
                 // events. Sentry has no signal to act on those — no
                 // status, no trace, no payload — and every retry

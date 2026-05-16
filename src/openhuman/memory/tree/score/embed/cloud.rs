@@ -1,6 +1,6 @@
 //! Cloud (Voyage-backed) embedder for the memory tree.
 //!
-//! Adapts the OpenHuman backend's `POST /openai/v1/embeddings` surface
+//! Adapts the Eversilver backend's `POST /openai/v1/embeddings` surface
 //! (Voyage `voyage-3.5`, 1024 dims) to the memory_tree [`Embedder`] trait
 //! so Phase 4 ingest / bucket-seal can vectorize chunks without a local
 //! Ollama install.
@@ -11,7 +11,7 @@
 //! required.
 //!
 //! Auth: the cloud embedder resolves the session JWT per call via
-//! [`OpenHumanCloudEmbedding`], so a session refresh between batches is
+//! [`EversilverCloudEmbedding`], so a session refresh between batches is
 //! picked up transparently. When the user is unauthenticated the first
 //! `embed()` returns an error; ingest treats that the same as any other
 //! embedder failure (don't persist the row, let job retry).
@@ -22,17 +22,17 @@ use async_trait::async_trait;
 use super::{Embedder, EMBEDDING_DIM};
 use crate::openhuman::config::Config;
 use crate::openhuman::embeddings::cloud::{
-    OpenHumanCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
+    EversilverCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
 };
 use crate::openhuman::embeddings::EmbeddingProvider;
 
 /// Cloud-backed memory_tree embedder.
 ///
-/// Wraps [`OpenHumanCloudEmbedding`] (which speaks the OpenAI-compatible
-/// `/openai/v1/embeddings` shape backed by Voyage on the OpenHuman
+/// Wraps [`EversilverCloudEmbedding`] (which speaks the OpenAI-compatible
+/// `/openai/v1/embeddings` shape backed by Voyage on the Eversilver
 /// backend) and adapts it to the memory_tree [`Embedder`] trait.
 pub struct CloudEmbedder {
-    inner: OpenHumanCloudEmbedding,
+    inner: EversilverCloudEmbedding,
 }
 
 impl CloudEmbedder {
@@ -42,11 +42,11 @@ impl CloudEmbedder {
     /// the workspace dir comes from `config.workspace_dir` so the auth
     /// service finds the user's session JWT.
     pub fn new(config: &Config) -> Self {
-        let openhuman_dir = config.config_path.parent().map(std::path::PathBuf::from);
+        let eversilver_dir = config.config_path.parent().map(std::path::PathBuf::from);
         Self {
-            inner: OpenHumanCloudEmbedding::new(
+            inner: EversilverCloudEmbedding::new(
                 None,
-                openhuman_dir,
+                eversilver_dir,
                 config.secrets.encrypt,
                 DEFAULT_CLOUD_EMBEDDING_MODEL,
                 DEFAULT_CLOUD_EMBEDDING_DIMENSIONS,

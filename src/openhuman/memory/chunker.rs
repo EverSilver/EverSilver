@@ -1,4 +1,4 @@
-//! Semantic markdown chunking for the OpenHuman memory system.
+//! Semantic markdown chunking for the Eversilver memory system.
 //!
 //! This module provides the logic for splitting large markdown documents into
 //! smaller, semantically meaningful chunks that fit within the context window

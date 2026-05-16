@@ -3,8 +3,8 @@
  * Chat harness — mid-stream cancel.
  *
  * The composer's Cancel button calls `chatService.chatCancel` →
- * `openhuman.channel_web_cancel` → `cancel_chat()` in
- * `src/openhuman/channels/providers/web.rs`. That handler aborts the
+ * `eversilver.channel_web_cancel` → `cancel_chat()` in
+ * `src/eversilver/channels/providers/web.rs`. That handler aborts the
  * in-flight JoinHandle, removes the IN_FLIGHT entry, and publishes a
  * `chat_error` event with `error_type = "cancelled"`.
  *
@@ -79,7 +79,7 @@ async function clickComposerCancel(): Promise<boolean> {
 
 async function inFlightCount(): Promise<number> {
   const snap = await callOpenhumanRpc<{ result: { entries: Array<unknown> } }>(
-    'openhuman.test_support_in_flight_chats',
+    'eversilver.test_support_in_flight_chats',
     {}
   );
   return snap.ok ? (snap.result?.result?.entries?.length ?? 0) : 0;
@@ -186,7 +186,7 @@ describe('Chat harness — mid-stream cancel', () => {
     // are acceptable. What we lock down is the contract that the
     // LATE_PIECES never reach the persisted file.
     const read = await callOpenhumanRpc<{ result: { content_utf8: string } }>(
-      'openhuman.test_support_read_workspace_file',
+      'eversilver.test_support_read_workspace_file',
       { rel_path: relPath, max_bytes: 131_072 }
     );
     if (!read.ok) return; // No file yet → nothing to violate, also fine.

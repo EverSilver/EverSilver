@@ -37,7 +37,7 @@
 //! - Always seeds an `Openhuman` entry into `cloud_providers` (idempotent —
 //!   only when the list is empty).
 //! - Migrates `inference_url` into a `Custom` cloud provider entry when the
-//!   URL doesn't look like the OpenHuman backend.
+//!   URL doesn't look like the Eversilver backend.
 
 use crate::openhuman::config::schema::cloud_providers::{
     generate_provider_id, AuthStyle, CloudProviderCreds, CloudProviderType,
@@ -74,7 +74,7 @@ pub fn run(config: &mut Config) -> anyhow::Result<MigrationStats> {
     Ok(stats)
 }
 
-/// Seed `cloud_providers` with an OpenHuman entry (and optionally a Custom
+/// Seed `cloud_providers` with an Eversilver entry (and optionally a Custom
 /// entry derived from a legacy `inference_url`).
 fn seed_cloud_providers(config: &mut Config, stats: &mut MigrationStats) {
     if !config.cloud_providers.is_empty() {
@@ -85,7 +85,7 @@ fn seed_cloud_providers(config: &mut Config, stats: &mut MigrationStats) {
         return;
     }
 
-    // Always seed the OpenHuman entry — even if api_url is None, the factory
+    // Always seed the Eversilver entry — even if api_url is None, the factory
     // resolves a sensible default at runtime.
     let oh_endpoint = config
         .api_url
@@ -100,7 +100,7 @@ fn seed_cloud_providers(config: &mut Config, stats: &mut MigrationStats) {
     config.cloud_providers.push(CloudProviderCreds {
         id: generate_provider_id("openhuman"),
         slug: "openhuman".to_string(),
-        label: "OpenHuman".to_string(),
+        label: "Eversilver".to_string(),
         endpoint: oh_endpoint,
         auth_style: AuthStyle::OpenhumanJwt,
         default_model: Some(oh_default_model),
@@ -108,14 +108,14 @@ fn seed_cloud_providers(config: &mut Config, stats: &mut MigrationStats) {
     });
     stats.cloud_providers_seeded += 1;
 
-    // If there's a legacy `inference_url` pointing at a non-OpenHuman
+    // If there's a legacy `inference_url` pointing at a non-Eversilver
     // endpoint, surface it as a Custom entry so the user keeps their
     // configuration. The actual key continues to live in auth-profiles.json
-    // (or in `api_key` on Config — which is OpenHuman's session JWT and
+    // (or in `api_key` on Config — which is Eversilver's session JWT and
     // doesn't apply here; users will re-enter via the new UI).
     if let Some(raw) = config.inference_url.as_deref() {
         let trimmed = raw.trim();
-        if !trimmed.is_empty() && !looks_like_openhuman(trimmed) {
+        if !trimmed.is_empty() && !looks_like_eversilver(trimmed) {
             // Derive a sensible default model from the legacy model_routes
             // (prefer "reasoning" hint, fall back to whatever is set).
             let default_model = config
@@ -143,7 +143,7 @@ fn seed_cloud_providers(config: &mut Config, stats: &mut MigrationStats) {
     }
 }
 
-/// Default `primary_cloud` to the OpenHuman entry (the first one we just
+/// Default `primary_cloud` to the Eversilver entry (the first one we just
 /// seeded, by construction). Idempotent — only sets if currently `None`.
 fn set_primary_cloud(config: &mut Config, stats: &mut MigrationStats) {
     if config.primary_cloud.is_some() {
@@ -230,15 +230,15 @@ fn derive_workload_providers(config: &mut Config, stats: &mut MigrationStats) {
     // legacy config for chat, so there's nothing to derive.
 }
 
-/// Heuristic: does the URL look like a configured OpenHuman backend?
+/// Heuristic: does the URL look like a configured Eversilver backend?
 ///
 /// Used to decide whether a non-empty `inference_url` should be migrated
-/// into a Custom cloud provider entry. The default OpenHuman backend lives
+/// into a Custom cloud provider entry. The default Eversilver backend lives
 /// at api.openhuman.ai; staging and dev URLs use the same host pattern.
 ///
 /// Matches only on the host component to avoid false positives from custom
 /// endpoints that happen to contain "openhuman" in a path or query string.
-fn looks_like_openhuman(url: &str) -> bool {
+fn looks_like_eversilver(url: &str) -> bool {
     let lower = url.trim().to_ascii_lowercase();
     // Strip scheme if present.
     let without_scheme = lower.split("://").nth(1).unwrap_or(&lower);

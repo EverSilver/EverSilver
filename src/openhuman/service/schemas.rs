@@ -273,7 +273,7 @@ fn handle_daemon_host_set(params: Map<String, Value>) -> ControllerFuture {
     })
 }
 
-/// Formats the RpcOutcome as an OpenHuman-standard JSON result.
+/// Formats the RpcOutcome as an Eversilver-standard JSON result.
 fn to_json<T: serde::Serialize>(outcome: RpcOutcome<T>) -> Result<Value, String> {
     outcome.into_cli_compatible_json()
 }

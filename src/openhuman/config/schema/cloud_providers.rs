@@ -24,7 +24,7 @@ pub enum AuthStyle {
     Bearer,
     /// Anthropic: `x-api-key: <key>` + `anthropic-version: 2023-06-01`
     Anthropic,
-    /// OpenHuman session JWT (injected by the backend provider, not stored here).
+    /// Eversilver session JWT (injected by the backend provider, not stored here).
     OpenhumanJwt,
     /// No auth header — e.g. local Ollama.
     None,
@@ -35,7 +35,7 @@ impl AuthStyle {
         match self {
             Self::Bearer => "bearer",
             Self::Anthropic => "anthropic",
-            Self::OpenhumanJwt => "openhuman_jwt",
+            Self::OpenhumanJwt => "eversilver_jwt",
             Self::None => "none",
         }
     }
@@ -162,7 +162,7 @@ pub fn migrate_legacy_fields(entry: &mut CloudProviderCreds) {
 /// Map a legacy type string (or slug) to a human-readable label.
 fn legacy_label_for(type_str: &str) -> &'static str {
     match type_str {
-        "openhuman" => "OpenHuman",
+        "openhuman" => "Eversilver",
         "openai" => "OpenAI",
         "anthropic" => "Anthropic",
         "openrouter" => "OpenRouter",
@@ -253,7 +253,7 @@ impl CloudProviderType {
     /// Human-readable label used in logs and error messages.
     pub fn label(&self) -> &'static str {
         match self {
-            Self::Openhuman => "OpenHuman",
+            Self::Openhuman => "Eversilver",
             Self::Openai => "OpenAI",
             Self::Anthropic => "Anthropic",
             Self::Openrouter => "OpenRouter",

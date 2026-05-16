@@ -82,13 +82,13 @@ fn native_request_emits_thread_id_when_present() {
     let json_no_thread = serde_json::to_value(&req_no_thread).unwrap();
     assert!(
         json_no_thread.get("thread_id").is_none(),
-        "absent thread_id must not be serialized so non-OpenHuman backends don't reject the field"
+        "absent thread_id must not be serialized so non-Eversilver backends don't reject the field"
     );
 }
 
 /// Streaming responses arrive without `usage` unless the request asks
 /// for `stream_options.include_usage = true` (OpenAI spec). Without it
-/// the OpenHuman backend's `openhuman.billing` block also never lands,
+/// the Eversilver backend's `openhuman.billing` block also never lands,
 /// so transcript headers for orchestrator sessions lose the
 /// `- Charged: $…` line. The non-streaming path stays untouched.
 #[test]
@@ -139,18 +139,18 @@ async fn outbound_thread_id_is_gated_per_provider() {
 
     let third_party = make_provider("Venice", "https://api.venice.ai", None);
     let openhuman =
-        make_provider("OpenHuman", "https://api.openhuman.test", None).with_openhuman_thread_id();
+        make_provider("Eversilver", "https://api.openhuman.test", None).with_eversilver_thread_id();
 
     with_thread_id("thread-xyz", async {
         assert!(
             third_party.outbound_thread_id().is_none(),
-            "third-party OpenAI-compatible providers must NOT see the OpenHuman thread_id extension \
+            "third-party OpenAI-compatible providers must NOT see the Eversilver thread_id extension \
              — unknown fields can trip strict input validation on Venice/Moonshot/Groq/etc."
         );
         assert_eq!(
             openhuman.outbound_thread_id().as_deref(),
             Some("thread-xyz"),
-            "the OpenHuman backend provider opts in via with_openhuman_thread_id() and must \
+            "the Eversilver backend provider opts in via with_eversilver_thread_id() and must \
              forward the ambient id so InferenceLog grouping + KV cache locality work"
         );
     })
@@ -164,7 +164,7 @@ fn request_serializes_correctly() {
         messages: vec![
             Message {
                 role: "system".to_string(),
-                content: "You are OpenHuman".to_string(),
+                content: "You are Eversilver".to_string(),
             },
             Message {
                 role: "user".to_string(),
@@ -1156,7 +1156,7 @@ fn normalize_function_arguments_valid_json_string_preserved() {
 
 #[test]
 fn normalize_function_arguments_invalid_json_string_falls_back_to_empty_object() {
-    // OPENHUMAN-TAURI-6F: model emitted malformed JSON in `function.arguments`.
+    // EVERSILVER-TAURI-6F: model emitted malformed JSON in `function.arguments`.
     // Forwarding the raw string back upstream causes a 400 from the backend's
     // `json.loads`. Substitute `{}` instead.
     for raw in ["{a:1}", "{'k':'v'}", "{\n", "{,}"] {
@@ -1186,7 +1186,7 @@ fn normalize_function_arguments_object_value_serializes() {
 
 #[test]
 fn parse_provider_tool_call_from_value_guards_malformed_arguments() {
-    // OPENHUMAN-TAURI-6F: the early-return path in
+    // EVERSILVER-TAURI-6F: the early-return path in
     // `parse_provider_tool_call_from_value` previously bypassed
     // `normalize_function_arguments`, forwarding malformed JSON strings
     // directly. Verify the guard now applies on both code paths.

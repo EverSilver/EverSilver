@@ -1,22 +1,22 @@
 {
   "name": "openhuman",
   "version": "0.0.0",
-  "description": "AI-powered assistant for communities — OpenHuman CLI",
+  "description": "AI-powered assistant for communities — Eversilver CLI",
   "keywords": [
-    "openhuman",
+    "eversilver",
     "ai",
     "cli",
     "crypto",
     "community"
   ],
-  "homepage": "https://github.com/tinyhumansai/openhuman",
+  "homepage": "https://github.com/eversilver/eversilver",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tinyhumansai/openhuman.git",
+    "url": "https://github.com/eversilver/eversilver.git",
     "directory": "packages/npm"
   },
   "bugs": {
-    "url": "https://github.com/tinyhumansai/openhuman/issues"
+    "url": "https://github.com/eversilver/eversilver/issues"
   },
   "license": "MIT",
   "bin": {

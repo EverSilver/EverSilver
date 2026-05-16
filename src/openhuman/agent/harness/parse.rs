@@ -485,7 +485,7 @@ pub(crate) fn parse_tool_calls(response: &str) -> (String, Vec<ParsedToolCall>) 
     // (e.g., in emails, files, or web pages) could include JSON that mimics a
     // tool call. Tool calls MUST be explicitly wrapped in either:
     // 1. OpenAI-style JSON with a "tool_calls" array
-    // 2. OpenHuman tool-call tags (<tool_call>, <toolcall>, <tool-call>)
+    // 2. Eversilver tool-call tags (<tool_call>, <toolcall>, <tool-call>)
     // 3. Markdown code blocks with tool_call/toolcall/tool-call language
     // 4. Explicit GLM line-based call formats (e.g. `shell/command>...`)
     // This ensures only the LLM's intentional tool calls are executed.

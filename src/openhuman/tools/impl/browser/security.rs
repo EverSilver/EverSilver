@@ -128,7 +128,7 @@ pub(crate) fn is_non_global_v6(v6: std::net::Ipv6Addr) -> bool {
 
 pub(crate) fn allow_all_browser_domains() -> bool {
     matches!(
-        std::env::var("OPENHUMAN_BROWSER_ALLOW_ALL").ok().as_deref(),
+        std::env::var("EVERSILVER_BROWSER_ALLOW_ALL").ok().as_deref(),
         Some("1") | Some("true") | Some("TRUE") | Some("yes") | Some("YES")
     )
 }

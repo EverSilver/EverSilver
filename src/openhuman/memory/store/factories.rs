@@ -28,7 +28,7 @@ use crate::openhuman::memory::traits::Memory;
 /// When `MemoryConfig.backend` matches this (ASCII case-insensitive), the
 /// memory factory short-circuits the SQLite + embedder path and returns an
 /// [`AgentMemoryBackend`] that proxies trait calls through agentmemory's
-/// REST surface. OpenHuman's `embedding_provider` / `embedding_model` /
+/// REST surface. Eversilver's `embedding_provider` / `embedding_model` /
 /// `embedding_dimensions` are ignored on this path — agentmemory owns its
 /// embedding stack via `~/.agentmemory/.env`.
 pub const AGENTMEMORY_BACKEND: &str = "agentmemory";
@@ -170,7 +170,7 @@ pub(crate) async fn probe_ollama_reachable(base_url: &str) -> bool {
 /// Returns the effective `(provider, model, dimensions)` triple for the
 /// embedding backend.
 ///
-/// The user-facing default is `"cloud"` (OpenHuman backend, Voyage-backed) so
+/// The user-facing default is `"cloud"` (Eversilver backend, Voyage-backed) so
 /// fresh installs work without a local Ollama daemon. When the user has
 /// explicitly opted into local AI for embeddings —
 /// [`LocalAiConfig::use_local_for_embeddings`] — we route through the local
@@ -209,7 +209,7 @@ pub fn effective_embedding_settings(
 /// If the intended provider is `"ollama"` but the daemon doesn't respond at
 /// `<base_url>/api/tags` within a short timeout, this falls back to the cloud
 /// embedder and logs a single warning. This avoids the failure mode behind
-/// OPENHUMAN-TAURI-B7: a user who's flipped `local_ai.usage.embeddings = true`
+/// EVERSILVER-TAURI-B7: a user who's flipped `local_ai.usage.embeddings = true`
 /// in Settings but doesn't actually have Ollama running ends up firing one
 /// `ollama_embed` Sentry event per embed call (226+ events in a day with zero
 /// impacted users — pure noise that drowns out real signals). With this
@@ -369,7 +369,7 @@ fn create_memory_full(
     //    selected the agentmemory backend. agentmemory owns its own
     //    embedding stack, persistence, and graph layer — wiring a local
     //    embedder + SQLite store on top of it would duplicate the
-    //    embedding pipeline and create a divergence between OpenHuman's
+    //    embedding pipeline and create a divergence between Eversilver's
     //    cached vectors and agentmemory's. Fail loud at boot if the daemon
     //    isn't reachable (per the issue #1664 fallback decision).
     if is_agentmemory_backend(&config.backend) {
@@ -392,7 +392,7 @@ fn create_memory_full(
 
     // 2. Health-gate: if the user has opted into Ollama embeddings but the
     //    daemon isn't reachable, fall back to cloud for this session.
-    //    Prevents OPENHUMAN-TAURI-B7's 226-event Sentry flood: instead of
+    //    Prevents EVERSILVER-TAURI-B7's 226-event Sentry flood: instead of
     //    one Sentry event per embed attempt, we report once at the gate
     //    (low cardinality, high signal) and serve the session from cloud.
     let gate_triggered;
@@ -455,7 +455,7 @@ mod tests {
     use std::ffi::OsString;
     use std::net::SocketAddr;
 
-    /// RAII helper that swaps `OPENHUMAN_OLLAMA_BASE_URL` to `value` for the
+    /// RAII helper that swaps `EVERSILVER_OLLAMA_BASE_URL` to `value` for the
     /// duration of the scope while holding the local-AI domain test mutex.
     /// The previous value (if any) is restored on drop.
     struct EnvGuard {
@@ -466,12 +466,12 @@ mod tests {
     impl EnvGuard {
         fn set(value: &str) -> Self {
             let lock = crate::openhuman::local_ai::local_ai_test_guard();
-            let prev = std::env::var_os("OPENHUMAN_OLLAMA_BASE_URL");
+            let prev = std::env::var_os("EVERSILVER_OLLAMA_BASE_URL");
             // SAFETY: env mutation is wrapped because Rust 2024 marks it
             // unsafe; the call is gated by the local-AI domain mutex so no
             // other local-AI test is observing the env concurrently.
             unsafe {
-                std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", value);
+                std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", value);
             }
             Self { _lock: lock, prev }
         }
@@ -482,8 +482,8 @@ mod tests {
             // SAFETY: same justification as `set` — still under the same lock.
             unsafe {
                 match self.prev.take() {
-                    Some(v) => std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", v),
-                    None => std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL"),
+                    Some(v) => std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", v),
+                    None => std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL"),
                 }
             }
         }
@@ -636,7 +636,7 @@ mod tests {
         assert_eq!(provider, "cloud");
     }
 
-    /// Sets `OPENHUMAN_OLLAMA_BASE_URL` to a deliberately unreachable address
+    /// Sets `EVERSILVER_OLLAMA_BASE_URL` to a deliberately unreachable address
     /// under the local-AI domain mutex, then verifies that the probed settings
     /// fall back to cloud when the user has opted into local embeddings.
     #[tokio::test]

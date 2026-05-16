@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useScreenIntelligenceState } from '../../../features/screen-intelligence/useScreenIntelligenceState';
 import { useT } from '../../../lib/i18n/I18nContext';
-import { isTauri, openhumanUpdateScreenIntelligenceSettings } from '../../../utils/tauriCommands';
+import { isTauri, eversilverUpdateScreenIntelligenceSettings } from '../../../utils/tauriCommands';
 import SettingsHeader from '../components/SettingsHeader';
 import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
 import PermissionsSection from './screen-intelligence/PermissionsSection';
@@ -91,7 +91,7 @@ const ScreenIntelligencePanel = () => {
     setConfigError(null);
     setIsSavingConfig(true);
     try {
-      await openhumanUpdateScreenIntelligenceSettings({
+      await eversilverUpdateScreenIntelligenceSettings({
         enabled,
         policy_mode: policyMode,
         baseline_fps: status?.config.baseline_fps ?? 1,

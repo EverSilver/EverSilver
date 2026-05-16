@@ -500,10 +500,10 @@ impl Agent {
                 // to the user via the chat-rendered "Error: Agent exceeded
                 // maximum tool iterations" message. Skip the Sentry funnel
                 // for this variant entirely and emit a structured
-                // `log::info!` (OPENHUMAN-TAURI-99 / -98).
+                // `log::info!` (EVERSILVER-TAURI-99 / -98).
                 //
                 // Other agent errors go through `report_error_or_expected`
-                // so OPENHUMAN-TAURI-5Z and the budget-noise cluster —
+                // so EVERSILVER-TAURI-5Z and the budget-noise cluster —
                 // upstream transient HTTP and backend budget-exhausted 400s
                 // that bubble up under `domain=agent` and escape the
                 // `domain=llm_provider` filter — get demoted to a
@@ -552,7 +552,7 @@ impl Agent {
     /// directly from the console. It handles input until a termination command
     /// (e.g., `/quit`) is received.
     pub async fn run_interactive(&mut self) -> Result<()> {
-        println!("🦀 OpenHuman Interactive Mode");
+        println!("🦀 Eversilver Interactive Mode");
         println!("Type /quit to exit.\n");
 
         let (tx, mut rx) = tokio::sync::mpsc::channel(32);

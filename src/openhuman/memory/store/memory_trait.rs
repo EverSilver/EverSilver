@@ -2,7 +2,7 @@
 //!
 //! This module implements the core `Memory` trait for the `UnifiedMemory`
 //! struct. This allows `UnifiedMemory` to be used as a generic memory backend
-//! within the OpenHuman system.
+//! within the Eversilver system.
 //!
 //! Callers pass an explicit `namespace` on `store`/`get`/`forget` and via
 //! `RecallOpts` on `recall`. When a `namespace` is omitted on `recall`/`list`,

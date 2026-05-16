@@ -2,7 +2,7 @@
 
 ## Overview
 
-* [Welcome to OpenHuman](README.md)
+* [Welcome to Eversilver](README.md)
 * [Getting Started](overview/getting-started.md)
 
 ## Features

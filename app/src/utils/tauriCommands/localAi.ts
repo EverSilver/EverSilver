@@ -228,7 +228,7 @@ export interface LocalAiDiagnostics {
   ok: boolean;
 }
 
-export async function openhumanAgentChat(
+export async function eversilverAgentChat(
   message: string,
   modelOverride?: string,
   temperature?: number
@@ -237,19 +237,19 @@ export async function openhumanAgentChat(
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<string>>({
-    method: 'openhuman.agent_chat',
+    method: 'eversilver.agent_chat',
     params: { message, model_override: modelOverride, temperature },
   });
 }
 
-export async function openhumanLocalAiStatus(): Promise<CommandResponse<LocalAiStatus>> {
+export async function eversilverLocalAiStatus(): Promise<CommandResponse<LocalAiStatus>> {
   try {
     return await callCoreRpc<CommandResponse<LocalAiStatus>>({
-      method: 'openhuman.local_ai_status',
+      method: 'eversilver.local_ai_status',
     });
   } catch (err) {
     const message = tauriErrorMessage(err);
-    if (message.includes('unknown method: openhuman.local_ai_status')) {
+    if (message.includes('unknown method: eversilver.local_ai_status')) {
       throw new Error(
         'Local model runtime is unavailable in this core build. Restart app after updating to the latest build.'
       );
@@ -258,98 +258,98 @@ export async function openhumanLocalAiStatus(): Promise<CommandResponse<LocalAiS
   }
 }
 
-export async function openhumanLocalAiDownload(
+export async function eversilverLocalAiDownload(
   force?: boolean
 ): Promise<CommandResponse<LocalAiStatus>> {
   try {
     return await callCoreRpc<CommandResponse<LocalAiStatus>>({
-      method: 'openhuman.local_ai_download',
+      method: 'eversilver.local_ai_download',
       params: { force: force ?? false },
     });
   } catch (err) {
     const message = tauriErrorMessage(err);
-    if (message.includes('unknown method: openhuman.local_ai_download')) {
-      return await openhumanLocalAiStatus();
+    if (message.includes('unknown method: eversilver.local_ai_download')) {
+      return await eversilverLocalAiStatus();
     }
     throw new Error(message);
   }
 }
 
-export async function openhumanLocalAiDownloadAllAssets(
+export async function eversilverLocalAiDownloadAllAssets(
   force?: boolean
 ): Promise<CommandResponse<LocalAiDownloadsProgress>> {
   return await callCoreRpc<CommandResponse<LocalAiDownloadsProgress>>({
-    method: 'openhuman.local_ai_download_all_assets',
+    method: 'eversilver.local_ai_download_all_assets',
     params: { force: force ?? false },
   });
 }
 
-export async function openhumanLocalAiSummarize(
+export async function eversilverLocalAiSummarize(
   text: string,
   maxTokens?: number
 ): Promise<CommandResponse<string>> {
   return await callCoreRpc<CommandResponse<string>>({
-    method: 'openhuman.local_ai_summarize',
+    method: 'eversilver.local_ai_summarize',
     params: { text, max_tokens: maxTokens },
   });
 }
 
-export async function openhumanLocalAiPrompt(
+export async function eversilverLocalAiPrompt(
   prompt: string,
   maxTokens?: number,
   noThink?: boolean
 ): Promise<CommandResponse<string>> {
   return await callCoreRpc<CommandResponse<string>>({
-    method: 'openhuman.local_ai_prompt',
+    method: 'eversilver.local_ai_prompt',
     params: { prompt, max_tokens: maxTokens, no_think: noThink },
   });
 }
 
-export async function openhumanLocalAiVisionPrompt(
+export async function eversilverLocalAiVisionPrompt(
   prompt: string,
   imageRefs: string[],
   maxTokens?: number
 ): Promise<CommandResponse<string>> {
   return await callCoreRpc<CommandResponse<string>>({
-    method: 'openhuman.local_ai_vision_prompt',
+    method: 'eversilver.local_ai_vision_prompt',
     params: { prompt, image_refs: imageRefs, max_tokens: maxTokens },
   });
 }
 
-export async function openhumanLocalAiEmbed(
+export async function eversilverLocalAiEmbed(
   inputs: string[]
 ): Promise<CommandResponse<LocalAiEmbeddingResult>> {
   return await callCoreRpc<CommandResponse<LocalAiEmbeddingResult>>({
-    method: 'openhuman.local_ai_embed',
+    method: 'eversilver.local_ai_embed',
     params: { inputs },
   });
 }
 
-export async function openhumanLocalAiTranscribe(
+export async function eversilverLocalAiTranscribe(
   audioPath: string
 ): Promise<CommandResponse<LocalAiSpeechResult>> {
   return await callCoreRpc<CommandResponse<LocalAiSpeechResult>>({
-    method: 'openhuman.local_ai_transcribe',
+    method: 'eversilver.local_ai_transcribe',
     params: { audio_path: audioPath },
   });
 }
 
-export async function openhumanLocalAiTranscribeBytes(
+export async function eversilverLocalAiTranscribeBytes(
   audioBytes: number[],
   extension?: string
 ): Promise<CommandResponse<LocalAiSpeechResult>> {
   return await callCoreRpc<CommandResponse<LocalAiSpeechResult>>({
-    method: 'openhuman.local_ai_transcribe_bytes',
+    method: 'eversilver.local_ai_transcribe_bytes',
     params: { audio_bytes: audioBytes, extension },
   });
 }
 
-export async function openhumanLocalAiTts(
+export async function eversilverLocalAiTts(
   text: string,
   outputPath?: string
 ): Promise<CommandResponse<LocalAiTtsResult>> {
   return await callCoreRpc<CommandResponse<LocalAiTtsResult>>({
-    method: 'openhuman.local_ai_tts',
+    method: 'eversilver.local_ai_tts',
     params: { text, output_path: outputPath },
   });
 }
@@ -357,12 +357,12 @@ export async function openhumanLocalAiTts(
 /**
  * Multi-turn chat completion via the local Ollama model.
  */
-export async function openhumanLocalAiChat(
+export async function eversilverLocalAiChat(
   messages: LocalAiChatMessage[],
   maxTokens?: number
 ): Promise<CommandResponse<string>> {
   return await callCoreRpc<CommandResponse<string>>({
-    method: 'openhuman.local_ai_chat',
+    method: 'eversilver.local_ai_chat',
     params: { messages, max_tokens: maxTokens },
   });
 }
@@ -371,12 +371,12 @@ export async function openhumanLocalAiChat(
  * Ask the local model whether the assistant should react to a user message
  * with an emoji.
  */
-export async function openhumanLocalAiShouldReact(
+export async function eversilverLocalAiShouldReact(
   message: string,
   channelType: string
 ): Promise<CommandResponse<ReactionDecision>> {
   return await callCoreRpc<CommandResponse<ReactionDecision>>({
-    method: 'openhuman.local_ai_should_react',
+    method: 'eversilver.local_ai_should_react',
     params: { message, channel_type: channelType },
   });
 }
@@ -384,11 +384,11 @@ export async function openhumanLocalAiShouldReact(
 /**
  * Classify the emotion and sentiment of a user message via the local model.
  */
-export async function openhumanLocalAiAnalyzeSentiment(
+export async function eversilverLocalAiAnalyzeSentiment(
   message: string
 ): Promise<CommandResponse<SentimentResult>> {
   return await callCoreRpc<CommandResponse<SentimentResult>>({
-    method: 'openhuman.local_ai_analyze_sentiment',
+    method: 'eversilver.local_ai_analyze_sentiment',
     params: { message },
   });
 }
@@ -396,12 +396,12 @@ export async function openhumanLocalAiAnalyzeSentiment(
 /**
  * Ask the local model whether a GIF response is appropriate for this message.
  */
-export async function openhumanLocalAiShouldSendGif(
+export async function eversilverLocalAiShouldSendGif(
   message: string,
   channelType: string
 ): Promise<CommandResponse<GifDecision>> {
   return await callCoreRpc<CommandResponse<GifDecision>>({
-    method: 'openhuman.local_ai_should_send_gif',
+    method: 'eversilver.local_ai_should_send_gif',
     params: { message, channel_type: channelType },
   });
 }
@@ -409,80 +409,80 @@ export async function openhumanLocalAiShouldSendGif(
 /**
  * Search for GIFs via the backend Tenor proxy.
  */
-export async function openhumanLocalAiTenorSearch(
+export async function eversilverLocalAiTenorSearch(
   query: string,
   limit?: number
 ): Promise<CommandResponse<TenorSearchResult>> {
   return await callCoreRpc<CommandResponse<TenorSearchResult>>({
-    method: 'openhuman.local_ai_tenor_search',
+    method: 'eversilver.local_ai_tenor_search',
     params: { query, limit },
   });
 }
 
-export async function openhumanLocalAiAssetsStatus(): Promise<
+export async function eversilverLocalAiAssetsStatus(): Promise<
   CommandResponse<LocalAiAssetsStatus>
 > {
   return await callCoreRpc<CommandResponse<LocalAiAssetsStatus>>({
-    method: 'openhuman.local_ai_assets_status',
+    method: 'eversilver.local_ai_assets_status',
   });
 }
 
-export async function openhumanLocalAiDownloadsProgress(): Promise<
+export async function eversilverLocalAiDownloadsProgress(): Promise<
   CommandResponse<LocalAiDownloadsProgress>
 > {
   return await callCoreRpc<CommandResponse<LocalAiDownloadsProgress>>({
-    method: 'openhuman.local_ai_downloads_progress',
+    method: 'eversilver.local_ai_downloads_progress',
   });
 }
 
-export async function openhumanLocalAiDownloadAsset(
+export async function eversilverLocalAiDownloadAsset(
   capability: 'chat' | 'vision' | 'embedding' | 'stt' | 'tts'
 ): Promise<CommandResponse<LocalAiAssetsStatus>> {
   return await callCoreRpc<CommandResponse<LocalAiAssetsStatus>>({
-    method: 'openhuman.local_ai_download_asset',
+    method: 'eversilver.local_ai_download_asset',
     params: { capability },
   });
 }
 
-export async function openhumanLocalAiDeviceProfile(): Promise<DeviceProfileResult> {
-  return await callCoreRpc<DeviceProfileResult>({ method: 'openhuman.local_ai_device_profile' });
+export async function eversilverLocalAiDeviceProfile(): Promise<DeviceProfileResult> {
+  return await callCoreRpc<DeviceProfileResult>({ method: 'eversilver.local_ai_device_profile' });
 }
 
-export async function openhumanLocalAiPresets(): Promise<PresetsResponse> {
-  return await callCoreRpc<PresetsResponse>({ method: 'openhuman.local_ai_presets' });
+export async function eversilverLocalAiPresets(): Promise<PresetsResponse> {
+  return await callCoreRpc<PresetsResponse>({ method: 'eversilver.local_ai_presets' });
 }
 
-export async function openhumanLocalAiApplyPreset(tier: string): Promise<ApplyPresetResult> {
+export async function eversilverLocalAiApplyPreset(tier: string): Promise<ApplyPresetResult> {
   return await callCoreRpc<ApplyPresetResult>({
-    method: 'openhuman.local_ai_apply_preset',
+    method: 'eversilver.local_ai_apply_preset',
     params: { tier },
   });
 }
 
-export async function openhumanLocalAiDiagnostics(): Promise<LocalAiDiagnostics> {
+export async function eversilverLocalAiDiagnostics(): Promise<LocalAiDiagnostics> {
   return await callCoreRpc<LocalAiDiagnostics>({
-    method: 'openhuman.local_ai_diagnostics',
+    method: 'eversilver.local_ai_diagnostics',
     params: {},
   });
 }
 
-export async function openhumanLocalAiSetOllamaPath(
+export async function eversilverLocalAiSetOllamaPath(
   path: string
 ): Promise<{ ollama_binary_path: string | null; status: LocalAiStatus }> {
   return await callCoreRpc<{ ollama_binary_path: string | null; status: LocalAiStatus }>({
-    method: 'openhuman.local_ai_set_ollama_path',
+    method: 'eversilver.local_ai_set_ollama_path',
     params: { path },
   });
 }
 
 /**
- * Gate off the local-AI runtime: kills the Ollama daemon only if OpenHuman
+ * Gate off the local-AI runtime: kills the Ollama daemon only if Eversilver
  * spawned it (external daemons are left running), and forces status to
  * `"disabled"` so the UI flips immediately.
  */
-export async function openhumanLocalAiShutdownOwned(): Promise<CommandResponse<LocalAiStatus>> {
+export async function eversilverLocalAiShutdownOwned(): Promise<CommandResponse<LocalAiStatus>> {
   return await callCoreRpc<CommandResponse<LocalAiStatus>>({
-    method: 'openhuman.local_ai_shutdown_owned',
+    method: 'eversilver.local_ai_shutdown_owned',
     params: {},
   });
 }

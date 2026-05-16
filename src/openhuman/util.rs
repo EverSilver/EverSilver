@@ -1,4 +1,4 @@
-//! Utility functions for `OpenHuman`.
+//! Utility functions for `Eversilver`.
 //!
 //! This module contains reusable helper functions used across the codebase.
 
@@ -17,7 +17,7 @@
 ///
 /// # Examples
 /// ```
-/// use openhuman_core::openhuman::util::truncate_with_ellipsis;
+/// use eversilver_core::openhuman::util::truncate_with_ellipsis;
 ///
 /// // ASCII string - no truncation needed
 /// assert_eq!(truncate_with_ellipsis("hello", 10), "hello");

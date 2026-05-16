@@ -216,13 +216,13 @@ async fn backend_client_sends_x_core_version_on_auth_requests() {
     );
 }
 
-// Regression: OPENHUMAN-TAURI-8K / Sentry issue 7473650958.
+// Regression: EVERSILVER-TAURI-8K / Sentry issue 7473650958.
 // When config.api_url is a full LLM completions URL (e.g. /v1/chat/completions),
 // Url::join used to produce wrong paths like /v1/chat/teams/me/usage instead of
 // /teams/me/usage — BackendOAuthClient::new must strip the path to prevent this.
 #[test]
 fn new_strips_path_from_completions_url() {
-    let client = BackendOAuthClient::new("https://api.tinyhumans.ai/v1/chat/completions").unwrap();
+    let client = BackendOAuthClient::new("https://api.eversilver.local/v1/chat/completions").unwrap();
     let url = client.url_for("/teams/me/usage").unwrap();
     assert_eq!(url.path(), "/teams/me/usage");
 }
@@ -237,14 +237,14 @@ fn new_strips_path_from_openai_style_url() {
 
 #[test]
 fn new_works_with_bare_origin() {
-    let client = BackendOAuthClient::new("https://api.tinyhumans.ai").unwrap();
+    let client = BackendOAuthClient::new("https://api.eversilver.local").unwrap();
     let url = client.url_for("/teams/me/usage").unwrap();
     assert_eq!(url.path(), "/teams/me/usage");
 }
 
 #[test]
 fn new_works_with_trailing_slash() {
-    let client = BackendOAuthClient::new("https://api.tinyhumans.ai/").unwrap();
+    let client = BackendOAuthClient::new("https://api.eversilver.local/").unwrap();
     let url = client.url_for("/teams/me/usage").unwrap();
     assert_eq!(url.path(), "/teams/me/usage");
 }
@@ -290,7 +290,7 @@ async fn authed_json_surfaces_message_not_found_on_404() {
     let base_url = format!("http://{addr}");
     let client = BackendOAuthClient::new(&base_url).unwrap();
 
-    // Telegram path — matches OPENHUMAN-TAURI-2Y shape.
+    // Telegram path — matches EVERSILVER-TAURI-2Y shape.
     let err = client
         .authed_json(
             "mock-jwt",

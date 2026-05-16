@@ -40,7 +40,7 @@ use crate::openhuman::tools::{Tool, ToolCategory, ToolSpec};
 /// - keep delegated outputs concise so parent-context growth stays bounded
 /// - discourage verbose restatement of the delegated task/context
 const SUBAGENT_ROLE_CONTRACT_SUFFIX: &str = "## Sub-agent Role Contract\n\n\
-You are a sub-agent working for a parent OpenHuman agent, not a direct end-user assistant.\n\
+You are a sub-agent working for a parent Eversilver agent, not a direct end-user assistant.\n\
 - Stay tightly scoped to the delegated task.\n\
 - Keep tool arguments and follow-up prompts compact, include only required fields/context.\n\
 - Keep your final response concise and synthesis-ready for the parent, prefer short bullets or short paragraphs.\n\
@@ -82,7 +82,7 @@ fn append_subagent_role_contract(base_prompt: String, agent_id: &str) -> String 
 ///     factory (e.g. `integrations_agent`'s `[model] hint = "agentic"`
 ///     resolves to whatever `agentic_provider` is routed to in
 ///     AI Settings). The factory returns the *exact* model id for that
-///     workload — the OpenHuman backend and every third-party provider
+///     workload — the Eversilver backend and every third-party provider
 ///     accept exact model names, so there's no `{hint}-v1` synthesis
 ///     anywhere on this path.
 ///   - `Exact(name)` — escape hatch: use the parent's provider with

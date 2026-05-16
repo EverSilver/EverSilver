@@ -7,7 +7,7 @@
 //! the shell-only Tauri IPC channel.
 //!
 //! Startup: [`client`] is lazy — the first call opens the WS to
-//! `ws://127.0.0.1:$OPENHUMAN_WEBVIEW_APIS_PORT`. That env var is set
+//! `ws://127.0.0.1:$EVERSILVER_WEBVIEW_APIS_PORT`. That env var is set
 //! by the Tauri host (`webview_apis::server::PORT_ENV`) before
 //! spawning this process.
 

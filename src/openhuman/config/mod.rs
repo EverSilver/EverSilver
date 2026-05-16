@@ -1,4 +1,4 @@
-//! Configuration management for the OpenHuman core.
+//! Configuration management for the Eversilver core.
 //!
 //! This module serves as the primary gateway for all configuration-related functionality.
 //! It re-exports types and functions from submodules to provide a unified API for:
@@ -40,8 +40,8 @@ pub use schema::{
     MODEL_REASONING_QUICK_V1, MODEL_REASONING_V1,
 };
 pub use schema::{
-    clear_active_user, default_root_openhuman_dir, pre_login_user_dir, read_active_user_id,
-    user_openhuman_dir, write_active_user_id, PRE_LOGIN_USER_ID,
+    clear_active_user, default_root_eversilver_dir, pre_login_user_dir, read_active_user_id,
+    user_eversilver_dir, write_active_user_id, PRE_LOGIN_USER_ID,
 };
 pub use schemas::{
     all_controller_schemas as all_config_controller_schemas,
@@ -49,7 +49,7 @@ pub use schemas::{
 };
 
 /// Shared mutex used by test modules in this crate that mutate the
-/// `OPENHUMAN_WORKSPACE` env var so they serialize against one another.
+/// `EVERSILVER_WORKSPACE` env var so they serialize against one another.
 /// Living at the module root means multiple test submodules — `ops::tests`,
 /// `schema::load::tests`, etc. — can grab the same lock and avoid
 /// interleaved mutations.

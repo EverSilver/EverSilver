@@ -14,7 +14,7 @@ const LOCAL_RAW: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
 const DERIVED_TO_BACKEND: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
     leaves_device: true,
     data_kind: PrivacyDataKind::Derived,
-    destinations: &["OpenHuman backend", "TinyHumans Neocortex"],
+    destinations: &["Eversilver backend", "Eversilver Neocortex"],
 });
 
 const LOCAL_CREDENTIALS: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
@@ -26,7 +26,7 @@ const LOCAL_CREDENTIALS: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
 const DIAGNOSTICS_TO_BACKEND: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
     leaves_device: true,
     data_kind: PrivacyDataKind::Diagnostics,
-    destinations: &["OpenHuman backend"],
+    destinations: &["Eversilver backend"],
 });
 
 const MODEL_DOWNLOAD: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
@@ -35,7 +35,7 @@ const MODEL_DOWNLOAD: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
     destinations: &["Hugging Face"],
 });
 
-// Self-update flows talk to GitHub Releases directly, not the OpenHuman
+// Self-update flows talk to GitHub Releases directly, not the Eversilver
 // backend. The outbound payload is metadata only (release list query for
 // `update.check`, asset download URL request for `update.apply`) so
 // `data_kind: Metadata` is the right label — but the destination must
@@ -48,7 +48,7 @@ const GITHUB_RELEASES_METADATA: Option<CapabilityPrivacy> = Some(CapabilityPriva
 });
 
 // Direct-mode Composio: the user's API key and tool arguments leave the
-// device — they are sent to backend.composio.dev, not the OpenHuman backend.
+// device — they are sent to backend.composio.dev, not the Eversilver backend.
 // LOCAL_CREDENTIALS was incorrect here because leaves_device must be true.
 const COMPOSIO_DIRECT_CREDENTIALS: Option<CapabilityPrivacy> = Some(CapabilityPrivacy {
     leaves_device: true,
@@ -409,7 +409,7 @@ const CAPABILITIES: &[Capability] = &[
     // ── Composio direct mode (BYO API key) ──────────────────────────
     //
     // Composio shipped with two integration paths:
-    //   1. Backend-proxied (default) — calls through api.tinyhumans.ai;
+    //   1. Backend-proxied (default) — calls through api.eversilver.local;
     //      backend owns the Composio API key, billing, allowlist, and
     //      HMAC-verified trigger fan-out via socket.io.
     //   2. Direct (BYO key) — core calls backend.composio.dev directly
@@ -423,7 +423,7 @@ const CAPABILITIES: &[Capability] = &[
         category: CapabilityCategory::Skills,
         description:
             "Route Composio tool calls directly to backend.composio.dev with your own API key, \
-             bypassing the OpenHuman backend proxy. Tool execution only — trigger webhooks still \
+             bypassing the Eversilver backend proxy. Tool execution only — trigger webhooks still \
              require backend mode.",
         how_to: "Settings > Skills > Composio > Direct mode",
         status: CapabilityStatus::Beta,
@@ -436,7 +436,7 @@ const CAPABILITIES: &[Capability] = &[
         category: CapabilityCategory::Skills,
         description:
             "Composio real-time trigger webhooks (Gmail new-message, Slack new-message, …) \
-             currently arrive over wss://api.tinyhumans.ai/socket.io and require backend mode. \
+             currently arrive over wss://api.eversilver.local/socket.io and require backend mode. \
              Direct-mode users get synchronous tool execution but not async trigger push in \
              this release.",
         how_to: "Switch to Backend mode to receive triggers, or wait for the direct trigger sink follow-up",
@@ -702,7 +702,7 @@ const CAPABILITIES: &[Capability] = &[
         name: "Configure Tool Access",
         domain: "auth",
         category: CapabilityCategory::Auth,
-        description: "Choose which built-in tools OpenHuman can use on your behalf during setup.",
+        description: "Choose which built-in tools Eversilver can use on your behalf during setup.",
         how_to: "Onboarding > Enable Tools",
         status: CapabilityStatus::Stable,
         privacy: None,
@@ -842,7 +842,7 @@ const CAPABILITIES: &[Capability] = &[
         name: "Read WhatsApp Messages",
         domain: "channels",
         category: CapabilityCategory::Channels,
-        description: "Read and search WhatsApp Web conversations and messages after connecting WhatsApp in OpenHuman. Data is stored locally only and never transmitted.",
+        description: "Read and search WhatsApp Web conversations and messages after connecting WhatsApp in Eversilver. Data is stored locally only and never transmitted.",
         how_to: "Connect WhatsApp Web via Channels, then ask the agent to read or summarise your messages.",
         status: CapabilityStatus::Beta,
         privacy: LOCAL_RAW,

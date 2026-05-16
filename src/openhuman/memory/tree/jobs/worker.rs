@@ -92,7 +92,7 @@ pub fn start(config: Config) {
                             // right answer is to back off and re-poll — not
                             // to page Sentry. The next loop iteration will
                             // try `claim_next` again and almost always
-                            // succeed. See OPENHUMAN-TAURI-BP.
+                            // succeed. See EVERSILVER-TAURI-BP.
                             if is_sqlite_busy(&err) {
                                 log::warn!(
                                     "[memory_tree::jobs] worker {idx} hit SQLite busy/locked, \

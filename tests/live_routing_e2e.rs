@@ -6,9 +6,9 @@
 //! - real network I/O and side effects
 //!
 //! Run manually:
-//! OPENHUMAN_LIVE_API_URL="https://<your-backend>" \
-//! OPENHUMAN_LIVE_TOKEN="<jwt>" \
-//! OPENHUMAN_LIVE_USER_ID="<user-id>" \
+//! EVERSILVER_LIVE_API_URL="https://<your-backend>" \
+//! EVERSILVER_LIVE_TOKEN="<jwt>" \
+//! EVERSILVER_LIVE_USER_ID="<user-id>" \
 //! cargo test --test live_routing_e2e -- --ignored --nocapture
 
 use std::path::Path;
@@ -20,8 +20,8 @@ use serde_json::{json, Value};
 use tempfile::tempdir;
 use tokio::time::timeout;
 
-use openhuman_core::core::auth::{init_rpc_token, CORE_TOKEN_ENV_VAR};
-use openhuman_core::core::jsonrpc::build_core_http_router;
+use eversilver_core::core::auth::{init_rpc_token, CORE_TOKEN_ENV_VAR};
+use eversilver_core::core::jsonrpc::build_core_http_router;
 
 static LIVE_E2E_ENV_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 static LIVE_RPC_AUTH_INIT: OnceLock<()> = OnceLock::new();
@@ -66,7 +66,7 @@ fn required_env(name: &str) -> String {
     std::env::var(name).unwrap_or_else(|_| panic!("missing required env var: {name}"))
 }
 
-fn write_live_config(openhuman_dir: &Path, api_origin: &str) {
+fn write_live_config(eversilver_dir: &Path, api_origin: &str) {
     let cfg = format!(
         r#"api_url = "{api_origin}"
 default_model = "reasoning-v1"
@@ -84,14 +84,14 @@ encrypt = false
         std::fs::write(&path, cfg).expect("write config");
     }
 
-    write_config_file(openhuman_dir, &cfg);
+    write_config_file(eversilver_dir, &cfg);
     // Match runtime config resolution order used during pre-login auth flows.
     // If we seed ~/.openhuman, also seed ~/.openhuman/users/local.
-    if openhuman_dir
+    if eversilver_dir
         .file_name()
         .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
     {
-        write_config_file(&openhuman_dir.join("users").join("local"), &cfg);
+        write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
 }
 
@@ -201,17 +201,17 @@ fn ensure_test_rpc_auth() {
 async fn live_channel_web_chat_routing_cases_trigger_real_backend() {
     let _env_lock = live_e2e_env_lock();
 
-    let api_url = required_env("OPENHUMAN_LIVE_API_URL");
-    let token = required_env("OPENHUMAN_LIVE_TOKEN");
-    let user_id = required_env("OPENHUMAN_LIVE_USER_ID");
+    let api_url = required_env("EVERSILVER_LIVE_API_URL");
+    let token = required_env("EVERSILVER_LIVE_TOKEN");
+    let user_id = required_env("EVERSILVER_LIVE_USER_ID");
 
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let openhuman_home = home.join(".openhuman");
+    let eversilver_home = home.join(".openhuman");
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
 
-    write_live_config(&openhuman_home, &api_url);
-    write_live_config(&openhuman_home.join("users").join(&user_id), &api_url);
+    write_live_config(&eversilver_home, &api_url);
+    write_live_config(&eversilver_home.join("users").join(&user_id), &api_url);
 
     let (rpc_addr, rpc_join) = serve_rpc().await;
     let rpc_base = format!("http://{}", rpc_addr);

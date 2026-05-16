@@ -305,7 +305,7 @@ impl PromptSection for ReflectionMemoryContextSection {
         let mut out = String::from("## Memory context\n\n");
         out.push_str(
             "This thread was spawned from a subconscious reflection. The chunks below \
-             are what OpenHuman was looking at when it surfaced the observation — \
+             are what Eversilver was looking at when it surfaced the observation — \
              use them to ground follow-up answers in the same evidence the reflection \
              was based on.\n\n",
         );

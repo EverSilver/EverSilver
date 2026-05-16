@@ -197,8 +197,8 @@ pub(super) fn extract_people_from_header(
 }
 
 pub(super) fn detect_primary_subject(text: &str) -> Option<String> {
-    if text.contains("OpenHuman") {
-        return Some("OPENHUMAN".to_string());
+    if text.contains("Eversilver") {
+        return Some("EVERSILVER".to_string());
     }
     None
 }
@@ -218,7 +218,7 @@ pub(super) fn enrich_document_metadata(
     metadata.insert(
         "ingestion".to_string(),
         json!({
-            "backend": "openhuman_rust_heuristic",
+            "backend": "eversilver_rust_heuristic",
             "model_name": config.model_name,
             "extraction_mode": config.extraction_mode.as_str(),
             "entity_count": parsed.entities.len(),

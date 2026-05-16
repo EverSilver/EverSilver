@@ -62,11 +62,11 @@ import { openUrl } from '../utils/openUrl';
 import {
   isTauri,
   notifyOverlaySttState,
-  openhumanAutocompleteAccept,
-  openhumanAutocompleteCurrent,
-  openhumanVoiceStatus,
-  openhumanVoiceTranscribeBytes,
-  openhumanVoiceTts,
+  eversilverAutocompleteAccept,
+  eversilverAutocompleteCurrent,
+  eversilverVoiceStatus,
+  eversilverVoiceTranscribeBytes,
+  eversilverVoiceTts,
 } from '../utils/tauriCommands';
 import { formatTimelineEntry } from '../utils/toolTimelineFormatting';
 import { AgentMessageBubble, BubbleMarkdown } from './conversations/components/AgentMessageBubble';
@@ -156,7 +156,7 @@ export function isImeCompositionKeyEvent(event: ImeKeyboardEventLike): boolean {
  * Normalise the value thrown out of `dispatch(loadThreads()).unwrap()` into a
  * displayable string. `createAsyncThunk` re-throws Redux's `SerializedError`
  * (a plain object, not an `Error` instance) when the thunk rejects — which is
- * why the original Sentry report (OPENHUMAN-REACT-X) showed up as
+ * why the original Sentry report (EVERSILVER-REACT-X) showed up as
  * "Non-Error promise rejection captured with value: …" rather than a stack.
  * Exported so the mount-effect's `.catch` stays a one-liner and the message
  * shape can be unit-tested without mounting the full page.
@@ -416,7 +416,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
         // }
         const threadStateForSelect = store.getState().thread;
         // Worker/subagent threads are hidden from the conversation list
-        // (see tinyhumansai/openhuman#1624). Match the sidebar filter here so
+        // (see eversilver/eversilver#1624). Match the sidebar filter here so
         // initial/resume selection can't auto-pick a hidden thread and leave
         // the UI showing a thread that isn't in the list.
         const visibleThreads = data.threads.filter(t => !t.parentThreadId);
@@ -591,7 +591,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
       const requestSeq = autocompleteRequestSeqRef.current + 1;
       autocompleteRequestSeqRef.current = requestSeq;
 
-      void openhumanAutocompleteCurrent({ context: inputValue })
+      void eversilverAutocompleteCurrent({ context: inputValue })
         .then(response => {
           if (autocompleteRequestSeqRef.current !== requestSeq) return;
           setInlineSuggestionValue(response.result.suggestion?.value ?? '');
@@ -639,7 +639,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
     let cancelled = false;
     void (async () => {
       try {
-        const status = await openhumanVoiceStatus();
+        const status = await eversilverVoiceStatus();
         if (cancelled) return;
         if (!status.stt_available) {
           setVoiceStatus(
@@ -814,7 +814,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
           ? recentMessages.map(m => `${m.sender}: ${m.content}`).join('\n')
           : undefined;
 
-      const result = await openhumanVoiceTranscribeBytes(audioBytes, extension, context);
+      const result = await eversilverVoiceTranscribeBytes(audioBytes, extension, context);
       const transcript = result.text.trim();
 
       if (!transcript) {
@@ -931,7 +931,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
 
     void (async () => {
       try {
-        const ttsResult = await openhumanVoiceTts(latestAgentMessage.content);
+        const ttsResult = await eversilverVoiceTts(latestAgentMessage.content);
         if (cancelled) return;
 
         const audioSrc = convertFileSrc(ttsResult.output_path);
@@ -969,7 +969,7 @@ const Conversations = ({ variant = 'page', composer = 'text' }: ConversationsPro
       setInputValue(nextValue);
       setInlineSuggestionValue('');
       if (isTauri()) {
-        void openhumanAutocompleteAccept({ suggestion: nextValue, skip_apply: true }).catch(() => {
+        void eversilverAutocompleteAccept({ suggestion: nextValue, skip_apply: true }).catch(() => {
           // Keep local UX smooth even if accept RPC fails.
         });
       }

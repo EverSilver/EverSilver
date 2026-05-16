@@ -4,13 +4,13 @@ use std::path::PathBuf;
 
 const MAX_API_ERROR_CHARS: usize = 200;
 
-/// Fixed id for the single inference backend (OpenHuman API).
+/// Fixed id for the single inference backend (Eversilver API).
 pub const INFERENCE_BACKEND_ID: &str = "openhuman";
 
 #[derive(Debug, Clone)]
 pub struct ProviderRuntimeOptions {
     pub auth_profile_override: Option<String>,
-    pub openhuman_dir: Option<PathBuf>,
+    pub eversilver_dir: Option<PathBuf>,
     pub secrets_encrypt: bool,
     pub reasoning_enabled: Option<bool>,
 }
@@ -19,7 +19,7 @@ impl Default for ProviderRuntimeOptions {
     fn default() -> Self {
         Self {
             auth_profile_override: None,
-            openhuman_dir: None,
+            eversilver_dir: None,
             secrets_encrypt: true,
             reasoning_enabled: None,
         }
@@ -120,7 +120,7 @@ pub fn format_anyhow_chain(err: &anyhow::Error) -> String {
 /// with backoff and falls back across providers/models, and the aggregate
 /// "all providers exhausted" event still fires if every attempt fails.
 /// Reporting each individual transient failure floods Sentry (see
-/// OPENHUMAN-TAURI-6Y / 2E / 84 / T: thousands of events/day per user from
+/// EVERSILVER-TAURI-6Y / 2E / 84 / T: thousands of events/day per user from
 /// a single upstream rate-limit / outage window). Callers should still
 /// propagate the error so retry and fallback logic runs unchanged; this
 /// only gates the per-attempt Sentry report.
@@ -161,9 +161,9 @@ pub(super) fn log_budget_exhausted_http_400(
 /// - **Transient statuses** (429 — see [`should_report_provider_http_failure`]).
 ///   These get retried by the reliable-provider layer and don't deserve a
 ///   per-attempt Sentry event.
-/// - **401/403 from the OpenHuman backend provider** — the user's app session
+/// - **401/403 from the Eversilver backend provider** — the user's app session
 ///   expired. That is expected user-state, not a server bug, and reporting it
-///   spams Sentry (OPENHUMAN-TAURI-1T: 5,414 events from a single user whose
+///   spams Sentry (EVERSILVER-TAURI-1T: 5,414 events from a single user whose
 ///   cron loops kept firing post-expiry). Instead we publish a
 ///   [`crate::core::event_bus::DomainEvent::SessionExpired`] so the credentials
 ///   subscriber clears the session and flips the scheduler-gate signed-out
@@ -181,7 +181,7 @@ pub async fn api_error(provider: &str, response: reqwest::Response) -> anyhow::E
     let message = format!("{provider} API error ({status}): {sanitized}");
 
     let is_auth_failure = matches!(status.as_u16(), 401 | 403);
-    let is_backend = provider == openhuman_backend::PROVIDER_LABEL;
+    let is_backend = provider == eversilver_backend::PROVIDER_LABEL;
     let is_budget_exhausted_user_state = is_budget_exhausted_http_400(status, &body);
 
     if is_auth_failure && is_backend {
@@ -199,7 +199,7 @@ pub async fn api_error(provider: &str, response: reqwest::Response) -> anyhow::E
         // the SessionExpired subscriber's logs never persist secrets.
         crate::core::event_bus::publish_global(
             crate::core::event_bus::DomainEvent::SessionExpired {
-                source: "llm_provider.openhuman_backend".to_string(),
+                source: "llm_provider.eversilver_backend".to_string(),
                 reason: sanitize_api_error(&message),
             },
         );
@@ -226,12 +226,12 @@ pub async fn api_error(provider: &str, response: reqwest::Response) -> anyhow::E
 ///   (`config.inference_url`). When set together with `api_key`, inference
 ///   talks directly to this URL — keeping product-backend traffic
 ///   (auth/billing/voice) on `backend_url` where it belongs.
-/// - `backend_url`: the OpenHuman product backend URL (`config.api_url`).
-///   Used by the fallback [`openhuman_backend::OpenHumanBackendProvider`]
+/// - `backend_url`: the Eversilver product backend URL (`config.api_url`).
+///   Used by the fallback [`eversilver_backend::EversilverBackendProvider`]
 ///   which routes inference to `{backend}/openai/v1/...` with the app
 ///   session JWT.
 /// - `api_key`: the API key for the custom inference endpoint. Ignored on
-///   the OpenHuman fallback path (the backend uses a session JWT, not a
+///   the Eversilver fallback path (the backend uses a session JWT, not a
 ///   user-supplied key).
 pub fn create_backend_inference_provider(
     inference_url: Option<&str>,
@@ -256,16 +256,16 @@ pub fn create_backend_inference_provider(
     } else {
         if api_key.is_some() && inference_url.is_none() {
             log::warn!(
-                "[providers] api_key provided without inference_url — key will be ignored, using OpenHuman backend"
+                "[providers] api_key provided without inference_url — key will be ignored, using Eversilver backend"
             );
         }
         log::info!(
-            "[providers] inference target = openhuman_backend (backend_url={}, inference_url_set={}, api_key_set={})",
+            "[providers] inference target = eversilver_backend (backend_url={}, inference_url_set={}, api_key_set={})",
             backend_url.unwrap_or("<default>"),
             inference_url.is_some(),
             api_key.is_some()
         );
-        Ok(Box::new(openhuman_backend::OpenHumanBackendProvider::new(
+        Ok(Box::new(eversilver_backend::EversilverBackendProvider::new(
             backend_url,
             options,
         )))
@@ -298,7 +298,7 @@ pub fn create_resilient_provider_with_options(
 ) -> anyhow::Result<Box<dyn Provider>> {
     if !reliability.fallback_providers.is_empty() {
         tracing::warn!(
-            "reliability.fallback_providers is ignored; inference uses only the OpenHuman backend"
+            "reliability.fallback_providers is ignored; inference uses only the Eversilver backend"
         );
     }
 
@@ -427,7 +427,7 @@ pub fn create_intelligent_routing_provider(
     // abstract tier names like `reasoning-v1` get translated to the configured
     // provider-specific model id (e.g. `gpt-5.5`) BEFORE the request leaves
     // the host. Without this step the abstract tier name would reach
-    // `custom_openai` and 404. The OpenHuman backend can dispatch tier names
+    // `custom_openai` and 404. The Eversilver backend can dispatch tier names
     // natively, so we skip the wrap when routes are empty.
     log::info!(
         "[providers] intelligent routing: model_routes_count={} default_model={} inference_url_set={}",
@@ -476,7 +476,7 @@ pub struct ProviderInfo {
 pub fn list_providers() -> Vec<ProviderInfo> {
     vec![ProviderInfo {
         name: INFERENCE_BACKEND_ID,
-        display_name: "OpenHuman (backend)",
+        display_name: "Eversilver (backend)",
         aliases: &["backend", "openhuman-backend"],
         local: false,
     }]
@@ -529,7 +529,7 @@ mod tests {
         // Transient statuses — 429 rate-limit, 408 client timeout, and 502/503/504
         // gateway-layer failures — are retried by reliable.rs. The aggregate
         // "all providers exhausted" event still fires for genuine outages.
-        // Reporting each attempt individually floods Sentry (OPENHUMAN-TAURI-2E
+        // Reporting each attempt individually floods Sentry (EVERSILVER-TAURI-2E
         // ~1393 events, 84 ~1050 events, T ~871 events).
         for transient in [
             reqwest::StatusCode::TOO_MANY_REQUESTS,

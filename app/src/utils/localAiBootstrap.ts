@@ -1,7 +1,7 @@
 import {
-  openhumanLocalAiApplyPreset,
-  openhumanLocalAiDownloadAllAssets,
-  openhumanLocalAiPresets,
+  eversilverLocalAiApplyPreset,
+  eversilverLocalAiDownloadAllAssets,
+  eversilverLocalAiPresets,
   type PresetsResponse,
 } from './tauriCommands';
 
@@ -56,7 +56,7 @@ export const ensureRecommendedLocalAiPresetIfNeeded = async (
 ): Promise<LocalAiPresetResolution> => {
   const presets = await retryLocalAiCommand(
     'load local AI presets',
-    () => openhumanLocalAiPresets(),
+    () => eversilverLocalAiPresets(),
     logPrefix
   );
   const selectedTier = normalizeSelectedTier(presets.selected_tier);
@@ -73,7 +73,7 @@ export const ensureRecommendedLocalAiPresetIfNeeded = async (
   // No selected tier yet: persist the recommended tier so the Rust-side
   // `config_with_recommended_tier_if_unselected()` honors the user's
   // opt-in instead of defaulting a low-RAM device back to disabled.
-  // The mount-time probe in LocalAIStep uses `openhumanLocalAiPresets()`
+  // The mount-time probe in LocalAIStep uses `eversilverLocalAiPresets()`
   // directly, so this apply only runs when the user has explicitly
   // chosen to proceed with local AI (consent flow).
   console.debug(
@@ -82,7 +82,7 @@ export const ensureRecommendedLocalAiPresetIfNeeded = async (
   );
   await retryLocalAiCommand(
     'apply recommended local AI preset',
-    () => openhumanLocalAiApplyPreset(recommendedTier),
+    () => eversilverLocalAiApplyPreset(recommendedTier),
     logPrefix
   );
 
@@ -102,7 +102,7 @@ export const triggerLocalAiAssetBootstrap = async (
   console.debug(`${logPrefix} triggering local AI background bootstrap`, JSON.stringify({ force }));
   return await retryLocalAiCommand(
     force ? 're-bootstrap local AI assets' : 'bootstrap local AI assets',
-    () => openhumanLocalAiDownloadAllAssets(force),
+    () => eversilverLocalAiDownloadAllAssets(force),
     logPrefix
   );
 };

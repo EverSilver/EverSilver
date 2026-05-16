@@ -152,11 +152,11 @@ async fn handle_presets_returns_presets_list_and_recommended_tier() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let v = handle_local_ai_presets(Map::new()).await.expect("ok");
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(v.get("presets").is_some());
     assert!(v.get("recommended_tier").is_some());
@@ -179,12 +179,12 @@ async fn handle_apply_preset_rejects_invalid_tier() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([("tier".to_string(), serde_json::json!("ram_bogus"))]);
     let err = handle_local_ai_apply_preset(params).await.unwrap_err();
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(err.contains("invalid tier"));
 }
@@ -194,12 +194,12 @@ async fn handle_apply_preset_rejects_custom_tier() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([("tier".to_string(), serde_json::json!("custom"))]);
     let err = handle_local_ai_apply_preset(params).await.unwrap_err();
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(err.contains("cannot apply 'custom'"));
 }
@@ -209,12 +209,12 @@ async fn handle_apply_preset_rejects_unsupported_large_tier() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([("tier".to_string(), serde_json::json!("ram_8_16gb"))]);
     let err = handle_local_ai_apply_preset(params).await.unwrap_err();
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(err.contains("only the 1B local model preset is supported"));
 }
@@ -224,14 +224,14 @@ async fn handle_apply_preset_accepts_valid_tier_and_persists() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([("tier".to_string(), serde_json::json!("ram_2_4gb"))]);
     let result = handle_local_ai_apply_preset(params)
         .await
         .expect("apply ok");
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(result.get("applied_tier").is_some());
     assert!(result.get("chat_model_id").is_some());
@@ -242,7 +242,7 @@ async fn handle_set_ollama_path_rejects_nonexistent_path() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([(
         "path".to_string(),
@@ -250,7 +250,7 @@ async fn handle_set_ollama_path_rejects_nonexistent_path() {
     )]);
     let err = handle_local_ai_set_ollama_path(params).await.unwrap_err();
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     assert!(err.contains("Ollama binary not found"));
 }
@@ -260,13 +260,13 @@ async fn handle_set_ollama_path_accepts_empty_string_to_clear() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let params = Map::from_iter([("path".to_string(), serde_json::json!(""))]);
     // Empty path clears the setting — must not error.
     let _ = handle_local_ai_set_ollama_path(params).await.expect("ok");
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -284,7 +284,7 @@ async fn install_whisper_handler_serializes_concurrent_calls() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     // Pre-acquire the install slot from the test so we're guaranteed to
@@ -322,7 +322,7 @@ async fn install_whisper_handler_serializes_concurrent_calls() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     drop(slot);
     // Clean up so other tests see Missing.
@@ -352,7 +352,7 @@ async fn install_piper_handler_serializes_concurrent_calls() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = TempDir::new().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
 
     let slot = crate::openhuman::local_ai::voice_install_common::try_acquire_install_slot(
@@ -378,7 +378,7 @@ async fn install_piper_handler_serializes_concurrent_calls() {
     );
 
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
     drop(slot);
     crate::openhuman::local_ai::voice_install_common::reset_status(

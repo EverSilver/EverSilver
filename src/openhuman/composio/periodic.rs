@@ -12,11 +12,11 @@
 //! client via [`create_composio_client`] each tick so a direct-mode
 //! user's personal Composio v3 tenant gets walked (via
 //! `direct_list_connections`) instead of returning an empty list from
-//! the tinyhumans tenant. The per-connection sync calls go through
+//! the eversilver tenant. The per-connection sync calls go through
 //! [`ProviderContext::execute`] which is itself mode-aware.
 //!
 //! Real-time trigger webhooks (`composio:trigger` socket.io events
-//! fanned out from `wss://api.tinyhumans.ai`) still do not reach the
+//! fanned out from `wss://api.eversilver.local`) still do not reach the
 //! core when `config.composio.mode == "direct"`, because the backend
 //! HMAC-verifies the Composio webhook and pushes it down a per-user
 //! socket — direct-mode users see synchronous tool execution and
@@ -156,7 +156,7 @@ pub(crate) async fn run_one_tick() -> Result<(), String> {
     let config = Arc::new(config);
 
     // Step 2: list active connections — mode-aware. Backend mode walks
-    // the tinyhumans tenant; direct mode walks the user's personal
+    // the eversilver tenant; direct mode walks the user's personal
     // Composio v3 tenant. Mirrors `ops::composio_list_connections` so
     // direct-mode users get periodic sync against their own connections
     // instead of seeing an empty list (#1710).
@@ -321,11 +321,11 @@ mod tests {
     #[tokio::test]
     async fn run_one_tick_returns_ok_when_no_client() {
         // Isolate the workspace/env so config loading doesn't contend with
-        // sibling tests mutating OPENHUMAN_WORKSPACE in parallel.
+        // sibling tests mutating EVERSILVER_WORKSPACE in parallel.
         let _guard = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
         let tmp = tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         // With no session stored in the isolated workspace,
@@ -341,7 +341,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 

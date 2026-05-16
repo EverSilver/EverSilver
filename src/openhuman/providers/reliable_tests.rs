@@ -803,7 +803,7 @@ fn upstream_unhealthy_does_not_flag_generic_error() {
 // the upstream failure as "<provider> API error (<status>): <body>", and the
 // tool-call loop ORs is_rate_limited (429) with is_upstream_unhealthy. Before
 // this fix only 503/text-pattern matched; 408/502/504 leaked per-iteration
-// Sentry events (CodeRabbit review on #1529, OPENHUMAN-TAURI-T/-2E/-84).
+// Sentry events (CodeRabbit review on #1529, EVERSILVER-TAURI-T/-2E/-84).
 #[test]
 fn upstream_unhealthy_detects_408_request_timeout() {
     let err = anyhow::anyhow!("OpenAI API error (408 Request Timeout): upstream took too long");

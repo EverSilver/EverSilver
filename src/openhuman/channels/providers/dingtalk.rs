@@ -121,7 +121,7 @@ impl Channel for DingTalkChannel {
             )
         })?;
 
-        let title = message.subject.as_deref().unwrap_or("OpenHuman");
+        let title = message.subject.as_deref().unwrap_or("Eversilver");
         let body = serde_json::json!({
             "msgtype": "markdown",
             "markdown": {

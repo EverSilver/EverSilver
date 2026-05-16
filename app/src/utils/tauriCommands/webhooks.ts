@@ -40,7 +40,7 @@ export interface WebhookDebugEvent {
   tunnel_uuid?: string | null;
 }
 
-export async function openhumanWebhooksListRegistrations(): Promise<
+export async function eversilverWebhooksListRegistrations(): Promise<
   CommandResponse<{ result: { registrations: WebhookDebugRegistration[] } }>
 > {
   if (!isTauri()) {
@@ -48,31 +48,31 @@ export async function openhumanWebhooksListRegistrations(): Promise<
   }
   return await callCoreRpc<
     CommandResponse<{ result: { registrations: WebhookDebugRegistration[] } }>
-  >({ method: 'openhuman.webhooks_list_registrations' });
+  >({ method: 'eversilver.webhooks_list_registrations' });
 }
 
-export async function openhumanWebhooksListLogs(
+export async function eversilverWebhooksListLogs(
   limit = 100
 ): Promise<CommandResponse<{ result: { logs: WebhookDebugLogEntry[] } }>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<{ result: { logs: WebhookDebugLogEntry[] } }>>({
-    method: 'openhuman.webhooks_list_logs',
+    method: 'eversilver.webhooks_list_logs',
     params: { limit },
   });
 }
 
-export async function openhumanWebhooksClearLogs(): Promise<CommandResponse<{ cleared: number }>> {
+export async function eversilverWebhooksClearLogs(): Promise<CommandResponse<{ cleared: number }>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }
   return await callCoreRpc<CommandResponse<{ cleared: number }>>({
-    method: 'openhuman.webhooks_clear_logs',
+    method: 'eversilver.webhooks_clear_logs',
   });
 }
 
-export async function openhumanWebhooksRegisterEcho(
+export async function eversilverWebhooksRegisterEcho(
   tunnelUuid: string,
   tunnelName?: string,
   backendTunnelId?: string
@@ -83,7 +83,7 @@ export async function openhumanWebhooksRegisterEcho(
   return await callCoreRpc<
     CommandResponse<{ result: { registrations: WebhookDebugRegistration[] } }>
   >({
-    method: 'openhuman.webhooks_register_echo',
+    method: 'eversilver.webhooks_register_echo',
     params: {
       tunnel_uuid: tunnelUuid,
       tunnel_name: tunnelName ?? null,
@@ -92,7 +92,7 @@ export async function openhumanWebhooksRegisterEcho(
   });
 }
 
-export async function openhumanWebhooksUnregisterEcho(
+export async function eversilverWebhooksUnregisterEcho(
   tunnelUuid: string
 ): Promise<CommandResponse<{ result: { registrations: WebhookDebugRegistration[] } }>> {
   if (!isTauri()) {
@@ -100,5 +100,5 @@ export async function openhumanWebhooksUnregisterEcho(
   }
   return await callCoreRpc<
     CommandResponse<{ result: { registrations: WebhookDebugRegistration[] } }>
-  >({ method: 'openhuman.webhooks_unregister_echo', params: { tunnel_uuid: tunnelUuid } });
+  >({ method: 'eversilver.webhooks_unregister_echo', params: { tunnel_uuid: tunnelUuid } });
 }

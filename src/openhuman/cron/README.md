@@ -15,16 +15,16 @@ Scheduled-job runtime. Owns cron-expression and human-delay parsing, the persist
 
 ## Calls into
 
-- `src/openhuman/agent/` — `agent` job type runs through `agent::triage::TriggerEnvelope::from_cron` + `apply_decision`.
-- `src/openhuman/security/` — `SecurityPolicy::from_config` sandboxes shell jobs.
-- `src/openhuman/config/` — `Config` provides poll interval, workspace dir, autonomy policy.
-- `src/openhuman/health/` — `health::bus::register_health_subscriber` on startup.
-- `src/openhuman/channels/` — `bus.rs` can fan delivery events into channels.
+- `src/eversilver/agent/` — `agent` job type runs through `agent::triage::TriggerEnvelope::from_cron` + `apply_decision`.
+- `src/eversilver/security/` — `SecurityPolicy::from_config` sandboxes shell jobs.
+- `src/eversilver/config/` — `Config` provides poll interval, workspace dir, autonomy policy.
+- `src/eversilver/health/` — `health::bus::register_health_subscriber` on startup.
+- `src/eversilver/channels/` — `bus.rs` can fan delivery events into channels.
 - `src/core/event_bus/` — `init_global`, `publish_global(DomainEvent::Cron(*))`.
 
 ## Called by
 
-- `src/openhuman/tools/impl/system/schedule.rs` — `schedule` tool exposes cron operations to agents.
+- `src/eversilver/tools/impl/system/schedule.rs` — `schedule` tool exposes cron operations to agents.
 - `src/core/all.rs` — controller registry wires `all_cron_*`.
 - Channel and agent runtimes consume `Cron` events via the bus.
 

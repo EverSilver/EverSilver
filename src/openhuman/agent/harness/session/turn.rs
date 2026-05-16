@@ -862,7 +862,7 @@ impl Agent {
             // Return the typed `AgentError::MaxIterationsExceeded` variant
             // (boxed through `anyhow::Error`) so `Agent::run_single` can
             // downcast at the Sentry funnel and suppress emission — this is
-            // a deterministic agent-state outcome, not a bug (OPENHUMAN-
+            // a deterministic agent-state outcome, not a bug (EVERSILVER-
             // TAURI-99 / -98). The `Display` text is preserved verbatim so
             // the user-visible chat-rendered "Error: Agent exceeded
             // maximum tool iterations" string is unchanged.
@@ -1482,7 +1482,7 @@ impl Agent {
         // afterward so a delegate synthesised here (e.g.
         // `delegate_name = "research"`) doesn't collide with a
         // same-named skill tool on the wire — Anthropic 400s on dup
-        // tool names where OpenHuman's backend silently accepts.
+        // tool names where Eversilver's backend silently accepts.
         let visible_specs: Vec<crate::openhuman::tools::ToolSpec> =
             if self.visible_tool_names.is_empty() {
                 (*self.tool_specs).clone()

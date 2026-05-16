@@ -48,7 +48,7 @@ pub struct ComposioActionTool {
     /// the backend-bound handle at sub-agent spawn time. Toggling
     /// `composio.mode = "direct"` mid-session invalidated other caches
     /// but left these per-action tools still routing through
-    /// `staging-api.tinyhumans.ai/agent-integrations/composio/execute`
+    /// `staging-api.eversilver.local/agent-integrations/composio/execute`
     /// — silently bypassing the direct-mode user's personal Composio
     /// tenant. Resolving the client per call via
     /// [`create_composio_client`] keeps dispatch in lockstep with the
@@ -161,7 +161,7 @@ impl Tool for ComposioActionTool {
         // Resolve the client through the mode-aware factory on every
         // call so a direct-mode toggle takes effect immediately
         // (#1710). The pre-baked-client variant of this code routed all
-        // executions through the backend tinyhumans tenant regardless
+        // executions through the backend eversilver tenant regardless
         // of mode — silently breaking direct mode for tool execution.
         // [#1710 Wave 4] Reload config fresh per execute so a mid-session
         // `composio.mode` toggle takes effect at the very next tool call.
@@ -344,7 +344,7 @@ mod tests {
         //
         // The sandbox gate is a no-op here, so dispatch falls through to
         // `load_config_with_timeout()` (#1710 Wave 4). Hold
-        // `TEST_ENV_LOCK` and point `OPENHUMAN_WORKSPACE` at an
+        // `TEST_ENV_LOCK` and point `EVERSILVER_WORKSPACE` at an
         // isolated, persisted config so this test neither reads the
         // dev's real config nor races the shared env var against the
         // other config-loading composio tests.
@@ -353,7 +353,7 @@ mod tests {
 
         let tmp = tempfile::tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         let mut config = Config::default();
@@ -375,7 +375,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 
@@ -396,9 +396,9 @@ mod tests {
         //
         // Production `.execute(..)` calls `load_config_with_timeout()`
         // per call which reads from `~/.openhuman/config.toml` (or the
-        // workspace pointed at by `OPENHUMAN_WORKSPACE`). To isolate
+        // workspace pointed at by `EVERSILVER_WORKSPACE`). To isolate
         // the test from the dev's real config we hold `TEST_ENV_LOCK`,
-        // point `OPENHUMAN_WORKSPACE` at a tempdir, and persist the
+        // point `EVERSILVER_WORKSPACE` at a tempdir, and persist the
         // test's `Config` to that tempdir's `config.toml` before
         // invoking the tool.
         use crate::openhuman::config::TEST_ENV_LOCK;
@@ -406,7 +406,7 @@ mod tests {
 
         let tmp = tempfile::tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         let mut config = Config::default();
@@ -435,7 +435,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 
@@ -455,7 +455,7 @@ mod tests {
 
         let tmp = tempfile::tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         let mut config = Config::default();
@@ -484,7 +484,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 
@@ -506,7 +506,7 @@ mod tests {
         // session's `Arc<Config>`, and the next sub-agent spawn picks
         // up the fresh `Arc<Config>` from
         // `Config::load_or_init().await`. Here we simulate that by
-        // rewriting `OPENHUMAN_WORKSPACE/config.toml` between the two
+        // rewriting `EVERSILVER_WORKSPACE/config.toml` between the two
         // halves while holding `TEST_ENV_LOCK`.
         use crate::openhuman::config::TEST_ENV_LOCK;
         let _env_guard = TEST_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
@@ -514,7 +514,7 @@ mod tests {
         // ── Backend half ────────────────────────────────────────────
         let tmp_backend = tempfile::tempdir().expect("tempdir backend");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp_backend.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp_backend.path());
         }
         let mut backend_config = Config::default();
         backend_config.config_path = tmp_backend.path().join("config.toml");
@@ -541,7 +541,7 @@ mod tests {
         // ── Direct half ─────────────────────────────────────────────
         let tmp_direct = tempfile::tempdir().expect("tempdir direct");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp_direct.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp_direct.path());
         }
         let mut direct_config = Config::default();
         direct_config.config_path = tmp_direct.path().join("config.toml");
@@ -566,7 +566,7 @@ mod tests {
         // Direct tool's error must NOT mention a backend session — the
         // smoking gun for the pre-fix bug would have been the
         // direct-mode tool surfacing
-        // `staging-api.tinyhumans.ai` / `no backend session` because
+        // `staging-api.eversilver.local` / `no backend session` because
         // the cached client was a backend handle.
         assert!(
             !direct_msg.contains("no backend session"),
@@ -574,7 +574,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 }

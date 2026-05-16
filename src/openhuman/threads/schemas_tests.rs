@@ -237,9 +237,9 @@ struct WorkspaceEnvGuard {
 
 impl WorkspaceEnvGuard {
     fn set(path: &std::path::Path) -> Self {
-        let previous = std::env::var_os("OPENHUMAN_WORKSPACE");
+        let previous = std::env::var_os("EVERSILVER_WORKSPACE");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", path);
+            std::env::set_var("EVERSILVER_WORKSPACE", path);
         }
         Self { previous }
     }
@@ -249,10 +249,10 @@ impl Drop for WorkspaceEnvGuard {
     fn drop(&mut self) {
         match self.previous.take() {
             Some(value) => unsafe {
-                std::env::set_var("OPENHUMAN_WORKSPACE", value);
+                std::env::set_var("EVERSILVER_WORKSPACE", value);
             },
             None => unsafe {
-                std::env::remove_var("OPENHUMAN_WORKSPACE");
+                std::env::remove_var("EVERSILVER_WORKSPACE");
             },
         }
     }

@@ -43,14 +43,14 @@ fn sample_power() -> (bool, Option<f32>) {
     // explicit truthy/falsy tokens count: garbage values yield None so
     // the real probe still gets to answer (vs. silently coercing to
     // "on battery" and triggering throttling on every misconfigured host).
-    let env_on_ac = std::env::var("OPENHUMAN_ON_AC_POWER").ok().and_then(|v| {
+    let env_on_ac = std::env::var("EVERSILVER_ON_AC_POWER").ok().and_then(|v| {
         match v.to_ascii_lowercase().as_str() {
             "1" | "true" | "yes" => Some(true),
             "0" | "false" | "no" => Some(false),
             _ => None,
         }
     });
-    let env_charge = std::env::var("OPENHUMAN_BATTERY_CHARGE")
+    let env_charge = std::env::var("EVERSILVER_BATTERY_CHARGE")
         .ok()
         .and_then(|v| v.parse::<f32>().ok())
         .map(|v| v.clamp(0.0, 1.0));
@@ -128,7 +128,7 @@ fn sample_cpu() -> f32 {
 // ---- deployment mode -----------------------------------------------------
 
 fn detect_server_mode(no_battery: bool) -> bool {
-    if let Ok(v) = std::env::var("OPENHUMAN_DEPLOYMENT") {
+    if let Ok(v) = std::env::var("EVERSILVER_DEPLOYMENT") {
         if v.eq_ignore_ascii_case("server") {
             return true;
         }

@@ -414,7 +414,7 @@ pub(crate) async fn run_tool_call_loop(
                     // by reliable.rs and produce an aggregate Sentry event only
                     // when every provider/model is exhausted. Reporting each
                     // per-iteration provider_chat error here duplicates the
-                    // signal and floods Sentry — see OPENHUMAN-TAURI-3Y/3Z
+                    // signal and floods Sentry — see EVERSILVER-TAURI-3Y/3Z
                     // (~46 events combined) and the underlying TAURI-2E/84/T
                     // (~3300 events from raw per-attempt 429/503/504 reports).
                     let transient = crate::openhuman::providers::reliable::is_rate_limited(&e)
@@ -856,7 +856,7 @@ pub(crate) async fn run_tool_call_loop(
     // through `anyhow::Error`) so downstream wrappers — notably
     // `Agent::run_single` in `harness/session/runtime.rs` — can downcast and
     // suppress Sentry emission for this deterministic agent-state outcome
-    // (OPENHUMAN-TAURI-99 / -98). The `Display` text is preserved verbatim so
+    // (EVERSILVER-TAURI-99 / -98). The `Display` text is preserved verbatim so
     // any caller that already inspects the string (UI chat surface, tests)
     // continues to work.
     Err(anyhow::Error::new(

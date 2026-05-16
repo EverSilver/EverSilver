@@ -1,5 +1,5 @@
 //! Deterministic, file-backed service manager used by E2E tests.
-//! Enabled via `OPENHUMAN_SERVICE_MOCK`.
+//! Enabled via `EVERSILVER_SERVICE_MOCK`.
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -14,8 +14,8 @@ use crate::openhuman::config::Config;
 use super::common::SERVICE_LABEL;
 use super::{ServiceState, ServiceStatus};
 
-const ENV_SERVICE_MOCK: &str = "OPENHUMAN_SERVICE_MOCK";
-const ENV_SERVICE_MOCK_STATE_FILE: &str = "OPENHUMAN_SERVICE_MOCK_STATE_FILE";
+const ENV_SERVICE_MOCK: &str = "EVERSILVER_SERVICE_MOCK";
+const ENV_SERVICE_MOCK_STATE_FILE: &str = "EVERSILVER_SERVICE_MOCK_STATE_FILE";
 const DEFAULT_STATE_FILE: &str = "service-mock-state.json";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -276,7 +276,7 @@ fn mock_label() -> &'static str {
 
 #[cfg(windows)]
 fn mock_label() -> &'static str {
-    "OpenHuman Core"
+    "Eversilver Core"
 }
 
 #[cfg(not(any(target_os = "macos", target_os = "linux", windows)))]

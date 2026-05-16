@@ -397,7 +397,7 @@ fn is_expected_macos_only_failure(err: &str) -> bool {
 /// entry point before the embedded `run()` got there — typically
 /// `screen_intelligence.enable` invoked over RPC, or a prior `run()` cycle
 /// that left the engine session in place across a server restart
-/// (OPENHUMAN-TAURI-5H). The session is *running*, so the right behaviour
+/// (EVERSILVER-TAURI-5H). The session is *running*, so the right behaviour
 /// is to step aside, not log an error event to Sentry.
 fn is_expected_session_already_active_failure(err: &str) -> bool {
     err.contains("session already active")
@@ -554,7 +554,7 @@ mod tests {
 
     #[test]
     fn is_expected_session_already_active_failure_classifies_known_signal() {
-        // OPENHUMAN-TAURI-5H: the canonical wire shape returned by
+        // EVERSILVER-TAURI-5H: the canonical wire shape returned by
         // `engine::start_session` when the engine already has a live
         // session. Must classify on every platform — the duplicate is
         // benign idempotency regardless of host OS.

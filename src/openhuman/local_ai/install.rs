@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 /// Name of the Inno Setup installer process. On Windows the installer is
 /// spawned via PowerShell's `Start-Process`, which creates a top-level
-/// process — it survives the parent OpenHuman process dying. If OpenHuman
+/// process — it survives the parent Eversilver process dying. If Eversilver
 /// is killed mid-install (or the user closes the app and reopens it before
 /// install completes) we need to detect the in-flight installer instead
 /// of launching a second one that would race on the same install dir.
@@ -70,7 +70,7 @@ pub(crate) async fn run_ollama_install_script(install_dir: &Path) -> Result<Inst
 
 #[cfg(target_os = "windows")]
 pub(crate) fn resolve_powershell_executable() -> std::ffi::OsString {
-    // `Command::new("powershell")` relies on PATH. When OpenHuman.exe is
+    // `Command::new("powershell")` relies on PATH. When Eversilver.exe is
     // spawned by `cargo tauri dev` (or similar dev harnesses) the inherited
     // PATH can be sanitized down to a subset that excludes the
     // `WindowsPowerShell\v1.0` dir, and the spawn fails with `program not
@@ -115,17 +115,17 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
         let mut cmd = tokio::process::Command::new(&powershell_exe);
         // Kill the PowerShell child if the spawning future is dropped — e.g.
         // the in-process tokio runtime shuts down because the user closed
-        // OpenHuman mid-install. Without this, `cmd.output().await` keeps
-        // OpenHuman.exe alive (and port 7788 bound) for the full 60–120s of
+        // Eversilver mid-install. Without this, `cmd.output().await` keeps
+        // Eversilver.exe alive (and port 7788 bound) for the full 60–120s of
         // the install download, producing zombie processes and
         // "port in use" errors on the next launch. Note: OllamaSetup.exe is
         // spawned by PowerShell as a TOP-LEVEL process (via `Start-Process`),
         // so it survives PowerShell's death. That's intentional — the
         // crash-resume detection in `is_ollama_installer_running` picks it
-        // up on the next OpenHuman launch and waits.
+        // up on the next Eversilver launch and waits.
         cmd.kill_on_drop(true);
         crate::openhuman::local_ai::process_util::apply_no_window(&mut cmd);
-        cmd.env("OPENHUMAN_OLLAMA_INSTALL_DIR", install_dir);
+        cmd.env("EVERSILVER_OLLAMA_INSTALL_DIR", install_dir);
         cmd.args([
             "-NoProfile",
             "-ExecutionPolicy",
@@ -134,15 +134,15 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
             r#"
             $ErrorActionPreference = "Stop"
             $ProgressPreference = "SilentlyContinue"
-            $installDir = $env:OPENHUMAN_OLLAMA_INSTALL_DIR
+            $installDir = $env:EVERSILVER_OLLAMA_INSTALL_DIR
             New-Item -ItemType Directory -Path $installDir -Force | Out-Null
             $installerUrl = "https://ollama.com/download/OllamaSetup.exe"
             $tempInstaller = Join-Path $env:TEMP "OllamaSetup.exe"
             Invoke-WebRequest -UseBasicParsing -Uri $installerUrl -OutFile $tempInstaller
             # /SILENT (not /VERYSILENT) so Inno Setup's small progress dialog
-            # appears. The dialog is owned by the OS, not OpenHuman, so it
+            # appears. The dialog is owned by the OS, not Eversilver, so it
             # survives the parent process crashing — giving the user a visible
-            # signal that an install is in flight even if OpenHuman dies.
+            # signal that an install is in flight even if Eversilver dies.
             $args = "/SILENT /NORESTART /SUPPRESSMSGBOXES /CURRENTUSER /DIR=""$installDir"""
             $proc = Start-Process -FilePath $tempInstaller -ArgumentList $args -PassThru
             $proc.WaitForExit()
@@ -163,7 +163,7 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
         // tokio runtime can exit cleanly instead of waiting for curl to
         // finish downloading the full Ollama.app bundle.
         cmd.kill_on_drop(true);
-        cmd.env("OPENHUMAN_OLLAMA_INSTALL_DIR", install_dir);
+        cmd.env("EVERSILVER_OLLAMA_INSTALL_DIR", install_dir);
         cmd.arg("-lc")
             .arg(
                 r#"
@@ -171,7 +171,7 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
                 for tool in curl unzip mktemp rm cp chmod mkdir; do
                   command -v "$tool" >/dev/null 2>&1 || { echo "missing required tool: $tool" >&2; exit 1; }
                 done
-                dest="$OPENHUMAN_OLLAMA_INSTALL_DIR"
+                dest="$EVERSILVER_OLLAMA_INSTALL_DIR"
                 tmp_dir="$(mktemp -d)"
                 cleanup() { rm -rf "$tmp_dir"; }
                 trap cleanup EXIT
@@ -192,7 +192,7 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
     {
         let mut cmd = tokio::process::Command::new("sh");
         cmd.kill_on_drop(true); // see Windows-branch comment above
-        cmd.env("OPENHUMAN_OLLAMA_INSTALL_DIR", install_dir);
+        cmd.env("EVERSILVER_OLLAMA_INSTALL_DIR", install_dir);
         cmd.arg("-lc")
             .arg(
                 r#"
@@ -206,7 +206,7 @@ fn build_install_command(install_dir: &Path) -> Result<tokio::process::Command, 
                   aarch64|arm64) arch="arm64" ;;
                   *) echo "Unsupported architecture: $arch" >&2; exit 1 ;;
                 esac
-                dest="$OPENHUMAN_OLLAMA_INSTALL_DIR"
+                dest="$EVERSILVER_OLLAMA_INSTALL_DIR"
                 archive_url="https://ollama.com/download/ollama-linux-${arch}.tar.zst"
                 if ! command -v unzstd >/dev/null 2>&1; then
                   echo "missing required tool: unzstd (zstd package)" >&2

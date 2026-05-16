@@ -86,7 +86,7 @@ impl SyncOutcome {
 /// **Mode-aware dispatch (#1710)**: pre-fix, `ProviderContext` cached a
 /// pre-baked [`ComposioClient`] built once at construction time. Toggling
 /// `composio.mode = "direct"` mid-session left provider syncs still
-/// routing through the backend tinyhumans tenant. The current shape
+/// routing through the backend eversilver tenant. The current shape
 /// keeps an [`Arc<Config>`] and resolves the underlying client per call
 /// through [`ProviderContext::execute`], mirroring the agent-tool
 /// migration in [`crate::openhuman::composio::tools::ComposioExecuteTool`].
@@ -236,7 +236,7 @@ mod tests {
     // Both `ProviderContext::execute` and `ProviderContext::backend_client`
     // now reload config via `config_rpc::load_config_with_timeout()` per
     // call (#1710 Wave 4), so the injected `Arc<Config>` no longer drives
-    // the factory — the live on-disk config under `OPENHUMAN_WORKSPACE`
+    // the factory — the live on-disk config under `EVERSILVER_WORKSPACE`
     // does. Both tests below therefore set up an isolated, persisted
     // config under `TEST_ENV_LOCK` rather than relying on a constructed
     // `Arc<Config>` helper.
@@ -252,19 +252,19 @@ mod tests {
         //
         // Production `ctx.execute(..)` calls `load_config_with_timeout()`
         // per call which reads from `~/.openhuman/config.toml` (or the
-        // workspace pointed at by `OPENHUMAN_WORKSPACE`). To isolate
+        // workspace pointed at by `EVERSILVER_WORKSPACE`). To isolate
         // the test from the dev's real config we hold `TEST_ENV_LOCK`,
-        // point `OPENHUMAN_WORKSPACE` at a tempdir, and persist the
+        // point `EVERSILVER_WORKSPACE` at a tempdir, and persist the
         // test's `Config` to that tempdir's `config.toml` before
         // invoking `execute`. Without the lock this test also races the
-        // shared `OPENHUMAN_WORKSPACE` env var against the other
+        // shared `EVERSILVER_WORKSPACE` env var against the other
         // `load_config_with_timeout`-driven composio tests.
         use crate::openhuman::config::TEST_ENV_LOCK;
         let _env_guard = TEST_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
 
         let tmp = tempfile::tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         let mut config = Config::default();
@@ -293,7 +293,7 @@ mod tests {
         }
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 
@@ -306,9 +306,9 @@ mod tests {
         //
         // Production `ctx.execute(..)` calls `load_config_with_timeout()`
         // per call which reads from `~/.openhuman/config.toml` (or the
-        // workspace pointed at by `OPENHUMAN_WORKSPACE`). To isolate
+        // workspace pointed at by `EVERSILVER_WORKSPACE`). To isolate
         // the test from the dev's real config we hold `TEST_ENV_LOCK`,
-        // point `OPENHUMAN_WORKSPACE` at a tempdir, and persist the
+        // point `EVERSILVER_WORKSPACE` at a tempdir, and persist the
         // test's `Config` to that tempdir's `config.toml` before
         // invoking `execute`.
         use crate::openhuman::config::TEST_ENV_LOCK;
@@ -316,7 +316,7 @@ mod tests {
 
         let tmp = tempfile::tempdir().expect("tempdir");
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
 
         let mut config = Config::default();
@@ -339,7 +339,7 @@ mod tests {
         );
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 }

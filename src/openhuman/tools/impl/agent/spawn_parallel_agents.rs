@@ -812,7 +812,7 @@ mod tests {
     // `Config`'s workload routing instead of inheriting `parent.provider`
     // for `ModelSpec::Hint` agents like `researcher` / `planner`. That
     // bypasses this test's mock `ConcurrentProvider`: on CI the resolved
-    // OpenHuman backend is unreachable so subagents fail with
+    // Eversilver backend is unreachable so subagents fail with
     // `succeeded == 0`; locally a configured cloud provider may answer
     // with text that isn't `"parallel ok"`. The right fix is a
     // workspace-isolated test fixture that forces the workload factory

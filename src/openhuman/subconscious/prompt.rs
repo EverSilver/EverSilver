@@ -80,7 +80,7 @@ For each reflection:
   | `due_item` | `risk` | `opportunity`.
 - `body`: short markdown-friendly observation.
 - `proposed_action` (optional): one-tap action text. When the user taps
-  the action button, OpenHuman opens a *new* conversation thread seeded
+  the action button, Eversilver opens a *new* conversation thread seeded
   with the body + this action — never auto-executed, never written into
   any existing chat.
 - `source_refs`: opaque ids from the situation report so we can trace
@@ -231,7 +231,7 @@ pub fn load_identity_context(workspace_dir: &Path) -> String {
     }
 
     if ctx.is_empty() {
-        "You are OpenHuman, an AI assistant for productivity and collaboration.".to_string()
+        "You are Eversilver, an AI assistant for productivity and collaboration.".to_string()
     } else {
         ctx
     }
@@ -340,6 +340,6 @@ mod tests {
     #[test]
     fn identity_context_loads_or_falls_back() {
         let ctx = load_identity_context(std::path::Path::new("/nonexistent"));
-        assert!(ctx.contains("OpenHuman"));
+        assert!(ctx.contains("Eversilver"));
     }
 }

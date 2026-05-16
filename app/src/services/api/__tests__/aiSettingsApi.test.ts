@@ -44,19 +44,19 @@ vi.mock('../../../utils/tauriCommands/auth', () => ({
 }));
 
 vi.mock('../../../utils/tauriCommands/config', () => ({
-  openhumanGetClientConfig: () => mockOpenhumanGetClientConfig(),
-  openhumanUpdateModelSettings: (a: unknown) => mockOpenhumanUpdateModelSettings(a),
-  openhumanUpdateLocalAiSettings: vi.fn().mockResolvedValue({ result: {} }),
+  eversilverGetClientConfig: () => mockOpenhumanGetClientConfig(),
+  eversilverUpdateModelSettings: (a: unknown) => mockOpenhumanUpdateModelSettings(a),
+  eversilverUpdateLocalAiSettings: vi.fn().mockResolvedValue({ result: {} }),
 }));
 
 vi.mock('../../../utils/tauriCommands/localAi', () => ({
-  openhumanLocalAiStatus: vi.fn().mockResolvedValue({ result: null }),
-  openhumanLocalAiDiagnostics: vi.fn().mockResolvedValue(null),
-  openhumanLocalAiPresets: vi.fn().mockResolvedValue(null),
-  openhumanLocalAiApplyPreset: vi.fn().mockResolvedValue({}),
-  openhumanLocalAiDownload: vi.fn().mockResolvedValue({}),
-  openhumanLocalAiSetOllamaPath: vi.fn().mockResolvedValue({}),
-  openhumanLocalAiShutdownOwned: vi.fn().mockResolvedValue({}),
+  eversilverLocalAiStatus: vi.fn().mockResolvedValue({ result: null }),
+  eversilverLocalAiDiagnostics: vi.fn().mockResolvedValue(null),
+  eversilverLocalAiPresets: vi.fn().mockResolvedValue(null),
+  eversilverLocalAiApplyPreset: vi.fn().mockResolvedValue({}),
+  eversilverLocalAiDownload: vi.fn().mockResolvedValue({}),
+  eversilverLocalAiSetOllamaPath: vi.fn().mockResolvedValue({}),
+  eversilverLocalAiShutdownOwned: vi.fn().mockResolvedValue({}),
 }));
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -92,25 +92,25 @@ function makeAuthProfileResult(profiles: Array<{ id: string; provider: string }>
 // ─── parseProviderString ─────────────────────────────────────────────────────
 
 describe('parseProviderString', () => {
-  it('returns openhuman for empty string', () => {
-    expect(parseProviderString('')).toEqual({ kind: 'openhuman' });
+  it('returns eversilver for empty string', () => {
+    expect(parseProviderString('')).toEqual({ kind: 'eversilver' });
   });
 
-  it('returns openhuman for null/undefined', () => {
-    expect(parseProviderString(null)).toEqual({ kind: 'openhuman' });
-    expect(parseProviderString(undefined)).toEqual({ kind: 'openhuman' });
+  it('returns eversilver for null/undefined', () => {
+    expect(parseProviderString(null)).toEqual({ kind: 'eversilver' });
+    expect(parseProviderString(undefined)).toEqual({ kind: 'eversilver' });
   });
 
-  it('returns openhuman for the "cloud" sentinel', () => {
-    expect(parseProviderString('cloud')).toEqual({ kind: 'openhuman' });
+  it('returns eversilver for the "cloud" sentinel', () => {
+    expect(parseProviderString('cloud')).toEqual({ kind: 'eversilver' });
   });
 
-  it('returns openhuman for the "openhuman" literal', () => {
-    expect(parseProviderString('openhuman')).toEqual({ kind: 'openhuman' });
+  it('returns eversilver for the "eversilver" literal', () => {
+    expect(parseProviderString('eversilver')).toEqual({ kind: 'eversilver' });
   });
 
-  it('returns openhuman for "openhuman:<anything>"', () => {
-    expect(parseProviderString('openhuman:gpt-4o')).toEqual({ kind: 'openhuman' });
+  it('returns eversilver for "eversilver:<anything>"', () => {
+    expect(parseProviderString('eversilver:gpt-4o')).toEqual({ kind: 'eversilver' });
   });
 
   it('parses ollama provider strings', () => {
@@ -133,17 +133,17 @@ describe('parseProviderString', () => {
     });
   });
 
-  it('falls back to openhuman for unrecognised bare strings', () => {
-    expect(parseProviderString('unknown-provider')).toEqual({ kind: 'openhuman' });
+  it('falls back to eversilver for unrecognised bare strings', () => {
+    expect(parseProviderString('unknown-provider')).toEqual({ kind: 'eversilver' });
   });
 });
 
 // ─── serializeProviderRef ─────────────────────────────────────────────────────
 
 describe('serializeProviderRef', () => {
-  it('serializes openhuman refs', () => {
-    const ref: ProviderRef = { kind: 'openhuman' };
-    expect(serializeProviderRef(ref)).toBe('openhuman');
+  it('serializes eversilver refs', () => {
+    const ref: ProviderRef = { kind: 'eversilver' };
+    expect(serializeProviderRef(ref)).toBe('eversilver');
   });
 
   it('serializes cloud refs to slug:model', () => {
@@ -158,7 +158,7 @@ describe('serializeProviderRef', () => {
 
   it('round-trips through parseProviderString', () => {
     const cases: ProviderRef[] = [
-      { kind: 'openhuman' },
+      { kind: 'eversilver' },
       { kind: 'cloud', providerSlug: 'anthropic', model: 'claude-3-haiku-20240307' },
       { kind: 'local', model: 'llama3:latest' },
     ];
@@ -278,7 +278,7 @@ describe('loadAISettings', () => {
       model: 'claude-3-5-sonnet-20241022',
     });
     expect(settings.routing.coding).toEqual({ kind: 'local', model: 'codellama:13b' });
-    expect(settings.routing.memory).toEqual({ kind: 'openhuman' });
+    expect(settings.routing.memory).toEqual({ kind: 'eversilver' });
   });
 
   it('degrades gracefully when authListProviderCredentials throws', async () => {
@@ -384,13 +384,13 @@ describe('saveAISettings', () => {
       ],
       routing: {
         reasoning: { kind: 'cloud', providerSlug: 'openai', model: 'gpt-4o' },
-        agentic: { kind: 'openhuman' },
-        coding: { kind: 'openhuman' },
-        memory: { kind: 'openhuman' },
-        embeddings: { kind: 'openhuman' },
-        heartbeat: { kind: 'openhuman' },
-        learning: { kind: 'openhuman' },
-        subconscious: { kind: 'openhuman' },
+        agentic: { kind: 'eversilver' },
+        coding: { kind: 'eversilver' },
+        memory: { kind: 'eversilver' },
+        embeddings: { kind: 'eversilver' },
+        heartbeat: { kind: 'eversilver' },
+        learning: { kind: 'eversilver' },
+        subconscious: { kind: 'eversilver' },
       },
       ...overrides,
     };
@@ -404,13 +404,13 @@ describe('saveAISettings', () => {
 
   it('sends only changed routing fields when providers are unchanged', async () => {
     const prev = makeSettings();
-    const next = makeSettings({ routing: { ...prev.routing, reasoning: { kind: 'openhuman' } } });
+    const next = makeSettings({ routing: { ...prev.routing, reasoning: { kind: 'eversilver' } } });
 
     await saveAISettings(prev, next);
 
     expect(mockOpenhumanUpdateModelSettings).toHaveBeenCalledOnce();
     const patch = mockOpenhumanUpdateModelSettings.mock.calls[0][0];
-    expect(patch.reasoning_provider).toBe('openhuman');
+    expect(patch.reasoning_provider).toBe('eversilver');
     // Other workloads unchanged — should not appear in patch.
     expect(patch.agentic_provider).toBeUndefined();
     expect(patch.cloud_providers).toBeUndefined();
@@ -442,14 +442,14 @@ describe('saveAISettings', () => {
     const prev: AISettings = {
       cloudProviders: [],
       routing: {
-        reasoning: { kind: 'openhuman' },
-        agentic: { kind: 'openhuman' },
-        coding: { kind: 'openhuman' },
-        memory: { kind: 'openhuman' },
-        embeddings: { kind: 'openhuman' },
-        heartbeat: { kind: 'openhuman' },
-        learning: { kind: 'openhuman' },
-        subconscious: { kind: 'openhuman' },
+        reasoning: { kind: 'eversilver' },
+        agentic: { kind: 'eversilver' },
+        coding: { kind: 'eversilver' },
+        memory: { kind: 'eversilver' },
+        embeddings: { kind: 'eversilver' },
+        heartbeat: { kind: 'eversilver' },
+        learning: { kind: 'eversilver' },
+        subconscious: { kind: 'eversilver' },
       },
     };
     const next: AISettings = { cloudProviders: [anthropicProvider], routing: { ...prev.routing } };
@@ -496,8 +496,8 @@ describe('setCloudProviderKey', () => {
     expect(args.setActive).toBe(true);
   });
 
-  it('throws when slug is "openhuman" (session JWT — not configurable)', async () => {
-    await expect(setCloudProviderKey('openhuman', 'some-key')).rejects.toThrow();
+  it('throws when slug is "eversilver" (session JWT — not configurable)', async () => {
+    await expect(setCloudProviderKey('eversilver', 'some-key')).rejects.toThrow();
     expect(mockAuthStoreProviderCredentials).not.toHaveBeenCalled();
   });
 
@@ -525,8 +525,8 @@ describe('clearCloudProviderKey', () => {
     expect(args.profile).toBe('default');
   });
 
-  it('is a no-op for "openhuman" (session-managed, no key to clear)', async () => {
-    await clearCloudProviderKey('openhuman');
+  it('is a no-op for "eversilver" (session-managed, no key to clear)', async () => {
+    await clearCloudProviderKey('eversilver');
     expect(mockAuthRemoveProviderCredentials).not.toHaveBeenCalled();
   });
 });
@@ -539,7 +539,7 @@ describe('listProviderModels', () => {
     mockIsTauri.mockReturnValue(true);
   });
 
-  it('dispatches openhuman.providers_list_models with provider_id and returns models', async () => {
+  it('dispatches eversilver.providers_list_models with provider_id and returns models', async () => {
     mockCallCoreRpc.mockResolvedValue({
       result: {
         models: [
@@ -552,7 +552,7 @@ describe('listProviderModels', () => {
     const models = await listProviderModels('p_openai_1');
 
     expect(mockCallCoreRpc).toHaveBeenCalledWith({
-      method: 'openhuman.providers_list_models',
+      method: 'eversilver.providers_list_models',
       params: { provider_id: 'p_openai_1' },
     });
     expect(models).toHaveLength(2);

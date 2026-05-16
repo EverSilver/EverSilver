@@ -4,7 +4,7 @@ import { behavior, parseBehaviorJson, setMockBehavior } from "../state.mjs";
 // ── Streaming helpers ─────────────────────────────────────────────
 //
 // When the agent harness calls the OpenAI-compatible endpoint with
-// `stream: true`, openhuman/providers/compatible.rs expects SSE chunks
+// `stream: true`, eversilver/providers/compatible.rs expects SSE chunks
 // shaped like:
 //
 //   data: {"choices":[{"delta":{"content":"hello"},"finish_reason":null}]}
@@ -353,7 +353,7 @@ async function streamScriptToResponse({ res, model, script, defaultDelayMs }) {
  *   POST /__admin/behavior  body: {"llmKeywordRules": "<json-string>"}
  *
  * This mirrors the Rust-side `KeywordScriptedProvider` in
- * `src/openhuman/agent/harness/test_support.rs` so the same testing
+ * `src/eversilver/agent/harness/test_support.rs` so the same testing
  * mental model applies on both sides of the FFI.
  */
 

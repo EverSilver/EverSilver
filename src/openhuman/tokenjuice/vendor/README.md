@@ -53,7 +53,7 @@ from the upstream repository as of 2026-04-17.
 The `src/rules/openclaw/` subdirectory in upstream is **not** vendored.  Those
 rules (`openclaw/sessions-history`, etc.) are specific to the upstream author's
 proprietary OpenClaw tooling and are not generic enough to include in the
-OpenHuman builtin set.  The `fixtures/` subdirectory is also excluded — fixture
+Eversilver builtin set.  The `fixtures/` subdirectory is also excluded — fixture
 files are test-only and carry no runtime behaviour.
 
 ### Adding more rules

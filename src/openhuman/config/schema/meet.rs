@@ -2,12 +2,12 @@
 //!
 //! Currently exposes a single privacy-relevant flag:
 //! `auto_orchestrator_handoff` — when `true`, ending a Google Meet call
-//! inside the OpenHuman webview hands the captured transcript to the
+//! inside the Eversilver webview hands the captured transcript to the
 //! orchestrator agent, which may **proactively** execute tools (e.g. post
 //! summaries to Slack, draft messages, schedule follow-ups). Default
 //! `false` so the user must opt in before any external action fires.
 //!
-//! See issue tinyhumansai/openhuman#1299.
+//! See issue eversilver/openhuman#1299.
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};

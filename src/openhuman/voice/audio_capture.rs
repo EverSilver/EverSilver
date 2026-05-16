@@ -238,7 +238,7 @@ fn record_on_thread(
             // Forward via setup_tx so `start_recording`'s caller sees the
             // real reason instead of the generic "capture thread exited
             // before signalling readiness" fallback that fires when
-            // setup_tx is dropped (OPENHUMAN-TAURI-AE). Without this, the
+            // setup_tx is dropped (EVERSILVER-TAURI-AE). Without this, the
             // user — and Sentry — gets no signal about *which* audio
             // failure occurred.
             let msg = "no default audio input device found".to_string();
@@ -260,7 +260,7 @@ fn record_on_thread(
                     Ok(cfg) => cfg,
                     Err(e2) => {
                         // Replaces a `.expect()` that would have panicked
-                        // and dropped setup_tx — see OPENHUMAN-TAURI-AE.
+                        // and dropped setup_tx — see EVERSILVER-TAURI-AE.
                         let msg = format!(
                             "no default input config available (best-config failed: {e}; default lookup: {e2})"
                         );
@@ -278,7 +278,7 @@ fn record_on_thread(
                 Err(e2) => {
                     // Forward via setup_tx so callers see the real cpal
                     // error rather than the generic dropped-tx fallback
-                    // (OPENHUMAN-TAURI-AE).
+                    // (EVERSILVER-TAURI-AE).
                     let msg = format!(
                         "no default input config: {e2} (supported-configs query failed: {e})"
                     );

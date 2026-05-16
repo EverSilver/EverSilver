@@ -21,7 +21,7 @@ hint = "agentic"
 [tools]
 # Narrow allowlist. Wallet + market primitives only — no shell, no
 # file_write, no broad HTTP, no integration delegation. Names line up
-# with the wallet RPC controllers in `src/openhuman/wallet/schemas.rs`
+# with the wallet RPC controllers in `src/eversilver/wallet/schemas.rs`
 # (read: status/balances/supported_assets/chain_status; quote/prepare:
 # prepare_transfer/prepare_swap/prepare_contract_call; execute:
 # execute_prepared) and the financial-apis crypto/FX series exposed

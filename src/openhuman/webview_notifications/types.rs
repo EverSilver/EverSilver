@@ -14,7 +14,7 @@ pub struct WebviewNotificationEvent {
     pub account_id: String,
     /// Provider id, e.g. `slack`, `gmail`, `discord`.
     pub provider: String,
-    /// OS-visible title (already `OpenHuman:`-prefixed by `format_title`).
+    /// OS-visible title (already `Eversilver:`-prefixed by `format_title`).
     pub title: String,
     /// OS-visible body. Empty string when the page didn't set one.
     pub body: String,

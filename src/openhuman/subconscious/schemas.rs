@@ -231,7 +231,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
                  and seeds it with the reflection body as the first ASSISTANT \
                  message (with proposed_action appended if present). No LLM \
                  turn fires — the user lands in a thread that opens with the \
-                 observation from OpenHuman, ready for them to reply. Marks \
+                 observation from Eversilver, ready for them to reply. Marks \
                  `acted_on_at`. Returns the new thread id so the frontend can \
                  navigate to it.",
             inputs: vec![field_req(
@@ -571,7 +571,7 @@ fn handle_reflections_act(params: Map<String, Value>) -> ControllerFuture {
         .map_err(|e| format!("ensure_thread (reflection-spawned) failed: {e}"))?;
 
         // Seed the new thread with the reflection as the FIRST message,
-        // sent from `assistant` (i.e. OpenHuman speaking). The frontend
+        // sent from `assistant` (i.e. Eversilver speaking). The frontend
         // renders this as a regular AI message, so the user lands in a
         // thread that already starts with the observation. They can then
         // type their own reply — no auto LLM turn fires here. This is

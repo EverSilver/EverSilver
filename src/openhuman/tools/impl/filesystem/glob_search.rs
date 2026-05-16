@@ -176,7 +176,7 @@ mod tests {
 
     #[tokio::test]
     async fn glob_matches_extension() {
-        let dir = std::env::temp_dir().join("openhuman_test_glob_ext");
+        let dir = std::env::temp_dir().join("eversilver_test_glob_ext");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(dir.join("src/sub"))
             .await
@@ -202,7 +202,7 @@ mod tests {
 
     #[tokio::test]
     async fn glob_invalid_pattern() {
-        let dir = std::env::temp_dir().join("openhuman_test_glob_invalid");
+        let dir = std::env::temp_dir().join("eversilver_test_glob_invalid");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         let tool = GlobTool::new(test_security(dir.clone()));
@@ -214,7 +214,7 @@ mod tests {
 
     #[tokio::test]
     async fn glob_skips_node_modules() {
-        let dir = std::env::temp_dir().join("openhuman_test_glob_skip");
+        let dir = std::env::temp_dir().join("eversilver_test_glob_skip");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(dir.join("node_modules"))
             .await

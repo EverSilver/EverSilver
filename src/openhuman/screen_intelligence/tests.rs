@@ -737,9 +737,9 @@ fn save_screenshot_to_disk_rejects_frame_without_image_ref() {
 async fn analyze_and_persist_frame_writes_unified_memory_document() {
     let _env_lock = screen_intelligence_env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
     let _mock = EnvVarGuard::set(
-        "OPENHUMAN_SCREEN_INTELLIGENCE_MOCK_VISION_JSON",
+        "EVERSILVER_SCREEN_INTELLIGENCE_MOCK_VISION_JSON",
         r#"{"ui_state":"editor","key_text":"fn main() {}","actionable_notes":"Rust source is open","confidence":0.93}"#,
     );
     write_screen_intelligence_test_config(tmp.path(), true, "ollama");
@@ -788,7 +788,7 @@ async fn analyze_and_persist_frame_writes_unified_memory_document() {
 async fn analyze_and_persist_frame_rejects_non_local_provider() {
     let _env_lock = screen_intelligence_env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
     write_screen_intelligence_test_config(tmp.path(), true, "openai");
 
     let engine = Arc::new(AccessibilityEngine {
@@ -816,7 +816,7 @@ async fn analyze_and_persist_frame_rejects_non_local_provider() {
 async fn analyze_and_persist_frame_rejects_disabled_local_ai() {
     let _env_lock = screen_intelligence_env_lock();
     let tmp = tempdir().expect("tempdir");
-    let _workspace = EnvVarGuard::set_to_path("OPENHUMAN_WORKSPACE", tmp.path());
+    let _workspace = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
     write_screen_intelligence_test_config(tmp.path(), false, "ollama");
 
     let engine = Arc::new(AccessibilityEngine {

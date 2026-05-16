@@ -288,7 +288,7 @@ fn popup_should_stay_in_app(provider: &str, url: &Url) -> bool {
 /// (e.g. `slack://magic-login/<token>` signs the native Slack app into
 /// the workspace, breaking embedded-webview isolation: the workspace's
 /// session ends up inside the native client even though the user only
-/// signed in via OpenHuman's embedded webview).
+/// signed in via Eversilver's embedded webview).
 ///
 /// The HTTPS fallback in each provider's web flow handles sign-in
 /// without the deep link, so suppression is safe — the page just
@@ -347,7 +347,7 @@ fn popup_should_navigate_parent(provider: &str, url: &Url) -> Option<Url> {
     // a meeting code link calls `window.open(meet.google.com/<roomid>)`
     // to launch the room. Default popup handling would route the
     // URL to the user's system browser, leaking the Meet session
-    // out of OpenHuman entirely. Deny the popup and navigate the
+    // out of Eversilver entirely. Deny the popup and navigate the
     // embedded parent into the room URL instead — matches the
     // user's expectation that the meeting stays in-app.
     if provider == "google-meet" {
@@ -619,7 +619,7 @@ async fn post_provider_surfaces_event(args: &RecipeEventArgs) -> Result<(), Stri
         "params": params,
     });
 
-    let url = std::env::var("OPENHUMAN_CORE_RPC_URL")
+    let url = std::env::var("EVERSILVER_CORE_RPC_URL")
         .unwrap_or_else(|_| "http://127.0.0.1:7788/rpc".to_string());
     let client = reqwest::Client::builder()
         .timeout(Duration::from_secs(10))
@@ -656,7 +656,7 @@ pub fn provider_display_name(provider: &str) -> &'static str {
         "google-meet" => "Google Meet",
         "zoom" => "Zoom",
         "browserscan" => "BrowserScan",
-        _ => "OpenHuman",
+        _ => "Eversilver",
     }
 }
 
@@ -1033,14 +1033,14 @@ impl From<&NotificationBypassPrefs> for NotificationBypassPrefsPayload {
 }
 
 /// Title prefix applied to every OS toast fired from an embedded webview.
-/// Matches `openhuman_core::webview_notifications::OPENHUMAN_TITLE_PREFIX`
+/// Matches `eversilver_core::webview_notifications::EVERSILVER_TITLE_PREFIX`
 /// — kept inline here so the shell crate doesn't take a build-time dep on
 /// the core library. Disambiguates from natively-installed apps (Slack,
 /// Discord, Telegram desktop) firing the same message twice.
-const OPENHUMAN_TITLE_PREFIX: &str = "OpenHuman: ";
+const EVERSILVER_TITLE_PREFIX: &str = "Eversilver: ";
 
 fn slack_scanner_enabled() -> bool {
-    std::env::var("OPENHUMAN_DISABLE_SLACK_SCANNER")
+    std::env::var("EVERSILVER_DISABLE_SLACK_SCANNER")
         .map(|v| {
             let v = v.trim().to_ascii_lowercase();
             !(v == "1" || v == "true" || v == "yes" || v == "on")
@@ -1152,9 +1152,9 @@ fn forward_native_notification<R: Runtime>(
     let provider_label = provider_display_name(provider);
     let raw_title = payload.title.as_str().trim();
     let notify_title = if raw_title.is_empty() {
-        format!("{OPENHUMAN_TITLE_PREFIX}{provider_label}")
+        format!("{EVERSILVER_TITLE_PREFIX}{provider_label}")
     } else {
-        format!("{OPENHUMAN_TITLE_PREFIX}{provider_label} — {raw_title}")
+        format!("{EVERSILVER_TITLE_PREFIX}{provider_label} — {raw_title}")
     };
     let body = payload.body.as_deref().unwrap_or("");
     log::info!(
@@ -1766,7 +1766,7 @@ fn build_init_script(account_id: &str, provider: &str) -> String {
         "provider": provider,
     });
     format!(
-        "window.__OPENHUMAN_RECIPE_CTX__ = {ctx};\n\n{runtime}\n\n{recipe}\n",
+        "window.__EVERSILVER_RECIPE_CTX__ = {ctx};\n\n{runtime}\n\n{recipe}\n",
         ctx = ctx,
         runtime = RUNTIME_JS,
         recipe = recipe_js
@@ -1820,7 +1820,7 @@ pub async fn webview_account_open<R: Runtime>(
     // shim (see `cdp/session.rs`) BEFORE the real provider URL loads;
     // without it Slack surfaces in-app "enable notifications"
     // banners. For Slack debug sessions we allow opting out via
-    // `OPENHUMAN_DISABLE_SLACK_SCANNER=1`, which also skips the long-lived
+    // `EVERSILVER_DISABLE_SLACK_SCANNER=1`, which also skips the long-lived
     // CDP session so external DevTools can attach cleanly.
     let initial_url_str = if skip_cdp_for_debug {
         real_url_str.clone()
@@ -2439,7 +2439,7 @@ pub async fn webview_account_open<R: Runtime>(
     {
         if skip_cdp_for_debug {
             log::info!(
-                "[webview-accounts] skipping CDP session via OPENHUMAN_DISABLE_SLACK_SCANNER for account={}",
+                "[webview-accounts] skipping CDP session via EVERSILVER_DISABLE_SLACK_SCANNER for account={}",
                 args.account_id
             );
         } else {
@@ -2501,7 +2501,7 @@ pub async fn webview_account_open<R: Runtime>(
                 }
             } else {
                 log::info!(
-                    "[webview-accounts] slack scanner disabled via OPENHUMAN_DISABLE_SLACK_SCANNER for account={}",
+                    "[webview-accounts] slack scanner disabled via EVERSILVER_DISABLE_SLACK_SCANNER for account={}",
                     args.account_id
                 );
             }
@@ -3981,7 +3981,7 @@ mod tests {
         // "Start an instant meeting" / "New meeting" calls
         // window.open(meet.google.com/<roomid>) to launch a room.
         // Without intervention this would route to system Chrome and
-        // leak the meeting out of OpenHuman.
+        // leak the meeting out of Eversilver.
         assert_eq!(
             popup_should_navigate_parent(
                 "google-meet",

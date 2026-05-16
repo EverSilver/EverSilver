@@ -47,14 +47,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build openhuman-core image
+      - name: Build eversilver-core image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile
           push: false
           load: true
-          tags: openhuman-core:smoke
+          tags: eversilver-core:smoke
           cache-from: type=gha,scope=deploy-smoke
           cache-to: type=gha,scope=deploy-smoke,mode=max
 
@@ -63,10 +63,10 @@ jobs:
           docker run -d \
             --name oh-smoke \
             -p 7788:7788 \
-            -e OPENHUMAN_CORE_TOKEN=ci-smoke-token \
-            -e OPENHUMAN_APP_ENV=staging \
-            -e BACKEND_URL=https://staging-api.tinyhumans.ai \
-            openhuman-core:smoke
+            -e EVERSILVER_CORE_TOKEN=ci-smoke-token \
+            -e EVERSILVER_APP_ENV=staging \
+            -e BACKEND_URL=https://staging-api.eversilver.local \
+            eversilver-core:smoke
 
       - name: Wait for /health
         run: |

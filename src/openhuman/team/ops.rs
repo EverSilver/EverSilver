@@ -69,7 +69,7 @@ async fn get_authed_value(
     // (`api/rest.rs::authed_json`), so plain `e.to_string()` only emits
     // the outer "backend request GET /teams" label and drops the cause
     // (connect timeout, DNS failure, TLS handshake, non-2xx status, …)
-    // before the JSON-RPC layer reports it to Sentry. OPENHUMAN-TAURI-AD
+    // before the JSON-RPC layer reports it to Sentry. EVERSILVER-TAURI-AD
     // is the canonical instance: 2 events on `0.53.35` from a Russia
     // user, all with the truncated label and elapsed_ms=49 — far too
     // short for a real timeout, so the underlying cause is the only

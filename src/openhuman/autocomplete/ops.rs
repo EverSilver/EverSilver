@@ -598,7 +598,7 @@ mod tests {
     // ── autocomplete_history (integration) ───────────────────────────────────
     //
     // NOTE: These tests operate against the real on-disk KV store via
-    // MemoryClient::new_local() (resolves to default_root_openhuman_dir()).
+    // MemoryClient::new_local() (resolves to default_root_eversilver_dir()).
     // They are marked #[ignore] to prevent wiping a contributor's autocomplete
     // history on every `cargo test` run and to avoid non-deterministic results.
     // Run explicitly with: cargo test -- --ignored

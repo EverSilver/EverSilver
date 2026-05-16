@@ -559,7 +559,7 @@ impl AutocompleteEngine {
 
         let focused = if let Some(context) = context_override {
             FocusedTextContext {
-                app_name: Some("OpenHuman".to_string()),
+                app_name: Some("Eversilver".to_string()),
                 role: None,
                 text: context,
                 selected_text: None,
@@ -588,7 +588,7 @@ impl AutocompleteEngine {
 
         let app_lower = focused.app_name.clone().unwrap_or_default().to_lowercase();
 
-        // When OpenHuman itself is focused AND this is the background engine loop,
+        // When Eversilver itself is focused AND this is the background engine loop,
         // skip AX-based refresh — the in-app React polling handles suggestions.
         // When is_in_app (context_override provided), we still want inference to run.
         if !is_in_app && app_lower.contains("openhuman") {
@@ -815,7 +815,7 @@ impl AutocompleteEngine {
             return Ok(());
         }
 
-        // Skip AX-based Tab accept when OpenHuman itself is focused —
+        // Skip AX-based Tab accept when Eversilver itself is focused —
         // the in-app React handler manages insertion directly.
         {
             let state = self.inner.lock().await;

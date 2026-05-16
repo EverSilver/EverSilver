@@ -13,10 +13,10 @@ describe('tauriCommands', () => {
   const mockInvoke = invoke as Mock;
   const mockCallCoreRpc = callCoreRpc as Mock;
   let getAuthState: typeof import('../tauriCommands').getAuthState;
-  let resetOpenHumanDataAndRestartCore: typeof import('../tauriCommands').resetOpenHumanDataAndRestartCore;
+  let resetEversilverDataAndRestartCore: typeof import('../tauriCommands').resetEversilverDataAndRestartCore;
   let storeSession: typeof import('../tauriCommands').storeSession;
-  let openhumanLocalAiStatus: typeof import('../tauriCommands').openhumanLocalAiStatus;
-  let openhumanServiceStatus: typeof import('../tauriCommands').openhumanServiceStatus;
+  let eversilverLocalAiStatus: typeof import('../tauriCommands').eversilverLocalAiStatus;
+  let eversilverServiceStatus: typeof import('../tauriCommands').eversilverServiceStatus;
   let prevInternals: TauriInternalsHolder['__TAURI_INTERNALS__'];
 
   beforeEach(async () => {
@@ -24,7 +24,7 @@ describe('tauriCommands', () => {
     mockIsTauri.mockReturnValue(true);
     // The local `isTauri()` wrapper in `tauriCommands/common.ts` ALSO checks
     // `window.__TAURI_INTERNALS__.invoke` to detect the CEF bootstrap gap
-    // (see OPENHUMAN-REACT-S). Mocking only the upstream `coreIsTauri`
+    // (see EVERSILVER-REACT-S). Mocking only the upstream `coreIsTauri`
     // isn't enough — the wrapper would still return false in tests and
     // every helper would hit its `if (!isTauri()) return;` early-exit.
     // Stub a minimal internals shape so the wrapper resolves to true.
@@ -33,10 +33,10 @@ describe('tauriCommands', () => {
     holder.__TAURI_INTERNALS__ = { invoke: () => undefined };
     const actual = await vi.importActual<typeof import('../tauriCommands')>('../tauriCommands');
     getAuthState = actual.getAuthState;
-    resetOpenHumanDataAndRestartCore = actual.resetOpenHumanDataAndRestartCore;
+    resetEversilverDataAndRestartCore = actual.resetEversilverDataAndRestartCore;
     storeSession = actual.storeSession;
-    openhumanLocalAiStatus = actual.openhumanLocalAiStatus;
-    openhumanServiceStatus = actual.openhumanServiceStatus;
+    eversilverLocalAiStatus = actual.eversilverLocalAiStatus;
+    eversilverServiceStatus = actual.eversilverServiceStatus;
   });
 
   afterEach(() => {
@@ -55,7 +55,7 @@ describe('tauriCommands', () => {
 
     const response = await getAuthState();
 
-    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'openhuman.auth_get_state' });
+    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'eversilver.auth_get_state' });
     expect(response).toEqual({ is_authenticated: true, user: { id: 'u1' } });
   });
 
@@ -63,18 +63,18 @@ describe('tauriCommands', () => {
     await storeSession('jwt-token', { id: 'u1' });
 
     expect(mockCallCoreRpc).toHaveBeenCalledWith({
-      method: 'openhuman.auth_store_session',
+      method: 'eversilver.auth_store_session',
       params: { token: 'jwt-token', user: { id: 'u1' } },
     });
   });
 
-  test('resetOpenHumanDataAndRestartCore invokes the destructive Tauri command', async () => {
-    await resetOpenHumanDataAndRestartCore();
+  test('resetEversilverDataAndRestartCore invokes the destructive Tauri command', async () => {
+    await resetEversilverDataAndRestartCore();
 
-    // The helper used to call `openhuman.config_reset_local_data` over
+    // The helper used to call `eversilver.config_reset_local_data` over
     // JSON-RPC followed by `restart_core_process`, but the in-process
     // remove failed on Windows when the running core held open handles
-    // inside the data directory (OPENHUMAN-TAURI-AF). The Tauri shell
+    // inside the data directory (EVERSILVER-TAURI-AF). The Tauri shell
     // now owns the full sequence (stop core → remove paths → restart
     // core) behind a single `reset_local_data` command, so no core RPC
     // call should reach `callCoreRpc` from this helper.
@@ -82,7 +82,7 @@ describe('tauriCommands', () => {
     expect(mockInvoke).toHaveBeenCalledWith('reset_local_data');
   });
 
-  test('resetOpenHumanDataAndRestartCore surfaces invoke failures to the caller', async () => {
+  test('resetEversilverDataAndRestartCore surfaces invoke failures to the caller', async () => {
     // Callers (e.g. `clearAllAppData`) treat a thrown error as unrecoverable
     // and abort the flow — so the helper must rethrow instead of swallowing
     // a `reset_local_data` failure (e.g. Windows `ERROR_SHARING_VIOLATION`
@@ -91,24 +91,24 @@ describe('tauriCommands', () => {
     mockInvoke.mockRejectedValueOnce(boom);
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await expect(resetOpenHumanDataAndRestartCore()).rejects.toBe(boom);
+    await expect(resetEversilverDataAndRestartCore()).rejects.toBe(boom);
     expect(consoleErrorSpy).toHaveBeenCalled();
 
     consoleErrorSpy.mockRestore();
   });
 
-  test('openhumanLocalAiStatus returns upgrade hint on unknown method', async () => {
-    mockCallCoreRpc.mockRejectedValueOnce(new Error('unknown method: openhuman.local_ai_status'));
+  test('eversilverLocalAiStatus returns upgrade hint on unknown method', async () => {
+    mockCallCoreRpc.mockRejectedValueOnce(new Error('unknown method: eversilver.local_ai_status'));
 
-    await expect(openhumanLocalAiStatus()).rejects.toThrow(
+    await expect(eversilverLocalAiStatus()).rejects.toThrow(
       'Local model runtime is unavailable in this core build. Restart app after updating to the latest build.'
     );
   });
 
-  test('openhumanServiceStatus throws when not running in Tauri', async () => {
+  test('eversilverServiceStatus throws when not running in Tauri', async () => {
     mockIsTauri.mockReturnValue(false);
 
-    await expect(openhumanServiceStatus()).rejects.toThrow('Not running in Tauri');
+    await expect(eversilverServiceStatus()).rejects.toThrow('Not running in Tauri');
     expect(mockCallCoreRpc).not.toHaveBeenCalled();
   });
 });

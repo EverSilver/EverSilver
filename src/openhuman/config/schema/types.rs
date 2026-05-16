@@ -47,7 +47,7 @@ pub struct Config {
     pub api_key: Option<String>,
     /// Custom LLM inference endpoint (OpenAI-compatible). When set together
     /// with `api_key`, the inference provider talks directly to this URL
-    /// instead of routing through the OpenHuman backend. Account/auth/billing
+    /// instead of routing through the Eversilver backend. Account/auth/billing
     /// calls always continue to use `api_url` — keeping inference and
     /// product-backend concerns cleanly separated.
     #[serde(default)]
@@ -170,7 +170,7 @@ pub struct Config {
     //
     //   "cloud"                → resolves to `primary_cloud`; if primary is
     //                            openhuman, behaves identically to "openhuman"
-    //   "openhuman"            → OpenHuman backend (api_url + api_key session JWT)
+    //   "openhuman"            → Eversilver backend (api_url + api_key session JWT)
     //   "openai:<model>"       → look up cloud_providers entry of type=openai;
     //                            build OpenAiCompatibleProvider with Bearer auth
     //   "anthropic:<model>"    → type=anthropic; Bearer auth on the compat endpoint
@@ -180,13 +180,13 @@ pub struct Config {
     //
     // Per-workload fields default to None, which the factory treats as "cloud".
     // Changing `primary_cloud` instantly re-routes every "cloud" workload.
-    /// Registered cloud providers. Index 0 is always the built-in OpenHuman
+    /// Registered cloud providers. Index 0 is always the built-in Eversilver
     /// entry; additional entries are user-added third-party backends.
     #[serde(default)]
     pub cloud_providers: Vec<crate::openhuman::config::schema::cloud_providers::CloudProviderCreds>,
 
     /// Id of the `cloud_providers` entry that "cloud" and "primary" resolve to.
-    /// When `None`, the factory falls back to the OpenHuman entry.
+    /// When `None`, the factory falls back to the Eversilver entry.
     #[serde(default)]
     pub primary_cloud: Option<String>,
 
@@ -372,8 +372,8 @@ impl Config {
 
 impl Default for Config {
     fn default() -> Self {
-        let openhuman_dir =
-            crate::openhuman::config::default_root_openhuman_dir().unwrap_or_else(|_| {
+        let eversilver_dir =
+            crate::openhuman::config::default_root_eversilver_dir().unwrap_or_else(|_| {
                 let home = UserDirs::new()
                     .map_or_else(|| PathBuf::from("."), |u| u.home_dir().to_path_buf());
                 let dir_name = if crate::api::config::is_staging_app_env(
@@ -387,8 +387,8 @@ impl Default for Config {
             });
 
         Self {
-            workspace_dir: openhuman_dir.join("workspace"),
-            config_path: openhuman_dir.join("config.toml"),
+            workspace_dir: eversilver_dir.join("workspace"),
+            config_path: eversilver_dir.join("config.toml"),
             schema_version: 0,
             api_url: None,
             api_key: None,

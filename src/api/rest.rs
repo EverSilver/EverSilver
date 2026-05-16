@@ -1,4 +1,4 @@
-//! HTTP client for TinyHumans / AlphaHuman API routes (`/auth/...`, etc.).
+//! HTTP client for Eversilver / AlphaHuman API routes (`/auth/...`, etc.).
 
 use anyhow::{Context, Result};
 use base64::Engine;
@@ -19,7 +19,7 @@ pub enum BackendApiError {
     /// Slack, …) but our local `StreamingState` still has the id, or when
     /// the backend GC'd the relay row before we got around to editing it.
     /// Callers should clear stale state and skip the retry. Targets
-    /// `OPENHUMAN-TAURI-2Y` (~454 events on `/channels/telegram/messages/<id>`).
+    /// `EVERSILVER-TAURI-2Y` (~454 events on `/channels/telegram/messages/<id>`).
     #[error("message not found on {provider}: {message_id}")]
     MessageNotFound {
         /// Channel provider segment (e.g. `"telegram"`, `"discord"`).
@@ -224,7 +224,7 @@ pub struct IntegrationTokensHandoff {
     pub expires_at: String,
 }
 
-/// A client for interacting with the TinyHumans / AlphaHuman backend API.
+/// A client for interacting with the Eversilver / AlphaHuman backend API.
 #[derive(Clone)]
 pub struct BackendOAuthClient {
     client: Client,
@@ -508,7 +508,7 @@ impl BackendOAuthClient {
             // `BackendApiError::MessageNotFound` so callers (`bus.rs`
             // streaming/thinking/delete/final paths) can clear stale
             // ids and skip retry, without funneling the 404 into
-            // `report_error`. Targets `OPENHUMAN-TAURI-2Y` (~454 events).
+            // `report_error`. Targets `EVERSILVER-TAURI-2Y` (~454 events).
             if status_code == 404 {
                 if let Some((provider, message_id)) = parse_message_path(url.path()) {
                     tracing::info!(

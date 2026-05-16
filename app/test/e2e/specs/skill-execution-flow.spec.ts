@@ -47,7 +47,7 @@ describe('Skill execution (UI + core RPC)', () => {
 
   it('lands the user on a logged-in shell', async () => {
     const atHome =
-      (await textExists('Message OpenHuman')) ||
+      (await textExists('Message Eversilver')) ||
       (await textExists('Good morning')) ||
       (await textExists('Upgrade to Premium'));
     expect(atHome).toBe(true);
@@ -59,7 +59,7 @@ describe('Skill execution (UI + core RPC)', () => {
   });
 
   it('runs start → list_tools → call_tool → stop for the seeded echo skill', async () => {
-    const start = await callOpenhumanRpc('openhuman.skills_start', {
+    const start = await callOpenhumanRpc('eversilver.skills_start', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     if (!start.ok) {
@@ -71,14 +71,14 @@ describe('Skill execution (UI + core RPC)', () => {
 
     await browser.pause(800);
 
-    const tools = await callOpenhumanRpc('openhuman.skills_list_tools', {
+    const tools = await callOpenhumanRpc('eversilver.skills_list_tools', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     expect(tools.ok).toBe(true);
     const toolNames = (tools.result?.tools || []).map((t: { name?: string }) => t.name);
     expect(toolNames.includes('echo')).toBe(true);
 
-    const call = await callOpenhumanRpc('openhuman.skills_call_tool', {
+    const call = await callOpenhumanRpc('eversilver.skills_call_tool', {
       skill_id: E2E_RUNTIME_SKILL_ID,
       tool_name: 'echo',
       arguments: { message: 'hello from e2e skill execution' },
@@ -92,7 +92,7 @@ describe('Skill execution (UI + core RPC)', () => {
       )
     ).toBe(true);
 
-    const stop = await callOpenhumanRpc('openhuman.skills_stop', {
+    const stop = await callOpenhumanRpc('eversilver.skills_stop', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     expect(stop.ok).toBe(true);
@@ -101,19 +101,19 @@ describe('Skill execution (UI + core RPC)', () => {
 
   it('persists setup_complete via skills_set_setup_complete (OAuth path)', async () => {
     try {
-      const set = await callOpenhumanRpc('openhuman.skills_set_setup_complete', {
+      const set = await callOpenhumanRpc('eversilver.skills_set_setup_complete', {
         skill_id: E2E_RUNTIME_SKILL_ID,
         complete: true,
       });
       expect(set.ok).toBe(true);
 
-      const st = await callOpenhumanRpc('openhuman.skills_status', {
+      const st = await callOpenhumanRpc('eversilver.skills_status', {
         skill_id: E2E_RUNTIME_SKILL_ID,
       });
       expect(st.ok).toBe(true);
       expect(st.result?.setup_complete === true).toBe(true);
     } finally {
-      await callOpenhumanRpc('openhuman.skills_set_setup_complete', {
+      await callOpenhumanRpc('eversilver.skills_set_setup_complete', {
         skill_id: E2E_RUNTIME_SKILL_ID,
         complete: false,
       });

@@ -1,13 +1,13 @@
 //! Wall-clock timeouts for tool execution (skills runtime + agent loop).
 //!
-//! Override with the `OPENHUMAN_TOOL_TIMEOUT_SECS` environment variable (1–3600; default 120).
+//! Override with the `EVERSILVER_TOOL_TIMEOUT_SECS` environment variable (1–3600; default 120).
 
 use std::sync::OnceLock;
 use std::time::Duration;
 
 const DEFAULT_SECS: u64 = 120;
 const MAX_SECS: u64 = 3600;
-const ENV_VAR: &str = "OPENHUMAN_TOOL_TIMEOUT_SECS";
+const ENV_VAR: &str = "EVERSILVER_TOOL_TIMEOUT_SECS";
 
 /// Parse a raw env-var value into a bounded timeout.
 ///

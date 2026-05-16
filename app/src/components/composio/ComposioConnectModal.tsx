@@ -541,7 +541,7 @@ export default function ComposioConnectModal({
                 <p className="mt-1 text-xs leading-relaxed text-stone-600">
                   {toolkit.name} can expose{' '}
                   <span className="font-medium">{toolkit.permissionLabel}</span>. After you connect,
-                  OpenHuman&apos;s own agent permissions are controlled below as read, write, and
+                  Eversilver&apos;s own agent permissions are controlled below as read, write, and
                   admin toggles.
                 </p>
               </div>

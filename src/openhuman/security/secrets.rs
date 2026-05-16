@@ -46,9 +46,9 @@ pub struct SecretStore {
 
 impl SecretStore {
     /// Create a new secret store rooted at the given directory.
-    pub fn new(openhuman_dir: &Path, enabled: bool) -> Self {
+    pub fn new(eversilver_dir: &Path, enabled: bool) -> Self {
         Self {
-            key_path: openhuman_dir.join(".secret_key"),
+            key_path: eversilver_dir.join(".secret_key"),
             enabled,
         }
     }

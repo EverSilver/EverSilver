@@ -12,8 +12,8 @@ import {
   isTauri,
   type LocalAiDownloadsProgress,
   type LocalAiStatus,
-  openhumanLocalAiDownloadsProgress,
-  openhumanLocalAiStatus,
+  eversilverLocalAiDownloadsProgress,
+  eversilverLocalAiStatus,
 } from '../utils/tauriCommands';
 
 const POLL_INTERVAL = 2000;
@@ -50,8 +50,8 @@ const LocalAIDownloadSnackbar = () => {
     const poll = async () => {
       try {
         const [statusRes, downloadsRes] = await Promise.all([
-          openhumanLocalAiStatus(),
-          openhumanLocalAiDownloadsProgress(),
+          eversilverLocalAiStatus(),
+          eversilverLocalAiDownloadsProgress(),
         ]);
         if (statusRes.result) setStatus(statusRes.result);
         if (downloadsRes.result) setDownloads(downloadsRes.result);

@@ -91,7 +91,7 @@ describe('openUrl', () => {
   });
 
   it('falls back to window.open when tauriOpenUrl rejects on an http URL (CEF IPC race recovery, #1472)', async () => {
-    // Concrete repro for OPENHUMAN-REACT-T/S/R: CEF embedder
+    // Concrete repro for EVERSILVER-REACT-T/S/R: CEF embedder
     // injects `window.ipc.postMessage` after `on_after_created`. A
     // click landing in that gap causes `tauriOpenUrl` to reject with
     // a TypeError. For http(s) URLs the safe recovery is to hand off
@@ -101,10 +101,10 @@ describe('openUrl', () => {
     tauriOpenUrlMock.mockRejectedValue(ipcError);
 
     const { openUrl } = await import('./openUrl');
-    await openUrl('https://tinyhumans.ai/dashboard?token=secret-redact-me');
+    await openUrl('https://eversilver.local/dashboard?token=secret-redact-me');
 
     expect(windowOpenMock).toHaveBeenCalledWith(
-      'https://tinyhumans.ai/dashboard?token=secret-redact-me',
+      'https://eversilver.local/dashboard?token=secret-redact-me',
       '_blank',
       'noopener,noreferrer'
     );
@@ -115,7 +115,7 @@ describe('openUrl', () => {
         category: 'ipc',
         level: 'warning',
         message: 'tauriOpenUrl failed; evaluating fallback',
-        data: expect.objectContaining({ url: 'https://tinyhumans.ai' }),
+        data: expect.objectContaining({ url: 'https://eversilver.local' }),
       })
     );
     const call = addBreadcrumbMock.mock.calls[0]?.[0] as { data?: { url?: string } } | undefined;

@@ -1,7 +1,7 @@
 //! Tool-scoped memory layer for durable learnings and high-priority rules.
 //!
 //! Implements the dedicated memory namespace requested in
-//! [issue #1400](https://github.com/tinyhumansai/openhuman/issues/1400):
+//! [issue #1400](https://github.com/eversilver/openhuman/issues/1400):
 //! a first-class storage and retrieval surface for **actionable**
 //! tool-specific guidance, distinct from the
 //! [`tool_effectiveness`](crate::openhuman::learning::tool_tracker)

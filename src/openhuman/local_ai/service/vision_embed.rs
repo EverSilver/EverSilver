@@ -263,7 +263,7 @@ mod tests {
         );
         let base = spawn_mock(app).await;
         unsafe {
-            std::env::set_var("OPENHUMAN_OLLAMA_BASE_URL", &base);
+            std::env::set_var("EVERSILVER_OLLAMA_BASE_URL", &base);
         }
 
         let config = enabled_config();
@@ -275,7 +275,7 @@ mod tests {
                         // depends on model name matching in `has_model`.
 
         unsafe {
-            std::env::remove_var("OPENHUMAN_OLLAMA_BASE_URL");
+            std::env::remove_var("EVERSILVER_OLLAMA_BASE_URL");
         }
     }
 

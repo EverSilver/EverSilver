@@ -1,4 +1,4 @@
-//! Memory system for OpenHuman.
+//! Memory system for Eversilver.
 //!
 //! This module provides the core abstractions and implementations for the memory system,
 //! including semantic search, ingestion pipelines, document management, and knowledge graph

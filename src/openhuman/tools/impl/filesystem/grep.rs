@@ -246,7 +246,7 @@ mod tests {
 
     #[tokio::test]
     async fn grep_finds_matches() {
-        let dir = std::env::temp_dir().join("openhuman_test_grep_finds");
+        let dir = std::env::temp_dir().join("eversilver_test_grep_finds");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         tokio::fs::write(dir.join("a.txt"), "alpha\nbravo\ncharlie")
@@ -267,7 +267,7 @@ mod tests {
 
     #[tokio::test]
     async fn grep_invalid_regex() {
-        let dir = std::env::temp_dir().join("openhuman_test_grep_invalid");
+        let dir = std::env::temp_dir().join("eversilver_test_grep_invalid");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
 
@@ -284,7 +284,7 @@ mod tests {
 
     #[tokio::test]
     async fn grep_case_insensitive() {
-        let dir = std::env::temp_dir().join("openhuman_test_grep_ci");
+        let dir = std::env::temp_dir().join("eversilver_test_grep_ci");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         tokio::fs::write(dir.join("c.txt"), "Hello World")
@@ -315,7 +315,7 @@ mod tests {
 
     #[tokio::test]
     async fn grep_skips_node_modules_and_git() {
-        let dir = std::env::temp_dir().join("openhuman_test_grep_skip");
+        let dir = std::env::temp_dir().join("eversilver_test_grep_skip");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(dir.join("node_modules"))
             .await
@@ -344,7 +344,7 @@ mod tests {
 
     #[tokio::test]
     async fn grep_respects_max_matches() {
-        let dir = std::env::temp_dir().join("openhuman_test_grep_max");
+        let dir = std::env::temp_dir().join("eversilver_test_grep_max");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         let mut text = String::new();

@@ -10,7 +10,7 @@
 //!    against [`ollama_base_url`] with the user's chosen
 //!    `config.local_ai.embedding_model_id`. This is the path driven by
 //!    the "Memory embeddings" checkbox in Local AI Settings.
-//! 3. **Default** — [`CloudEmbedder`] (OpenHuman backend / Voyage,
+//! 3. **Default** — [`CloudEmbedder`] (Eversilver backend / Voyage,
 //!    1024 dims). Auth failures surface at the first `embed()` call so
 //!    ingest's existing retry-with-backoff logic handles them.
 //!
@@ -25,9 +25,9 @@
 //! tests only — it is no longer the production lax-mode fallback.
 //!
 //! Env var overrides applied in [`crate::openhuman::config::load`]:
-//! - `OPENHUMAN_MEMORY_EMBED_ENDPOINT`
-//! - `OPENHUMAN_MEMORY_EMBED_MODEL`
-//! - `OPENHUMAN_MEMORY_EMBED_TIMEOUT_MS`
+//! - `EVERSILVER_MEMORY_EMBED_ENDPOINT`
+//! - `EVERSILVER_MEMORY_EMBED_MODEL`
+//! - `EVERSILVER_MEMORY_EMBED_TIMEOUT_MS`
 
 use anyhow::Result;
 
@@ -92,7 +92,7 @@ pub fn build_embedder_from_config(config: &Config) -> Result<Box<dyn Embedder>> 
                 );
                 Ok(Box::new(OllamaEmbedder::new(endpoint, model, timeout_ms)))
             } else if cloud_session_available(config) {
-                // Default for logged-in users: cloud (OpenHuman backend /
+                // Default for logged-in users: cloud (Eversilver backend /
                 // Voyage `voyage-3.5`, 1024 dims). Matches the main
                 // embeddings path so a fresh install needs zero local
                 // Ollama setup. JWT failures (expired, invalid, etc.)
@@ -113,7 +113,7 @@ pub fn build_embedder_from_config(config: &Config) -> Result<Box<dyn Embedder>> 
                 // flip "Memory embeddings" to local with Ollama running).
                 log::warn!(
                     "[memory_tree::embed::factory] no backend session found — \
-                     using InertEmbedder (zero vectors). Log in to OpenHuman, or \
+                     using InertEmbedder (zero vectors). Log in to Eversilver, or \
                      enable 'Memory embeddings' in Local AI Settings, to fix."
                 );
                 Ok(Box::new(InertEmbedder::new()))

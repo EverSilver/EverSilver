@@ -111,15 +111,15 @@ mod tests {
 
     fn set_workspace(tmp: &TempDir) {
         // SAFETY: env mutation is guarded by ENV_LOCK which every test in
-        // this module acquires before touching OPENHUMAN_WORKSPACE.
+        // this module acquires before touching EVERSILVER_WORKSPACE.
         unsafe {
-            std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+            std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
         }
     }
 
     fn clear_workspace() {
         unsafe {
-            std::env::remove_var("OPENHUMAN_WORKSPACE");
+            std::env::remove_var("EVERSILVER_WORKSPACE");
         }
     }
 
@@ -176,7 +176,7 @@ mod tests {
     // ── cli_auth_* end-to-end ─────────────────────────────────────
     //
     // These tests exercise the branch logic inside each CLI entrypoint
-    // by pointing `OPENHUMAN_WORKSPACE` at a temp dir and relying on
+    // by pointing `EVERSILVER_WORKSPACE` at a temp dir and relying on
     // `load_config_with_timeout()` to resolve from that override.
 
     #[tokio::test]

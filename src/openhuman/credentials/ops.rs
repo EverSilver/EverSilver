@@ -14,7 +14,7 @@ use crate::rpc::RpcOutcome;
 
 use super::{AuthService, APP_SESSION_PROVIDER, DEFAULT_AUTH_PROFILE_NAME};
 use crate::openhuman::config::{
-    default_root_openhuman_dir, pre_login_user_dir, read_active_user_id, user_openhuman_dir,
+    default_root_eversilver_dir, pre_login_user_dir, read_active_user_id, user_eversilver_dir,
     write_active_user_id,
 };
 use crate::openhuman::memory::conversations;
@@ -159,11 +159,11 @@ pub async fn store_session(
     )];
 
     if let Some(ref uid) = resolved_user_id {
-        if let Ok(root_dir) = default_root_openhuman_dir() {
+        if let Ok(root_dir) = default_root_eversilver_dir() {
             // Snapshot before we overwrite `active_user.toml` so we can tell
             // first activation from signed-out vs an in-place account switch.
             let previous_active = read_active_user_id(&root_dir);
-            let user_dir = user_openhuman_dir(&root_dir, uid);
+            let user_dir = user_eversilver_dir(&root_dir, uid);
             if let Err(e) = std::fs::create_dir_all(&user_dir) {
                 tracing::warn!(
                     user_id = %uid,
@@ -294,7 +294,7 @@ pub async fn clear_session(config: &Config) -> Result<RpcOutcome<serde_json::Val
 
     // Clear the active user marker so subsequent config loads fall back to the
     // default (unauthenticated) openhuman directory.
-    if let Ok(root_dir) = default_root_openhuman_dir() {
+    if let Ok(root_dir) = default_root_eversilver_dir() {
         if let Err(e) = crate::openhuman::config::clear_active_user(&root_dir) {
             tracing::warn!(error = %e, "failed to clear active_user.toml on logout");
         }
@@ -617,7 +617,7 @@ pub async fn oauth_revoke_integration(
 /// direct mode (BYO key).
 ///
 /// Parallel to [`APP_SESSION_PROVIDER`] but completely independent — the
-/// app-session JWT authenticates the user against `api.tinyhumans.ai`,
+/// app-session JWT authenticates the user against `api.eversilver.local`,
 /// while this slot authenticates the user against
 /// `backend.composio.dev`. Stored via the same
 /// [`super::profiles::AuthProfilesStore`] backend (encrypted on disk

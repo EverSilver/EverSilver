@@ -1,8 +1,8 @@
 /**
- * Modal popped open when an `<openhuman-link path="...">` pill is clicked
+ * Modal popped open when an `<eversilver-link path="...">` pill is clicked
  * inside an agent message bubble.
  *
- * The pill dispatches a `window` `CustomEvent('openhuman-link', { detail: { path } })`;
+ * The pill dispatches a `window` `CustomEvent('eversilver-link', { detail: { path } })`;
  * this component listens for it, opens the modal, and routes to a focused
  * mini-flow per path. Keeps the chat in view (no react-router navigation)
  * so the user can complete the action and return to the agent without
@@ -38,7 +38,7 @@ interface OpenhumanLinkEvent {
   path: string;
 }
 
-export const OPENHUMAN_LINK_EVENT = 'openhuman-link';
+export const EVERSILVER_LINK_EVENT = 'eversilver-link';
 
 const OpenhumanLinkModal = () => {
   const [activePath, setActivePath] = useState<string | null>(null);
@@ -48,8 +48,8 @@ const OpenhumanLinkModal = () => {
       const detail = (event as CustomEvent<OpenhumanLinkEvent>).detail;
       if (detail?.path) setActivePath(detail.path);
     };
-    window.addEventListener(OPENHUMAN_LINK_EVENT, handler);
-    return () => window.removeEventListener(OPENHUMAN_LINK_EVENT, handler);
+    window.addEventListener(EVERSILVER_LINK_EVENT, handler);
+    return () => window.removeEventListener(EVERSILVER_LINK_EVENT, handler);
   }, []);
 
   const close = useCallback(() => setActivePath(null), []);
@@ -229,12 +229,12 @@ const NotificationsBody = ({ close }: { close: () => void }) => {
         setPermissionState(nextState);
         setStatus('error');
         setError(
-          'Notification permission is off. Enable OpenHuman in System Settings → Notifications, then retry.'
+          'Notification permission is off. Enable Eversilver in System Settings → Notifications, then retry.'
         );
         return;
       }
       const sendResult = await showNativeNotification({
-        title: 'OpenHuman is good to go',
+        title: 'Eversilver is good to go',
         body: 'You will get pings here when something needs your attention.',
         tag: 'welcome-notification-test',
       });
@@ -242,7 +242,7 @@ const NotificationsBody = ({ close }: { close: () => void }) => {
         setStatus('error');
         setError(
           sendResult.error ??
-            'OpenHuman could not trigger a system notification. Check OS notification settings and retry.'
+            'Eversilver could not trigger a system notification. Check OS notification settings and retry.'
         );
         return;
       }
@@ -257,14 +257,14 @@ const NotificationsBody = ({ close }: { close: () => void }) => {
   return (
     <div className="space-y-4 text-sm text-stone-700">
       <p>
-        OpenHuman uses native notifications so it can ping you when something needs your attention,
+        Eversilver uses native notifications so it can ping you when something needs your attention,
         even when the chat window is hidden.
       </p>
       {permissionState === 'denied' && (
         <div className="rounded-xl border border-coral-200 bg-coral-50 p-3 text-xs text-coral-700">
           Notifications are currently blocked.
           <br />
-          1. Open System Settings → Notifications → OpenHuman
+          1. Open System Settings → Notifications → Eversilver
           <br />
           2. Turn on Allow Notifications
           <br />
@@ -290,7 +290,7 @@ const NotificationsBody = ({ close }: { close: () => void }) => {
       {status === 'sent' && (
         <p className="text-xs text-sage-700">
           Test notification sent. If you didn’t receive it, go to System Settings → Notifications →
-          OpenHuman, turn on Allow Notifications, and set Banner Style to Persistent.
+          Eversilver, turn on Allow Notifications, and set Banner Style to Persistent.
         </p>
       )}
       {status === 'error' && <p className="text-xs text-coral-600">Couldn't send: {error}</p>}
@@ -326,13 +326,13 @@ const BillingBody = ({ close }: { close: () => void }) => {
 
 // ── Discord ──────────────────────────────────────────────────────────────
 
-const DISCORD_INVITE_URL = 'https://discord.tinyhumans.ai/';
+const DISCORD_INVITE_URL = 'https://discord.eversilver.local/';
 
 const DiscordBody = ({ close }: { close: () => void }) => {
   return (
     <div className="space-y-4 text-sm text-stone-700">
       <p>
-        Hop into our Discord and link your OpenHuman account. You'll get exclusive early access to
+        Hop into our Discord and link your Eversilver account. You'll get exclusive early access to
         features, free credits to play with, a great community to nerd out with, and yes, free
         merch.
       </p>

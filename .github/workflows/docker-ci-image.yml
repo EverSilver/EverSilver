@@ -37,5 +37,5 @@ jobs:
           push: true
           provenance: false
           tags: |-
-            ghcr.io/tinyhumansai/openhuman_ci:latest
-            ghcr.io/tinyhumansai/openhuman_ci:rust-1.93.0
+            ghcr.io/eversilver/eversilver_ci:latest
+            ghcr.io/eversilver/eversilver_ci:rust-1.93.0

@@ -2,7 +2,7 @@
 //!
 //! Each provider response carries an optional [`UsageInfo`] block with
 //! `input_tokens`, `output_tokens`, `cached_input_tokens`, and an
-//! authoritative `charged_amount_usd` populated by the OpenHuman
+//! authoritative `charged_amount_usd` populated by the Eversilver
 //! backend. [`TurnCost`] sums those across every provider call inside a
 //! single turn so the harness can:
 //!
@@ -55,7 +55,7 @@ const FALLBACK_PRICING: ModelPricing = ModelPricing {
 
 /// Static price table keyed by tier name.
 ///
-/// These are the OpenHuman tier handles, not concrete vendor model
+/// These are the Eversilver tier handles, not concrete vendor model
 /// strings — the backend chooses which underlying Claude / GPT / etc.
 /// model serves each tier. Numbers track the public Anthropic price
 /// list at the time of writing for the tiers' default mappings; treat

@@ -4,26 +4,26 @@ use tempfile::tempdir;
 #[tokio::test]
 async fn reset_local_data_removes_current_dir_default_dir_and_marker() {
     let temp = tempdir().unwrap();
-    let default_openhuman_dir = temp.path().join("default-openhuman");
-    let current_openhuman_dir = temp.path().join("custom-openhuman");
-    let marker = active_workspace_marker_path(&default_openhuman_dir);
+    let default_eversilver_dir = temp.path().join("default-openhuman");
+    let current_eversilver_dir = temp.path().join("custom-openhuman");
+    let marker = active_workspace_marker_path(&default_eversilver_dir);
 
-    tokio::fs::create_dir_all(default_openhuman_dir.join("workspace"))
+    tokio::fs::create_dir_all(default_eversilver_dir.join("workspace"))
         .await
         .unwrap();
-    tokio::fs::create_dir_all(current_openhuman_dir.join("workspace"))
+    tokio::fs::create_dir_all(current_eversilver_dir.join("workspace"))
         .await
         .unwrap();
     tokio::fs::write(&marker, "config_dir = '/tmp/custom-openhuman'\n")
         .await
         .unwrap();
 
-    let outcome = reset_local_data_for_paths(&current_openhuman_dir, &default_openhuman_dir)
+    let outcome = reset_local_data_for_paths(&current_eversilver_dir, &default_eversilver_dir)
         .await
         .unwrap();
 
-    assert!(!current_openhuman_dir.exists());
-    assert!(!default_openhuman_dir.exists());
+    assert!(!current_eversilver_dir.exists());
+    assert!(!default_eversilver_dir.exists());
     assert!(outcome
         .value
         .get("removed_paths")
@@ -38,7 +38,7 @@ use crate::openhuman::config::TEST_ENV_LOCK as ENV_LOCK;
 #[test]
 fn env_flag_enabled_recognizes_truthy_forms() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-    let key = "OPENHUMAN_TEST_FLAG_A";
+    let key = "EVERSILVER_TEST_FLAG_A";
     for truthy in ["1", "true", "TRUE", "yes", "YES"] {
         unsafe {
             std::env::set_var(key, truthy);
@@ -63,7 +63,7 @@ fn env_flag_enabled_recognizes_truthy_forms() {
 fn core_rpc_url_from_env_returns_default_when_unset() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     unsafe {
-        std::env::remove_var("OPENHUMAN_CORE_RPC_URL");
+        std::env::remove_var("EVERSILVER_CORE_RPC_URL");
     }
     assert_eq!(core_rpc_url_from_env(), "http://127.0.0.1:7788/rpc");
 }
@@ -72,18 +72,18 @@ fn core_rpc_url_from_env_returns_default_when_unset() {
 fn core_rpc_url_from_env_uses_override_when_set() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     unsafe {
-        std::env::set_var("OPENHUMAN_CORE_RPC_URL", "http://1.2.3.4:9999/rpc");
+        std::env::set_var("EVERSILVER_CORE_RPC_URL", "http://1.2.3.4:9999/rpc");
     }
     assert_eq!(core_rpc_url_from_env(), "http://1.2.3.4:9999/rpc");
     unsafe {
-        std::env::remove_var("OPENHUMAN_CORE_RPC_URL");
+        std::env::remove_var("EVERSILVER_CORE_RPC_URL");
     }
 }
 
 // ── Pure path helpers ──────────────────────────────────────────
 
 #[test]
-fn fallback_workspace_dir_ends_in_workspace_under_openhuman() {
+fn fallback_workspace_dir_ends_in_workspace_under_eversilver() {
     let p = fallback_workspace_dir();
     assert!(p.ends_with("workspace"));
     assert!(p
@@ -93,8 +93,8 @@ fn fallback_workspace_dir_ends_in_workspace_under_openhuman() {
 }
 
 #[test]
-fn default_openhuman_dir_ends_in_dot_openhuman() {
-    let p = default_openhuman_dir();
+fn default_eversilver_dir_ends_in_dot_eversilver() {
+    let p = default_eversilver_dir();
     assert!(p.ends_with(".openhuman"));
 }
 
@@ -106,10 +106,10 @@ fn active_workspace_marker_path_is_under_default_dir() {
 }
 
 #[test]
-fn config_openhuman_dir_returns_config_path_parent() {
+fn config_eversilver_dir_returns_config_path_parent() {
     let mut cfg = Config::default();
     cfg.config_path = PathBuf::from("/tmp/xyz/config.toml");
-    assert_eq!(config_openhuman_dir(&cfg), PathBuf::from("/tmp/xyz"));
+    assert_eq!(config_eversilver_dir(&cfg), PathBuf::from("/tmp/xyz"));
 }
 
 #[cfg(windows)]
@@ -119,8 +119,8 @@ fn reset_local_data_remove_error_explains_windows_file_locks() {
     let msg =
         reset_local_data_remove_error(std::path::Path::new("C:\\Users\\me\\.openhuman"), &err);
 
-    assert!(msg.contains("locked by another OpenHuman window or process"));
-    assert!(msg.contains("Close all OpenHuman windows and try again"));
+    assert!(msg.contains("locked by another Eversilver window or process"));
+    assert!(msg.contains("Close all Eversilver windows and try again"));
 }
 
 #[cfg(windows)]
@@ -130,8 +130,8 @@ fn reset_local_data_remove_error_explains_windows_lock_violation() {
     let msg =
         reset_local_data_remove_error(std::path::Path::new("C:\\Users\\me\\.openhuman"), &err);
 
-    assert!(msg.contains("locked by another OpenHuman window or process"));
-    assert!(msg.contains("Close all OpenHuman windows and try again"));
+    assert!(msg.contains("locked by another Eversilver window or process"));
+    assert!(msg.contains("Close all Eversilver windows and try again"));
 }
 
 // ── get_runtime_flags / set_browser_allow_all ─────────────────
@@ -140,7 +140,7 @@ fn reset_local_data_remove_error_explains_windows_lock_violation() {
 fn get_runtime_flags_reads_env_overrides() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     unsafe {
-        std::env::remove_var("OPENHUMAN_BROWSER_ALLOW_ALL");
+        std::env::remove_var("EVERSILVER_BROWSER_ALLOW_ALL");
     }
     let flags = get_runtime_flags();
     // Just exercise the path — we don't assume anything about
@@ -151,18 +151,18 @@ fn get_runtime_flags_reads_env_overrides() {
 #[test]
 fn set_browser_allow_all_toggles_env_var() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-    let before = std::env::var("OPENHUMAN_BROWSER_ALLOW_ALL").ok();
+    let before = std::env::var("EVERSILVER_BROWSER_ALLOW_ALL").ok();
 
     let _ = set_browser_allow_all(true);
-    assert!(env_flag_enabled("OPENHUMAN_BROWSER_ALLOW_ALL"));
+    assert!(env_flag_enabled("EVERSILVER_BROWSER_ALLOW_ALL"));
 
     let _ = set_browser_allow_all(false);
-    assert!(!env_flag_enabled("OPENHUMAN_BROWSER_ALLOW_ALL"));
+    assert!(!env_flag_enabled("EVERSILVER_BROWSER_ALLOW_ALL"));
 
     unsafe {
         match before {
-            Some(v) => std::env::set_var("OPENHUMAN_BROWSER_ALLOW_ALL", v),
-            None => std::env::remove_var("OPENHUMAN_BROWSER_ALLOW_ALL"),
+            Some(v) => std::env::set_var("EVERSILVER_BROWSER_ALLOW_ALL", v),
+            None => std::env::remove_var("EVERSILVER_BROWSER_ALLOW_ALL"),
         }
     }
 }
@@ -296,7 +296,7 @@ async fn apply_model_settings_stores_api_key_and_clears_when_empty() {
 #[tokio::test]
 async fn apply_model_settings_replaces_model_routes_when_some_and_keeps_when_none() {
     // #1342: switching providers writes role->model routes; switching back to
-    // OpenHuman sends an empty vec to wipe them. Omitting the field leaves
+    // Eversilver sends an empty vec to wipe them. Omitting the field leaves
     // existing routes alone.
     use crate::openhuman::config::ModelRouteConfig;
     let tmp = tempdir().unwrap();
@@ -598,7 +598,7 @@ async fn load_and_apply_dictation_settings_rejects_invalid_activation_mode() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let patch = DictationSettingsPatch {
         enabled: None,
@@ -611,7 +611,7 @@ async fn load_and_apply_dictation_settings_rejects_invalid_activation_mode() {
     let err = load_and_apply_dictation_settings(patch).await.unwrap_err();
     assert!(err.contains("invalid activation_mode"));
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -620,7 +620,7 @@ async fn load_and_apply_voice_server_settings_rejects_invalid_activation_mode() 
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let patch = VoiceServerSettingsPatch {
         auto_start: None,
@@ -636,7 +636,7 @@ async fn load_and_apply_voice_server_settings_rejects_invalid_activation_mode() 
         .unwrap_err();
     assert!(err.contains("invalid activation_mode"));
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -645,7 +645,7 @@ async fn load_and_apply_dictation_settings_accepts_valid_modes() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     for mode in ["toggle", "push"] {
         let patch = DictationSettingsPatch {
@@ -662,7 +662,7 @@ async fn load_and_apply_dictation_settings_accepts_valid_modes() {
         );
     }
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -671,7 +671,7 @@ async fn load_and_apply_voice_server_settings_accepts_valid_modes_and_clamps() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     // Negative min_duration_secs and silence_threshold should be clamped to 0.
     let patch = VoiceServerSettingsPatch {
@@ -693,7 +693,7 @@ async fn load_and_apply_voice_server_settings_accepts_valid_modes_and_clamps() {
             >= 0.0
     );
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -704,14 +704,14 @@ async fn get_dictation_settings_reads_from_loaded_config() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let outcome = get_dictation_settings().await.expect("ok");
     assert!(outcome.value.get("enabled").is_some());
     assert!(outcome.value.get("hotkey").is_some());
     assert!(outcome.value.get("streaming_interval_ms").is_some());
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -720,13 +720,13 @@ async fn get_voice_server_settings_reads_from_loaded_config() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let outcome = get_voice_server_settings().await.expect("ok");
     assert!(outcome.value.get("auto_start").is_some());
     assert!(outcome.value.get("custom_dictionary").is_some());
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -735,13 +735,13 @@ async fn get_onboarding_completed_reads_from_loaded_config() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let outcome = get_onboarding_completed().await.expect("ok");
     // Default value — either true or false is fine; we just verify the call path.
     let _ = outcome.value;
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -750,12 +750,12 @@ async fn load_and_resolve_api_url_returns_api_url_in_response() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let outcome = load_and_resolve_api_url().await.expect("ok");
     assert!(outcome.value.get("api_url").is_some());
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -764,7 +764,7 @@ async fn workspace_onboarding_flag_resolve_rejects_invalid_and_defaults() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     let err = workspace_onboarding_flag_resolve(Some("a/b".into()), "done")
         .await
@@ -777,7 +777,7 @@ async fn workspace_onboarding_flag_resolve_rejects_invalid_and_defaults() {
         .expect("ok");
     let _ = outcome.value;
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -786,7 +786,7 @@ async fn workspace_onboarding_flag_set_rejects_invalid_names() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     for bad in ["", "   ", "a/b", "a\\b", ".."] {
         let err = workspace_onboarding_flag_set(Some(bad.into()), "default", true)
@@ -795,7 +795,7 @@ async fn workspace_onboarding_flag_set_rejects_invalid_names() {
         assert!(err.contains("Invalid onboarding flag"), "name {bad}: {err}");
     }
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }
 
@@ -804,7 +804,7 @@ async fn workspace_onboarding_flag_set_round_trip() {
     let _g = ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
     let tmp = tempdir().unwrap();
     unsafe {
-        std::env::set_var("OPENHUMAN_WORKSPACE", tmp.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", tmp.path());
     }
     // Create flag
     let created = workspace_onboarding_flag_set(Some("onboarding.done".into()), "default", true)
@@ -817,6 +817,6 @@ async fn workspace_onboarding_flag_set_round_trip() {
         .expect("remove");
     assert!(!removed.value);
     unsafe {
-        std::env::remove_var("OPENHUMAN_WORKSPACE");
+        std::env::remove_var("EVERSILVER_WORKSPACE");
     }
 }

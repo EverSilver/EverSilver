@@ -321,7 +321,7 @@ impl Tool for ComposioListToolkitsTool {
         // server-side allowlist; the user's personal Composio account
         // governs availability, so we return an empty toolkits list
         // with an explanatory log instead of silently routing through
-        // the backend tinyhumans tenant (#1710).
+        // the backend eversilver tenant (#1710).
         // [#1710 Wave 4] Reload config fresh per execute so a mid-session
         // `composio.mode` toggle takes effect at the very next tool call.
         // The Arc<Config> snapshot held by `self` was taken at agent-init
@@ -666,7 +666,7 @@ impl Tool for ComposioListToolsTool {
 
         // Resolve the client through the mode-aware factory so a
         // direct-mode user does not silently get the backend
-        // tinyhumans-tenant tool list. In direct mode we return an
+        // eversilver-tenant tool list. In direct mode we return an
         // empty `tools` array with an explanatory log, mirroring the
         // ops.rs `composio_list_toolkits` / `composio_list_connections`
         // pattern. Surfacing the empty list explicitly is correct
@@ -784,7 +784,7 @@ pub struct ComposioExecuteTool {
     /// `composio.mode = "direct"` mid-session the
     /// `ComposioConfigChanged` event invalidated caches, but this tool's
     /// pre-baked client kept routing executions through
-    /// `staging-api.tinyhumans.ai/agent-integrations/composio/execute`
+    /// `staging-api.eversilver.local/agent-integrations/composio/execute`
     /// — silently bypassing the direct-mode user's personal Composio
     /// tenant. Resolving the client per call via
     /// [`create_composio_client`] keeps dispatch in lockstep with the
@@ -925,7 +925,7 @@ impl Tool for ComposioExecuteTool {
         // Resolve the client through the mode-aware factory on every
         // call so a direct-mode toggle takes effect immediately
         // (#1710). The pre-baked-client variant of this code routed all
-        // executions through the backend tinyhumans tenant regardless
+        // executions through the backend eversilver tenant regardless
         // of mode — silently breaking direct mode for tool execution.
         // [#1710 Wave 4] Reload config fresh per execute so a mid-session
         // `composio.mode` toggle takes effect at the very next tool call.
@@ -972,7 +972,7 @@ impl Tool for ComposioExecuteTool {
                     },
                 );
                 // Prefer the backend-rendered markdown when available
-                // (tinyhumansai/backend#683). The backend handles parsing
+                // (eversilver/backend#683). The backend handles parsing
                 // for all composio actions; if a tool isn't formatted
                 // server-side `markdown_formatted` is None and we fall
                 // back to the raw JSON envelope.

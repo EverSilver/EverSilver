@@ -69,7 +69,7 @@ pub trait Summariser: Send + Sync {
 /// [`Config`]. The cloud-default refactor changed the resolution rules:
 ///
 /// - `llm_backend = "cloud"` (default): always returns the LLM summariser
-///   routed through the OpenHuman backend's `cloud_llm_model`
+///   routed through the Eversilver backend's `cloud_llm_model`
 ///   (defaulting to `summarization-v1`).
 /// - `llm_backend = "local"`: returns the LLM summariser only when both
 ///   `llm_summariser_endpoint` AND `llm_summariser_model` are set;

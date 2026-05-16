@@ -276,7 +276,7 @@ impl BrowserTool {
         if self.allowed_domains.is_empty() && !allow_all_browser_domains() {
             anyhow::bail!(
                 "Browser tool enabled but no allowed_domains configured. \
-                Add [browser].allowed_domains in config.toml or set OPENHUMAN_BROWSER_ALLOW_ALL=1"
+                Add [browser].allowed_domains in config.toml or set EVERSILVER_BROWSER_ALLOW_ALL=1"
             );
         }
 

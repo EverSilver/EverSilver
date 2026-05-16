@@ -298,7 +298,7 @@ mod tests {
 
     #[tokio::test]
     async fn apply_patch_applies_multiple_edits() {
-        let dir = std::env::temp_dir().join("openhuman_test_patch_multi");
+        let dir = std::env::temp_dir().join("eversilver_test_patch_multi");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         tokio::fs::write(dir.join("a.txt"), "alpha\nbravo")
@@ -329,7 +329,7 @@ mod tests {
 
     #[tokio::test]
     async fn apply_patch_atomic_on_validation_failure() {
-        let dir = std::env::temp_dir().join("openhuman_test_patch_atomic");
+        let dir = std::env::temp_dir().join("eversilver_test_patch_atomic");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         tokio::fs::write(dir.join("a.txt"), "alpha").await.unwrap();
@@ -355,7 +355,7 @@ mod tests {
 
     #[tokio::test]
     async fn apply_patch_chained_edits_same_file() {
-        let dir = std::env::temp_dir().join("openhuman_test_patch_chain");
+        let dir = std::env::temp_dir().join("eversilver_test_patch_chain");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
         tokio::fs::write(dir.join("a.txt"), "one two three")
@@ -381,7 +381,7 @@ mod tests {
 
     #[tokio::test]
     async fn apply_patch_rejects_empty_edits() {
-        let dir = std::env::temp_dir().join("openhuman_test_patch_empty");
+        let dir = std::env::temp_dir().join("eversilver_test_patch_empty");
         let _ = tokio::fs::remove_dir_all(&dir).await;
         tokio::fs::create_dir_all(&dir).await.unwrap();
 

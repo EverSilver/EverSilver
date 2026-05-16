@@ -683,7 +683,7 @@
       ]
     },
     {
-      "description": "Set OPENHUMAN_BROWSER_ALLOW_ALL runtime flag.",
+      "description": "Set EVERSILVER_BROWSER_ALLOW_ALL runtime flag.",
       "function": "set_browser_allow_all",
       "inputs": [
         {

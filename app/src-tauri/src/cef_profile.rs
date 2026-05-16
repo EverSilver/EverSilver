@@ -4,11 +4,11 @@ use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
-pub const CEF_CACHE_PATH_ENV: &str = "OPENHUMAN_CEF_CACHE_PATH";
+pub const CEF_CACHE_PATH_ENV: &str = "EVERSILVER_CEF_CACHE_PATH";
 const ACTIVE_USER_STATE_FILE: &str = "active_user.toml";
-/// Sibling of the OpenHuman data dir (not under it) so the marker survives
-/// `reset_local_data` removing the whole `default_openhuman_dir` tree.
-const PENDING_PURGE_STATE_FILE: &str = "openhuman_pending_cef_purge.toml";
+/// Sibling of the Eversilver data dir (not under it) so the marker survives
+/// `reset_local_data` removing the whole `default_eversilver_dir` tree.
+const PENDING_PURGE_STATE_FILE: &str = "eversilver_pending_cef_purge.toml";
 /// Pre–sibling-layout marker (lived under the data root; `reset_local_data` removed it).
 const LEGACY_PENDING_PURGE_IN_TREE: &str = "pending_cef_purge.toml";
 const PRE_LOGIN_USER_ID: &str = "local";
@@ -24,9 +24,9 @@ struct PendingCefPurgeState {
     paths: Vec<String>,
 }
 
-/// Resolves the on-disk OpenHuman root dir name (`.openhuman` vs
+/// Resolves the on-disk Eversilver root dir name (`.openhuman` vs
 /// `.openhuman-staging`) for the Tauri shell. Delegates to
-/// [`openhuman_core::api::config::app_env_from_env`] so the shell and the
+/// [`eversilver_core::api::config::app_env_from_env`] so the shell and the
 /// embedded core agree on the channel selection — including the
 /// `option_env!` compile-time fallback that staging CI bakes into the
 /// build. Without that fallback the packaged staging `.app` launched from
@@ -34,8 +34,8 @@ struct PendingCefPurgeState {
 /// collides with any older production install's CEF profile, producing
 /// the startup crash loop reported in #1490.
 fn default_root_dir_name() -> &'static str {
-    if openhuman_core::api::config::is_staging_app_env(
-        openhuman_core::api::config::app_env_from_env().as_deref(),
+    if eversilver_core::api::config::is_staging_app_env(
+        eversilver_core::api::config::app_env_from_env().as_deref(),
     ) {
         ".openhuman-staging"
     } else {
@@ -43,8 +43,8 @@ fn default_root_dir_name() -> &'static str {
     }
 }
 
-pub fn default_root_openhuman_dir() -> Result<PathBuf, String> {
-    if let Ok(workspace) = std::env::var("OPENHUMAN_WORKSPACE") {
+pub fn default_root_eversilver_dir() -> Result<PathBuf, String> {
+    if let Ok(workspace) = std::env::var("EVERSILVER_WORKSPACE") {
         let trimmed = workspace.trim();
         if !trimmed.is_empty() {
             return Ok(PathBuf::from(trimmed));
@@ -57,8 +57,8 @@ pub fn default_root_openhuman_dir() -> Result<PathBuf, String> {
     Ok(home.join(default_root_dir_name()))
 }
 
-pub fn read_active_user_id(default_openhuman_dir: &Path) -> Option<String> {
-    let path = default_openhuman_dir.join(ACTIVE_USER_STATE_FILE);
+pub fn read_active_user_id(default_eversilver_dir: &Path) -> Option<String> {
+    let path = default_eversilver_dir.join(ACTIVE_USER_STATE_FILE);
     let contents = std::fs::read_to_string(path).ok()?;
     let state: ActiveUserState = toml::from_str(&contents).ok()?;
     let trimmed = state.user_id.trim();
@@ -99,20 +99,20 @@ fn validate_user_id_for_path(user_id: &str) -> Result<String, String> {
     Ok(trimmed.to_string())
 }
 
-fn user_openhuman_dir(default_openhuman_dir: &Path, user_id: &str) -> Result<PathBuf, String> {
+fn user_eversilver_dir(default_eversilver_dir: &Path, user_id: &str) -> Result<PathBuf, String> {
     let id = validate_user_id_for_path(user_id)?;
-    Ok(default_openhuman_dir.join("users").join(&id))
+    Ok(default_eversilver_dir.join("users").join(&id))
 }
 
-fn cache_dir_for_user(default_openhuman_dir: &Path, user_id: &str) -> Result<PathBuf, String> {
-    Ok(user_openhuman_dir(default_openhuman_dir, user_id)?.join("cef"))
+fn cache_dir_for_user(default_eversilver_dir: &Path, user_id: &str) -> Result<PathBuf, String> {
+    Ok(user_eversilver_dir(default_eversilver_dir, user_id)?.join("cef"))
 }
 
 /// `remove_dir_all` is only safe for CEF profile dirs we queued ourselves (under
 /// `.../users/<id>/cef`). Rejects absolute paths outside that tree, corrupted
 /// TOML, or anything that `canonicalize` would not place under
-/// `default_openhuman_dir/users/…/cef`.
-fn is_trusted_queued_purge_path(default_openhuman_dir: &Path, target: &Path) -> bool {
+/// `default_eversilver_dir/users/…/cef`.
+fn is_trusted_queued_purge_path(default_eversilver_dir: &Path, target: &Path) -> bool {
     if !target.is_absolute() {
         log::warn!(
             "[cef-profile] refusing purge: path is not absolute (possible cwd-relative TOML injection) path={}",
@@ -120,10 +120,10 @@ fn is_trusted_queued_purge_path(default_openhuman_dir: &Path, target: &Path) -> 
         );
         return false;
     }
-    let Ok(data_root) = std::fs::canonicalize(default_openhuman_dir) else {
+    let Ok(data_root) = std::fs::canonicalize(default_eversilver_dir) else {
         log::warn!(
             "[cef-profile] refusing purge: could not canonicalize data root path={} (cannot validate purge target) target={}",
-            default_openhuman_dir.display(),
+            default_eversilver_dir.display(),
             target.display()
         );
         return false;
@@ -163,12 +163,12 @@ fn is_trusted_queued_purge_path(default_openhuman_dir: &Path, target: &Path) -> 
     true
 }
 
-/// Marker file lives in the **parent** of the OpenHuman data root so a full
-/// `remove_dir_all(default_openhuman_dir)` (e.g. from core `reset_local_data`) does
+/// Marker file lives in the **parent** of the Eversilver data root so a full
+/// `remove_dir_all(default_eversilver_dir)` (e.g. from core `reset_local_data`) does
 /// not delete the pending-purge list before it is processed.
-fn pending_purge_marker_path(default_openhuman_dir: &Path) -> Result<PathBuf, String> {
-    let parent = default_openhuman_dir.parent().ok_or_else(|| {
-        "default OpenHuman data dir has no parent; cannot place CEF purge marker outside the data tree"
+fn pending_purge_marker_path(default_eversilver_dir: &Path) -> Result<PathBuf, String> {
+    let parent = default_eversilver_dir.parent().ok_or_else(|| {
+        "default Eversilver data dir has no parent; cannot place CEF purge marker outside the data tree"
             .to_string()
     })?;
     Ok(parent.join(PENDING_PURGE_STATE_FILE))
@@ -182,8 +182,8 @@ pub fn configured_cache_path_from_env() -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
-fn load_pending_purge_state(default_openhuman_dir: &Path) -> Result<PendingCefPurgeState, String> {
-    let path = pending_purge_marker_path(default_openhuman_dir)?;
+fn load_pending_purge_state(default_eversilver_dir: &Path) -> Result<PendingCefPurgeState, String> {
+    let path = pending_purge_marker_path(default_eversilver_dir)?;
     if path.exists() {
         let raw = std::fs::read_to_string(&path).map_err(|error| {
             format!("read pending CEF purge marker {}: {error}", path.display())
@@ -194,7 +194,7 @@ fn load_pending_purge_state(default_openhuman_dir: &Path) -> Result<PendingCefPu
     }
 
     // One-time read from the legacy in-tree file (older app versions).
-    let legacy = default_openhuman_dir.join(LEGACY_PENDING_PURGE_IN_TREE);
+    let legacy = default_eversilver_dir.join(LEGACY_PENDING_PURGE_IN_TREE);
     if !legacy.exists() {
         return Ok(PendingCefPurgeState::default());
     }
@@ -210,7 +210,7 @@ fn load_pending_purge_state(default_openhuman_dir: &Path) -> Result<PendingCefPu
             legacy.display()
         )
     })?;
-    match save_pending_purge_state(default_openhuman_dir, &state) {
+    match save_pending_purge_state(default_eversilver_dir, &state) {
         Ok(()) => {
             let _ = std::fs::remove_file(&legacy);
             log::info!(
@@ -228,17 +228,17 @@ fn load_pending_purge_state(default_openhuman_dir: &Path) -> Result<PendingCefPu
 }
 
 fn save_pending_purge_state(
-    default_openhuman_dir: &Path,
+    default_eversilver_dir: &Path,
     state: &PendingCefPurgeState,
 ) -> Result<(), String> {
-    std::fs::create_dir_all(default_openhuman_dir).map_err(|error| {
+    std::fs::create_dir_all(default_eversilver_dir).map_err(|error| {
         format!(
-            "create OpenHuman root dir {}: {error}",
-            default_openhuman_dir.display()
+            "create Eversilver root dir {}: {error}",
+            default_eversilver_dir.display()
         )
     })?;
 
-    let path = pending_purge_marker_path(default_openhuman_dir)?;
+    let path = pending_purge_marker_path(default_eversilver_dir)?;
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent).map_err(|error| {
             format!(
@@ -254,14 +254,14 @@ fn save_pending_purge_state(
 }
 
 pub fn queue_profile_purge_for_user(user_id: Option<&str>) -> Result<PathBuf, String> {
-    let default_openhuman_dir = default_root_openhuman_dir()?;
+    let default_eversilver_dir = default_root_eversilver_dir()?;
     let user_id = user_id
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .unwrap_or(PRE_LOGIN_USER_ID);
-    let purge_path = cache_dir_for_user(&default_openhuman_dir, user_id)?;
+    let purge_path = cache_dir_for_user(&default_eversilver_dir, user_id)?;
 
-    let mut state = load_pending_purge_state(&default_openhuman_dir)?;
+    let mut state = load_pending_purge_state(&default_eversilver_dir)?;
     let mut unique = BTreeSet::new();
     for path in state.paths {
         unique.insert(path);
@@ -270,7 +270,7 @@ pub fn queue_profile_purge_for_user(user_id: Option<&str>) -> Result<PathBuf, St
     state = PendingCefPurgeState {
         paths: unique.into_iter().collect(),
     };
-    save_pending_purge_state(&default_openhuman_dir, &state)?;
+    save_pending_purge_state(&default_eversilver_dir, &state)?;
     log::info!(
         "[cef-profile] queued purge for user={} path={}",
         user_id,
@@ -280,11 +280,11 @@ pub fn queue_profile_purge_for_user(user_id: Option<&str>) -> Result<PathBuf, St
 }
 
 pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
-    let default_openhuman_dir = default_root_openhuman_dir()?;
-    drain_pending_purges(&default_openhuman_dir)?;
+    let default_eversilver_dir = default_root_eversilver_dir()?;
+    drain_pending_purges(&default_eversilver_dir)?;
 
-    // Honor a pre-set `OPENHUMAN_CEF_CACHE_PATH` so harnesses (E2E in
-    // particular) can locate the CEF cache outside the OpenHuman workspace
+    // Honor a pre-set `EVERSILVER_CEF_CACHE_PATH` so harnesses (E2E in
+    // particular) can locate the CEF cache outside the Eversilver workspace
     // tree. The mega-flow spec calls `openhuman.config_reset_local_data`
     // between scenarios, which `remove_dir_all`'s the whole workspace —
     // if CEF's cache lives inside it the running renderer crashes mid-spec
@@ -296,13 +296,13 @@ pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
             format!("create pre-set CEF cache dir {}: {error}", preset.display())
         })?;
         log::info!(
-            "[cef-profile] honoring pre-set OPENHUMAN_CEF_CACHE_PATH={}",
+            "[cef-profile] honoring pre-set EVERSILVER_CEF_CACHE_PATH={}",
             preset.display()
         );
         return Ok(preset);
     }
 
-    let user_id_raw = read_active_user_id(&default_openhuman_dir)
+    let user_id_raw = read_active_user_id(&default_eversilver_dir)
         .unwrap_or_else(|| PRE_LOGIN_USER_ID.to_string());
     let user_id = match validate_user_id_for_path(&user_id_raw) {
         Ok(id) => id,
@@ -314,7 +314,7 @@ pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
             PRE_LOGIN_USER_ID.to_string()
         }
     };
-    let cache_dir = cache_dir_for_user(&default_openhuman_dir, &user_id)?;
+    let cache_dir = cache_dir_for_user(&default_eversilver_dir, &user_id)?;
     std::fs::create_dir_all(&cache_dir)
         .map_err(|error| format!("create CEF cache dir {}: {error}", cache_dir.display()))?;
     std::env::set_var(CEF_CACHE_PATH_ENV, &cache_dir);
@@ -333,7 +333,7 @@ pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
     // pre-login bucket is reused on subsequent fresh installs. Drop it
     // synchronously here, before CEF init, so it's safe to delete. (#900)
     if user_id != PRE_LOGIN_USER_ID {
-        if let Ok(local_cef) = cache_dir_for_user(&default_openhuman_dir, PRE_LOGIN_USER_ID) {
+        if let Ok(local_cef) = cache_dir_for_user(&default_eversilver_dir, PRE_LOGIN_USER_ID) {
             if local_cef.exists() {
                 match std::fs::remove_dir_all(&local_cef) {
                     Ok(()) => log::info!(
@@ -353,9 +353,9 @@ pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
     Ok(cache_dir)
 }
 
-fn drain_pending_purges(default_openhuman_dir: &Path) -> Result<(), String> {
-    let marker_path = pending_purge_marker_path(default_openhuman_dir)?;
-    let mut state = load_pending_purge_state(default_openhuman_dir)?;
+fn drain_pending_purges(default_eversilver_dir: &Path) -> Result<(), String> {
+    let marker_path = pending_purge_marker_path(default_eversilver_dir)?;
+    let mut state = load_pending_purge_state(default_eversilver_dir)?;
     if state.paths.is_empty() {
         if marker_path.exists() {
             let _ = std::fs::remove_file(&marker_path);
@@ -373,7 +373,7 @@ fn drain_pending_purges(default_openhuman_dir: &Path) -> Result<(), String> {
             );
             continue;
         }
-        if !is_trusted_queued_purge_path(default_openhuman_dir, &target) {
+        if !is_trusted_queued_purge_path(default_eversilver_dir, &target) {
             log::warn!(
                 "[cef-profile] skipping unsafe purge and retaining queue entry (will not delete) path={} raw_toml={}",
                 target.display(),
@@ -402,7 +402,7 @@ fn drain_pending_purges(default_openhuman_dir: &Path) -> Result<(), String> {
 
     if !remaining.is_empty() {
         state.paths = remaining;
-        save_pending_purge_state(default_openhuman_dir, &state)?;
+        save_pending_purge_state(default_eversilver_dir, &state)?;
         log::warn!(
             "[cef-profile] not removing pending CEF purge marker: {} path(s) still fail purge (will retry) marker={}",
             state.paths.len(),
@@ -426,7 +426,7 @@ fn drain_pending_purges(default_openhuman_dir: &Path) -> Result<(), String> {
 mod tests {
     use super::*;
 
-    // Serializes tests that mutate `OPENHUMAN_APP_ENV` / `VITE_OPENHUMAN_APP_ENV`
+    // Serializes tests that mutate `EVERSILVER_APP_ENV` / `VITE_EVERSILVER_APP_ENV`
     // — Rust's test harness runs tests in parallel by default, so concurrent
     // env writes race and produce spurious failures. Mirrors the pattern in
     // `lib.rs::tests::ENV_LOCK`.
@@ -438,18 +438,18 @@ mod tests {
         // restore the env before unwinding, otherwise the leaked state poisons
         // every subsequent test in the same process.
         let _guard = APP_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let prior_primary = std::env::var("OPENHUMAN_APP_ENV").ok();
-        let prior_vite = std::env::var("VITE_OPENHUMAN_APP_ENV").ok();
-        std::env::remove_var("OPENHUMAN_APP_ENV");
-        std::env::remove_var("VITE_OPENHUMAN_APP_ENV");
+        let prior_primary = std::env::var("EVERSILVER_APP_ENV").ok();
+        let prior_vite = std::env::var("VITE_EVERSILVER_APP_ENV").ok();
+        std::env::remove_var("EVERSILVER_APP_ENV");
+        std::env::remove_var("VITE_EVERSILVER_APP_ENV");
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(body));
         match prior_primary {
-            Some(v) => std::env::set_var("OPENHUMAN_APP_ENV", v),
-            None => std::env::remove_var("OPENHUMAN_APP_ENV"),
+            Some(v) => std::env::set_var("EVERSILVER_APP_ENV", v),
+            None => std::env::remove_var("EVERSILVER_APP_ENV"),
         }
         match prior_vite {
-            Some(v) => std::env::set_var("VITE_OPENHUMAN_APP_ENV", v),
-            None => std::env::remove_var("VITE_OPENHUMAN_APP_ENV"),
+            Some(v) => std::env::set_var("VITE_EVERSILVER_APP_ENV", v),
+            None => std::env::remove_var("VITE_EVERSILVER_APP_ENV"),
         }
         match result {
             Ok(v) => v,
@@ -461,30 +461,30 @@ mod tests {
     /// Tauri shell must resolve the dedicated `.openhuman-staging` data
     /// dir — never the production `.openhuman` dir. Prior to the fix
     /// this function had its own runtime-only lookup and would diverge
-    /// from `openhuman_core::api::config::app_env_from_env`, producing a
+    /// from `eversilver_core::api::config::app_env_from_env`, producing a
     /// split-brain datadir (CEF profile under prod, sidecar state under
     /// staging) that crashed the app on launch.
     #[test]
     fn default_root_dir_name_resolves_staging_when_primary_env_set() {
         with_clean_app_env(|| {
-            std::env::set_var("OPENHUMAN_APP_ENV", "staging");
+            std::env::set_var("EVERSILVER_APP_ENV", "staging");
             assert_eq!(default_root_dir_name(), ".openhuman-staging");
         });
     }
 
-    /// `VITE_OPENHUMAN_APP_ENV` is the secondary alias the frontend bundle
+    /// `VITE_EVERSILVER_APP_ENV` is the secondary alias the frontend bundle
     /// uses; the shell must accept it too so a build that only sets the
     /// vite-prefixed variant still resolves the staging dir.
     #[test]
     fn default_root_dir_name_resolves_staging_when_vite_alias_set() {
         with_clean_app_env(|| {
-            std::env::set_var("VITE_OPENHUMAN_APP_ENV", "staging");
+            std::env::set_var("VITE_EVERSILVER_APP_ENV", "staging");
             assert_eq!(default_root_dir_name(), ".openhuman-staging");
         });
     }
 
     /// With neither env var set the shell must default to the production
-    /// `.openhuman` dir. Production CI bakes `OPENHUMAN_APP_ENV=production`
+    /// `.openhuman` dir. Production CI bakes `EVERSILVER_APP_ENV=production`
     /// via `option_env!` so packaged prod builds land here through the
     /// runtime-empty / compile-time-set path; a bare unit test only covers
     /// the runtime-empty branch.
@@ -496,12 +496,12 @@ mod tests {
     }
 
     /// Whitespace and casing are folded by
-    /// `openhuman_core::api::config::app_env_from_env` — confirm the shell
+    /// `eversilver_core::api::config::app_env_from_env` — confirm the shell
     /// inherits that behavior rather than re-implementing it.
     #[test]
     fn default_root_dir_name_normalizes_staging_casing_and_whitespace() {
         with_clean_app_env(|| {
-            std::env::set_var("OPENHUMAN_APP_ENV", "  STAGING  ");
+            std::env::set_var("EVERSILVER_APP_ENV", "  STAGING  ");
             assert_eq!(default_root_dir_name(), ".openhuman-staging");
         });
     }
@@ -538,7 +538,7 @@ mod tests {
         );
     }
 
-    /// `default_openhuman_dir` must have a parent (sibling marker uses `parent()`).
+    /// `default_eversilver_dir` must have a parent (sibling marker uses `parent()`).
     fn test_data_hierarchy() -> (tempfile::TempDir, PathBuf) {
         let tmp = tempfile::tempdir().unwrap();
         let data_root = tmp.path().join("oh_data");
@@ -599,11 +599,11 @@ mod tests {
         assert!(marker.exists());
     }
 
-    /// Serializes tests that mutate `OPENHUMAN_WORKSPACE` / `OPENHUMAN_CEF_CACHE_PATH`.
+    /// Serializes tests that mutate `EVERSILVER_WORKSPACE` / `EVERSILVER_CEF_CACHE_PATH`.
     /// Rust test harness runs tests in parallel; concurrent env writes race.
     static CACHE_ENV_LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
 
-    /// Regression for #1779: when `OPENHUMAN_CEF_CACHE_PATH` is set in the
+    /// Regression for #1779: when `EVERSILVER_CEF_CACHE_PATH` is set in the
     /// environment, `prepare_process_cache_path` must honor it and not
     /// overwrite with the workspace-rooted `users/<id>/cef` path. The E2E
     /// harness depends on this to keep the CEF cache outside the
@@ -611,12 +611,12 @@ mod tests {
     #[test]
     fn prepare_process_cache_path_honors_preset_env() {
         let _guard = CACHE_ENV_LOCK.lock().unwrap_or_else(|e| e.into_inner());
-        let prior_workspace = std::env::var("OPENHUMAN_WORKSPACE").ok();
+        let prior_workspace = std::env::var("EVERSILVER_WORKSPACE").ok();
         let prior_cef_cache = std::env::var(CEF_CACHE_PATH_ENV).ok();
 
         let workspace = tempfile::tempdir().unwrap();
         let cef_cache = tempfile::tempdir().unwrap();
-        std::env::set_var("OPENHUMAN_WORKSPACE", workspace.path());
+        std::env::set_var("EVERSILVER_WORKSPACE", workspace.path());
         std::env::set_var(CEF_CACHE_PATH_ENV, cef_cache.path());
 
         let result = std::panic::catch_unwind(|| {
@@ -624,7 +624,7 @@ mod tests {
             assert_eq!(
                 resolved,
                 cef_cache.path(),
-                "preset OPENHUMAN_CEF_CACHE_PATH must win over workspace-derived default"
+                "preset EVERSILVER_CEF_CACHE_PATH must win over workspace-derived default"
             );
             // The workspace `users/<id>/cef` subtree should NOT have been
             // created when the override is honored.
@@ -635,8 +635,8 @@ mod tests {
         });
 
         match prior_workspace {
-            Some(v) => std::env::set_var("OPENHUMAN_WORKSPACE", v),
-            None => std::env::remove_var("OPENHUMAN_WORKSPACE"),
+            Some(v) => std::env::set_var("EVERSILVER_WORKSPACE", v),
+            None => std::env::remove_var("EVERSILVER_WORKSPACE"),
         }
         match prior_cef_cache {
             Some(v) => std::env::set_var(CEF_CACHE_PATH_ENV, v),

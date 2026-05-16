@@ -86,7 +86,7 @@ fn is_context_window_exceeded(err: &anyhow::Error) -> bool {
 ///
 /// Pairs with [`is_rate_limited`] which handles 429 separately. Together they
 /// form the transient-classifier the tool-call loop uses before deciding
-/// whether to push a per-attempt event to Sentry (see OPENHUMAN-TAURI-2E /
+/// whether to push a per-attempt event to Sentry (see EVERSILVER-TAURI-2E /
 /// -84 / -T / -G classes — per-iteration noise from upstream throttling).
 ///
 /// **Status list maintenance note**: the codes matched below (408/502/503/504)
@@ -257,7 +257,7 @@ fn push_failure(
 ///
 /// When the originally-requested `model` has no fallback chain configured
 /// in `model_fallbacks`, prepend a single user-actionable hint pointing at
-/// the most common cause we see in production (OPENHUMAN-TAURI-BY / -BZ /
+/// the most common cause we see in production (EVERSILVER-TAURI-BY / -BZ /
 /// -C0 / -C1, issue #1596): the user has wired up a `custom_openai`
 /// provider whose endpoint does not expose the configured `default_model`.
 /// In that scenario the bail aggregate is otherwise an opaque stack of
@@ -283,7 +283,7 @@ fn format_failure_aggregate(
         format!(
             "The model `{model}` may not be available on your provider. \
              Configure a fallback chain via `reliability.model_fallbacks` in your \
-             OpenHuman config, or change your default model in Settings → AI.\n\n{attempts}"
+             Eversilver config, or change your default model in Settings → AI.\n\n{attempts}"
         )
     }
 }

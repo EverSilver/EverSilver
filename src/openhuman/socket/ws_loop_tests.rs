@@ -11,19 +11,19 @@ fn make_shared() -> Arc<SharedState> {
     })
 }
 
-// ── Redirect resolution (the real fix for OPENHUMAN-TAURI-9X) ──
+// ── Redirect resolution (the real fix for EVERSILVER-TAURI-9X) ──
 
 #[test]
 fn resolve_redirect_upgrades_http_to_ws_for_absolute_location() {
     // Cloudflare's exact behaviour: ws://host/path → 301 Location: https://host:443/path.
     // We must rewrite https→wss so connect_async sees a WebSocket URL.
     let next = resolve_redirect_target(
-        "ws://api.tinyhumans.ai/socket.io/?EIO=4&transport=websocket",
-        "https://api.tinyhumans.ai:443/socket.io/?EIO=4&transport=websocket",
+        "ws://api.eversilver.local/socket.io/?EIO=4&transport=websocket",
+        "https://api.eversilver.local:443/socket.io/?EIO=4&transport=websocket",
     )
     .expect("scheme upgrade");
     assert!(
-        next.starts_with("wss://api.tinyhumans.ai"),
+        next.starts_with("wss://api.eversilver.local"),
         "expected wss:// after upgrade, got {next}"
     );
     assert!(next.contains("/socket.io/?EIO=4&transport=websocket"));
@@ -317,7 +317,7 @@ fn fail_escalate_threshold_is_five() {
     );
 }
 
-/// Regression guard for OPENHUMAN-TAURI-BH: the exact wire shape the
+/// Regression guard for EVERSILVER-TAURI-BH: the exact wire shape the
 /// sustained-outage escalation builds for an offline user
 /// (`Network is unreachable (os error 51)`) must classify as a
 /// network-unreachable expected error so the observability layer routes
@@ -343,7 +343,7 @@ fn sustained_outage_for_network_unreachable_classifies_as_expected() {
 /// Counterpart: a genuine outage that lacks any of the transport-level
 /// markers (e.g. a server-side HTTP 500 wrapped by tungstenite) must
 /// still surface as an actionable Sentry event — i.e. not classify as
-/// any expected kind. Pins the OPENHUMAN-TAURI-8M invariant ("one event
+/// any expected kind. Pins the EVERSILVER-TAURI-8M invariant ("one event
 /// per sustained outage") so the BH fix doesn't accidentally silence
 /// real outages.
 #[test]

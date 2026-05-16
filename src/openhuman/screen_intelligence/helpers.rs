@@ -154,7 +154,7 @@ pub(crate) async fn persist_vision_summary(
     // because put_doc_light does no background work (no vectors, no graph) so
     // the client's ingestion queue is never used and can be dropped immediately.
     // We intentionally avoid the process-global singleton here because tests
-    // override OPENHUMAN_WORKSPACE per-test and the global may point elsewhere.
+    // override EVERSILVER_WORKSPACE per-test and the global may point elsewhere.
     let config = crate::openhuman::config::Config::load_or_init()
         .await
         .map_err(|err| format!("config load failed: {err}"))?;

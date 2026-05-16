@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use super::cloud::{
-    OpenHumanCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
+    EversilverCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
 };
 use super::provider_trait::EmbeddingProvider;
 use super::{NoopEmbedding, OllamaEmbedding, OpenAiEmbedding};
@@ -11,7 +11,7 @@ use super::{NoopEmbedding, OllamaEmbedding, OpenAiEmbedding};
 /// Creates an embedding provider based on the specified name and configuration.
 ///
 /// Supported provider names:
-/// - `"cloud"` → OpenHuman backend (Voyage-backed) — default, preferred
+/// - `"cloud"` → Eversilver backend (Voyage-backed) — default, preferred
 /// - `"ollama"` → local Ollama server (opt-in for offline-only installs)
 /// - `"openai"` → OpenAI API
 /// - `"custom:<url>"` → OpenAI-compatible endpoint
@@ -26,7 +26,7 @@ pub fn create_embedding_provider(
     dims: usize,
 ) -> anyhow::Result<Box<dyn EmbeddingProvider>> {
     match provider {
-        "cloud" => Ok(Box::new(OpenHumanCloudEmbedding::new(
+        "cloud" => Ok(Box::new(EversilverCloudEmbedding::new(
             None, None, true, model, dims,
         ))),
         "ollama" => {
@@ -51,13 +51,13 @@ pub fn create_embedding_provider(
     }
 }
 
-/// Returns the default embedding provider — cloud (OpenHuman backend, Voyage).
+/// Returns the default embedding provider — cloud (Eversilver backend, Voyage).
 ///
 /// The cloud embedder lazily resolves the session JWT and API URL on each
 /// call, so this can be constructed before login completes; the first
 /// `embed()` will fail with a clear message if the user is unauthenticated.
 pub fn default_embedding_provider() -> Arc<dyn EmbeddingProvider> {
-    Arc::new(OpenHumanCloudEmbedding::new(
+    Arc::new(EversilverCloudEmbedding::new(
         None,
         None,
         true,

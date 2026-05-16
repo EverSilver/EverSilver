@@ -192,7 +192,7 @@ pub(crate) async fn analyze_frame(
         .ok_or_else(|| "frame has no image payload".to_string())?;
 
     // ── Mock path for testing ───────────────────────────────────────
-    if let Ok(mock_raw) = std::env::var("OPENHUMAN_SCREEN_INTELLIGENCE_MOCK_VISION_JSON") {
+    if let Ok(mock_raw) = std::env::var("EVERSILVER_SCREEN_INTELLIGENCE_MOCK_VISION_JSON") {
         if !mock_raw.trim().is_empty() {
             tracing::debug!("[processing_worker] using mocked vision output");
             return Ok(super::helpers::parse_vision_summary_output(
@@ -377,7 +377,7 @@ async fn run_apple_vision_ocr(image_ref: String) -> Result<String, String> {
         .decode(b64_payload)
         .map_err(|e| format!("base64 decode for OCR failed: {e}"))?;
 
-    let tmp_path = std::env::temp_dir().join(format!("openhuman_ocr_{}.png", uuid::Uuid::new_v4()));
+    let tmp_path = std::env::temp_dir().join(format!("eversilver_ocr_{}.png", uuid::Uuid::new_v4()));
     std::fs::write(&tmp_path, &raw_bytes)
         .map_err(|e| format!("failed to write temp OCR image: {e}"))?;
 

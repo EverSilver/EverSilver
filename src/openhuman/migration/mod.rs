@@ -1,4 +1,4 @@
-//! Data migration helpers for OpenHuman.
+//! Data migration helpers for Eversilver.
 
 mod core;
 pub mod ops;

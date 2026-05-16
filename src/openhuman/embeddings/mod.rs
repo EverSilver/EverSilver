@@ -1,8 +1,8 @@
-//! Embedding providers for the OpenHuman memory system.
+//! Embedding providers for the Eversilver memory system.
 //!
 //! Converts text into numerical vectors for semantic search. Providers:
 //!
-//! - **Cloud** (default): Routes through the OpenHuman backend's
+//! - **Cloud** (default): Routes through the Eversilver backend's
 //!   `POST /openai/v1/embeddings` (Voyage-backed). The recommended path —
 //!   works on a fresh install without requiring a local Ollama daemon.
 //! - **Ollama**: Local Ollama server. Opt-in for offline-only setups
@@ -20,7 +20,7 @@ mod provider_trait;
 pub mod store;
 
 pub use cloud::{
-    OpenHumanCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
+    EversilverCloudEmbedding, DEFAULT_CLOUD_EMBEDDING_DIMENSIONS, DEFAULT_CLOUD_EMBEDDING_MODEL,
 };
 pub use factory::{
     create_embedding_provider, default_embedding_provider, default_local_embedding_provider,

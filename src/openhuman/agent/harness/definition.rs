@@ -7,7 +7,7 @@
 //! holding an `agent.toml` (metadata) and `prompt.md` (system prompt). A
 //! thin wrapper in [`super::builtin_definitions`] loads them and appends
 //! the synthetic `fork` definition. Users can ship custom definitions as
-//! TOML files under `$OPENHUMAN_WORKSPACE/agents/*.toml` (with a fallback
+//! TOML files under `$EVERSILVER_WORKSPACE/agents/*.toml` (with a fallback
 //! to `~/.openhuman/agents/*.toml` for user-global specialists) which
 //! override built-ins on id collision. See [`super::definition_loader`]
 //! for the directory scan + TOML parsing contract.

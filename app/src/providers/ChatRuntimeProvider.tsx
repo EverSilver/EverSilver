@@ -43,9 +43,9 @@ import {
 import { IS_PROD } from '../utils/config';
 import { formatTimelineEntry, promptFromArgsBuffer } from '../utils/toolTimelineFormatting';
 
-const logChatRuntime = debug('openhuman:chat-runtime');
+const logChatRuntime = debug('eversilver:chat-runtime');
 const USER_FACING_AGENT_ERROR_MESSAGE =
-  'Something went wrong. Please try again.\nThis error has been reported. You can also report it on Discord.\n<openhuman-link path="community/discord">Report on Discord</openhuman-link>';
+  'Something went wrong. Please try again.\nThis error has been reported. You can also report it on Discord.\n<eversilver-link path="community/discord">Report on Discord</eversilver-link>';
 
 const SEGMENT_DELIVERY_TTL_MS = 5 * 60 * 1000;
 const MAX_SEGMENT_DELIVERIES = 100;

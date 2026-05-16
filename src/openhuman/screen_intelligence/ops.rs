@@ -1,7 +1,7 @@
 //! JSON-RPC / CLI controller surface for screen capture and accessibility automation.
 //!
 //! macOS permission UX (stale DENIED until sidecar restarts) is tracked in
-//! <https://github.com/tinyhumansai/openhuman/issues/133>.
+//! <https://github.com/eversilver/openhuman/issues/133>.
 
 use serde_json::json;
 

@@ -77,18 +77,18 @@ suiteRunner('Conversations web channel flow', () => {
     await completeOnboardingIfVisible('[ConversationsE2E]');
 
     stepLog('open conversations');
-    // Navigate via hash — "Message OpenHuman" button may not reliably open conversations
+    // Navigate via hash — "Message Eversilver" button may not reliably open conversations
     await navigateToConversations();
     // If navigating to /conversations doesn't open a thread, try clicking the input area
     const hasInput = await textExists('Type a message...');
     if (!hasInput) {
-      // Try the home page "Message OpenHuman" button as fallback
+      // Try the home page "Message Eversilver" button as fallback
       await navigateViaHash('/home');
       try {
-        await waitForText('Message OpenHuman', 10_000);
-        await clickText('Message OpenHuman', 10_000);
+        await waitForText('Message Eversilver', 10_000);
+        await clickText('Message Eversilver', 10_000);
       } catch {
-        stepLog('Message OpenHuman button not found, staying on conversations');
+        stepLog('Message Eversilver button not found, staying on conversations');
         await navigateToConversations();
       }
     }

@@ -25,7 +25,7 @@ struct CloudProviderUpdate {
     #[serde(default)]
     label: Option<String>,
     endpoint: String,
-    /// Auth style: "bearer" | "anthropic" | "openhuman_jwt" | "none".
+    /// Auth style: "bearer" | "anthropic" | "eversilver_jwt" | "none".
     #[serde(default)]
     auth_style: Option<String>,
     /// Legacy field — tolerated on read for back-compat but not required.
@@ -38,13 +38,13 @@ struct CloudProviderUpdate {
 
 #[derive(Debug, Deserialize)]
 struct ModelSettingsUpdate {
-    /// OpenHuman product backend URL. Used for auth, billing, voice, and
+    /// Eversilver product backend URL. Used for auth, billing, voice, and
     /// every non-inference HTTP call. Almost always left blank so it
     /// defaults to the canonical hosted backend.
     api_url: Option<String>,
     /// Custom OpenAI-compatible LLM endpoint. When set together with
     /// `api_key`, inference talks directly to this URL instead of routing
-    /// through the OpenHuman backend. Send an empty string to clear.
+    /// through the Eversilver backend. Send an empty string to clear.
     inference_url: Option<String>,
     /// Optional API key for OpenAI-compatible backends. Stored verbatim in
     /// `config.toml` on the user's machine — see #1342 (local-first / pluggable
@@ -55,7 +55,7 @@ struct ModelSettingsUpdate {
     default_temperature: Option<f64>,
     /// When present, REPLACES `config.model_routes` wholesale with these
     /// `(hint, model)` pairs. Send `Some([])` to clear all routes (used when
-    /// the user switches back to the OpenHuman backend whose built-in router
+    /// the user switches back to the Eversilver backend whose built-in router
     /// picks per-task models on its own). Omit to leave existing routes
     /// untouched.
     model_routes: Option<Vec<ModelRouteUpdate>>,
@@ -359,7 +359,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
                 FieldSchema {
                     name: "api_url",
                     ty: TypeSchema::Option(Box::new(TypeSchema::String)),
-                    comment: "Configured OpenHuman product backend URL, if any.",
+                    comment: "Configured Eversilver product backend URL, if any.",
                     required: false,
                 },
                 FieldSchema {
@@ -377,7 +377,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
                 FieldSchema {
                     name: "app_version",
                     ty: TypeSchema::String,
-                    comment: "OpenHuman core version.",
+                    comment: "Eversilver core version.",
                     required: true,
                 },
                 FieldSchema {
@@ -389,7 +389,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
                 FieldSchema {
                     name: "model_routes",
                     ty: TypeSchema::Json,
-                    comment: "Persisted task-hint -> model id pairs the core router will obey. Empty when the OpenHuman built-in router is active.",
+                    comment: "Persisted task-hint -> model id pairs the core router will obey. Empty when the Eversilver built-in router is active.",
                     required: true,
                 },
             ],
@@ -399,8 +399,8 @@ pub fn schemas(function: &str) -> ControllerSchema {
             function: "update_model_settings",
             description: "Update model and backend connection settings, including a custom OpenAI-compatible backend (api_url + api_key).",
             inputs: vec![
-                optional_string("api_url", "OpenHuman product backend URL (auth/billing/voice). Almost always left blank; the inference URL is a separate `inference_url` field."),
-                optional_string("inference_url", "Custom OpenAI-compatible LLM endpoint. When set together with `api_key`, inference goes direct to this URL instead of the OpenHuman backend. Pass an empty string to clear."),
+                optional_string("api_url", "Eversilver product backend URL (auth/billing/voice). Almost always left blank; the inference URL is a separate `inference_url` field."),
+                optional_string("inference_url", "Custom OpenAI-compatible LLM endpoint. When set together with `api_key`, inference goes direct to this URL instead of the Eversilver backend. Pass an empty string to clear."),
                 optional_string("api_key", "Optional API key for the configured inference endpoint. Pass an empty string to clear a previously stored key."),
                 optional_string("default_model", "Default model id."),
                 FieldSchema {
@@ -412,7 +412,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
                 FieldSchema {
                     name: "model_routes",
                     ty: TypeSchema::Option(Box::new(TypeSchema::Json)),
-                    comment: "Optional list of {hint, model} pairs mapping task hints (reasoning, agentic, coding, summarization) to provider-specific model ids. Replaces config.model_routes wholesale; send [] to clear (e.g. when switching back to the OpenHuman built-in router).",
+                    comment: "Optional list of {hint, model} pairs mapping task hints (reasoning, agentic, coding, summarization) to provider-specific model ids. Replaces config.model_routes wholesale; send [] to clear (e.g. when switching back to the Eversilver built-in router).",
                     required: false,
                 },
                 FieldSchema {
@@ -589,7 +589,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
         "set_browser_allow_all" => ControllerSchema {
             namespace: "config",
             function: "set_browser_allow_all",
-            description: "Set OPENHUMAN_BROWSER_ALLOW_ALL runtime flag.",
+            description: "Set EVERSILVER_BROWSER_ALLOW_ALL runtime flag.",
             inputs: vec![FieldSchema {
                 name: "enabled",
                 ty: TypeSchema::Bool,
@@ -701,7 +701,7 @@ pub fn schemas(function: &str) -> ControllerSchema {
             namespace: "config",
             function: "reset_local_data",
             description:
-                "Delete local OpenHuman data for the active config/workspace so the next restart boots clean.",
+                "Delete local Eversilver data for the active config/workspace so the next restart boots clean.",
             inputs: vec![],
             outputs: vec![json_output("result", "Reset result with removed paths.")],
         },
@@ -709,11 +709,11 @@ pub fn schemas(function: &str) -> ControllerSchema {
             namespace: "config",
             function: "get_data_paths",
             description:
-                "Resolve the OpenHuman data directories (current workspace, default ~/.openhuman, active workspace marker) that reset_local_data would remove. Read-only — performs no filesystem changes.",
+                "Resolve the Eversilver data directories (current workspace, default ~/.openhuman, active workspace marker) that reset_local_data would remove. Read-only — performs no filesystem changes.",
             inputs: vec![],
             outputs: vec![json_output(
                 "paths",
-                "Resolved data paths: current_openhuman_dir, default_openhuman_dir, active_workspace_marker_path.",
+                "Resolved data paths: current_eversilver_dir, default_eversilver_dir, active_workspace_marker_path.",
             )],
         },
         "get_onboarding_completed" => ControllerSchema {
@@ -881,7 +881,7 @@ fn handle_get_client_config(_params: Map<String, Value>) -> ControllerFuture {
             }
         };
         let app_version =
-            std::env::var("OPENHUMAN_APP_VERSION").unwrap_or_else(|_| "unknown".to_string());
+            std::env::var("EVERSILVER_APP_VERSION").unwrap_or_else(|_| "unknown".to_string());
         let api_key_set = config
             .api_key
             .as_deref()
@@ -990,11 +990,11 @@ fn handle_update_model_settings(params: Map<String, Value>) -> ControllerFuture 
                             {
                                 "bearer" => AuthStyle::Bearer,
                                 "anthropic" => AuthStyle::Anthropic,
-                                "openhuman_jwt" | "openhumanjwt" => AuthStyle::OpenhumanJwt,
+                                "eversilver_jwt" | "eversilverjwt" => AuthStyle::OpenhumanJwt,
                                 "none" => AuthStyle::None,
                                 other => {
                                     return Err(format!(
-                                        "unknown auth_style '{}'; valid: bearer, anthropic, openhuman_jwt, none",
+                                        "unknown auth_style '{}'; valid: bearer, anthropic, eversilver_jwt, none",
                                         other
                                     ))
                                 }

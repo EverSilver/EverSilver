@@ -84,7 +84,7 @@ fn lark_parse_valid_text_message() {
             },
             "message": {
                 "message_type": "text",
-                "content": "{\"text\":\"Hello OpenHuman!\"}",
+                "content": "{\"text\":\"Hello Eversilver!\"}",
                 "chat_id": "oc_chat123",
                 "create_time": "1699999999000"
             }
@@ -93,7 +93,7 @@ fn lark_parse_valid_text_message() {
 
     let msgs = ch.parse_event_payload(&payload);
     assert_eq!(msgs.len(), 1);
-    assert_eq!(msgs[0].content, "Hello OpenHuman!");
+    assert_eq!(msgs[0].content, "Hello Eversilver!");
     assert_eq!(msgs[0].sender, "oc_chat123");
     assert_eq!(msgs[0].channel, "lark");
     assert_eq!(msgs[0].timestamp, 1_699_999_999);

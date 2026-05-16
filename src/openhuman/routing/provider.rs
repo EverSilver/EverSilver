@@ -59,7 +59,7 @@ fn should_fallback(
 }
 
 /// Provider that routes requests between a local provider instance and the
-/// remote OpenHuman backend based on task complexity, local health, and
+/// remote Eversilver backend based on task complexity, local health, and
 /// routing hints.
 pub struct IntelligentRoutingProvider {
     remote: Box<dyn Provider>,
@@ -98,7 +98,7 @@ impl IntelligentRoutingProvider {
             Some("reasoning") => MODEL_REASONING_V1.to_string(),
             // Orchestrator's low-TTFT chat tier — Kimi K2.6 Turbo on the
             // backend's `reasoning-quick-v1`. Backend support added in
-            // tinyhumansai/backend#760.
+            // eversilver/backend#760.
             Some("chat") => MODEL_REASONING_QUICK_V1.to_string(),
             Some("agentic") => MODEL_AGENTIC_V1.to_string(),
             Some("coding") => MODEL_CODING_V1.to_string(),

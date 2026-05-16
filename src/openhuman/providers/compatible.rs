@@ -38,7 +38,7 @@ use compatible_parse::{
 use compatible_stream::sse_bytes_to_chunks;
 use compatible_types::{
     ApiChatRequest, ApiChatResponse, ApiUsage, Choice, Function, Message, NativeChatRequest,
-    NativeMessage, OpenAiStreamOptions, OpenHumanMeta, ResponseMessage, ResponsesRequest,
+    NativeMessage, OpenAiStreamOptions, EversilverMeta, ResponseMessage, ResponsesRequest,
     StreamChunkResponse, StreamingToolCall, ToolCall,
 };
 
@@ -58,14 +58,14 @@ pub struct OpenAiCompatibleProvider {
     /// to the first `user` message, then drop the system messages.
     /// Required for providers that reject `role: system` (e.g. MiniMax).
     merge_system_into_user: bool,
-    /// When true, forward the OpenHuman backend extension `thread_id`
+    /// When true, forward the Eversilver backend extension `thread_id`
     /// (read from `thread_context::current_thread_id`) on outbound
     /// chat completions bodies. Off by default — only the
-    /// `OpenHumanBackendProvider` opts in, so third-party
+    /// `EversilverBackendProvider` opts in, so third-party
     /// OpenAI-compatible endpoints (Venice, Moonshot, Groq, GLM, …)
     /// never see an unrecognized field that could trip strict input
     /// validation.
-    emit_openhuman_thread_id: bool,
+    emit_eversilver_thread_id: bool,
 }
 
 /// How the provider expects the API key to be sent.
@@ -137,13 +137,13 @@ impl OpenAiCompatibleProvider {
         Self::new_with_options(name, base_url, credential, auth_style, false, None, true)
     }
 
-    /// Opt this provider into emitting the OpenHuman backend extension
+    /// Opt this provider into emitting the Eversilver backend extension
     /// `thread_id` on outbound chat completions bodies. Only the
-    /// `OpenHumanBackendProvider` should call this — third-party
+    /// `EversilverBackendProvider` should call this — third-party
     /// OpenAI-compatible providers must leave it off so they don't
     /// receive an unknown field.
-    pub fn with_openhuman_thread_id(mut self) -> Self {
-        self.emit_openhuman_thread_id = true;
+    pub fn with_eversilver_thread_id(mut self) -> Self {
+        self.emit_eversilver_thread_id = true;
         self
     }
 
@@ -164,16 +164,16 @@ impl OpenAiCompatibleProvider {
             supports_responses_fallback,
             user_agent: user_agent.map(ToString::to_string),
             merge_system_into_user,
-            emit_openhuman_thread_id: false,
+            emit_eversilver_thread_id: false,
         }
     }
 
     /// Read the ambient `thread_id` only when this provider has been
-    /// opted in via [`with_openhuman_thread_id`]. Returns `None` for
+    /// opted in via [`with_eversilver_thread_id`]. Returns `None` for
     /// every third-party provider so the field is omitted by
     /// `skip_serializing_if`.
     fn outbound_thread_id(&self) -> Option<String> {
-        if self.emit_openhuman_thread_id {
+        if self.emit_eversilver_thread_id {
             super::thread_context::current_thread_id()
         } else {
             None
@@ -623,7 +623,7 @@ impl OpenAiCompatibleProvider {
         })
     }
 
-    /// Extract usage info from API response, preferring the OpenHuman
+    /// Extract usage info from API response, preferring the Eversilver
     /// metadata block (which includes cache stats and billing) over the
     /// standard OpenAI usage block.
     fn extract_usage(resp: &ApiChatResponse) -> Option<ProviderUsageInfo> {
@@ -638,7 +638,7 @@ impl OpenAiCompatibleProvider {
         let oh_usage = oh.and_then(|o| o.usage.as_ref());
         let oh_billing = oh.and_then(|o| o.billing.as_ref());
 
-        // Prefer OpenHuman metadata when the fields are actually present;
+        // Prefer Eversilver metadata when the fields are actually present;
         // fall back to the standard OpenAI usage block when they are None.
         let input_tokens = oh_usage
             .and_then(|u| u.input_tokens)
@@ -656,11 +656,11 @@ impl OpenAiCompatibleProvider {
             .unwrap_or(0);
         let charged_amount_usd = oh_billing.map(|b| b.charged_amount_usd).unwrap_or(0.0);
 
-        let from_openhuman = oh_usage.is_some();
-        let from_standard = std_usage.is_some() && !from_openhuman;
+        let from_eversilver = oh_usage.is_some();
+        let from_standard = std_usage.is_some() && !from_eversilver;
         let has_billing = oh_billing.is_some();
         tracing::debug!(
-            from_openhuman,
+            from_eversilver,
             from_standard,
             has_billing,
             input_tokens,
@@ -804,7 +804,7 @@ impl OpenAiCompatibleProvider {
         let mut tool_accum: std::collections::BTreeMap<u32, StreamingToolCall> =
             std::collections::BTreeMap::new();
         let mut last_usage: Option<ApiUsage> = None;
-        let mut last_openhuman: Option<OpenHumanMeta> = None;
+        let mut last_eversilver: Option<EversilverMeta> = None;
 
         let mut bytes_stream = response.bytes_stream();
         let mut buffer = String::new();
@@ -849,7 +849,7 @@ impl OpenAiCompatibleProvider {
                         last_usage = Some(usage);
                     }
                     if let Some(meta) = chunk.openhuman {
-                        last_openhuman = Some(meta);
+                        last_eversilver = Some(meta);
                     }
 
                     for choice in chunk.choices {
@@ -1019,7 +1019,7 @@ impl OpenAiCompatibleProvider {
                         // JSON-string value for partially-assembled or
                         // permanently malformed fragments.
                         // `normalize_function_arguments` validates and
-                        // discards malformed strings (OPENHUMAN-TAURI-6F).
+                        // discards malformed strings (EVERSILVER-TAURI-6F).
                         Some(
                             serde_json::from_str(&c.arguments)
                                 .unwrap_or(serde_json::Value::String(c.arguments)),
@@ -1051,14 +1051,14 @@ impl OpenAiCompatibleProvider {
                 },
             }],
             usage: last_usage,
-            openhuman: last_openhuman,
+            openhuman: last_eversilver,
         };
 
         // Dump the aggregated final response (structured, diff-friendly,
         // carries usage + openhuman cache meta from the last chunks).
         // Hand-build a Value here because `ApiChatResponse` is
         // Deserialize-only.
-        if std::env::var("OPENHUMAN_PROMPT_DUMP_DIR").is_ok() {
+        if std::env::var("EVERSILVER_PROMPT_DUMP_DIR").is_ok() {
             let msg = &api_resp.choices[0].message;
             let aggregated = serde_json::json!({
                 "content": msg.content,
@@ -1483,7 +1483,7 @@ impl Provider for OpenAiCompatibleProvider {
                 thread_id: self.outbound_thread_id(),
                 // Ask the server for a final usage chunk so token
                 // accounting (and `openhuman.billing.charged_amount_usd`
-                // for the OpenHuman backend) makes it back from
+                // for the Eversilver backend) makes it back from
                 // streaming responses — orchestrator sessions otherwise
                 // lose the `- Charged: $…` line in their transcripts.
                 stream_options: Some(OpenAiStreamOptions {

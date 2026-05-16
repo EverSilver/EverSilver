@@ -1,4 +1,4 @@
-//! Core traits and data structures for the OpenHuman memory system.
+//! Core traits and data structures for the Eversilver memory system.
 //!
 //! This module defines the foundational `Memory` trait that all storage backends
 //! must implement, as well as the standard `MemoryEntry` and `MemoryCategory`
@@ -80,7 +80,7 @@ pub struct NamespaceSummary {
 /// The core trait for memory storage and retrieval.
 ///
 /// Any persistence backend (SQLite, Postgres, Vector DB, etc.) should implement
-/// this trait to be used within the OpenHuman ecosystem.
+/// this trait to be used within the Eversilver ecosystem.
 #[async_trait]
 pub trait Memory: Send + Sync {
     /// Returns the name of the memory backend (e.g., "sqlite", "vector").

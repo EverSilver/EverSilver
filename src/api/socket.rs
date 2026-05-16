@@ -1,8 +1,8 @@
-//! Socket.IO (Engine.IO v4) WebSocket URL for the TinyHumans backend.
+//! Socket.IO (Engine.IO v4) WebSocket URL for the Eversilver backend.
 
 use url::Url;
 
-/// Build a Socket.IO WebSocket URL from an HTTP(S) API base (e.g. `https://api.tinyhumans.ai`).
+/// Build a Socket.IO WebSocket URL from an HTTP(S) API base (e.g. `https://api.eversilver.local`).
 pub fn websocket_url(http_or_https_base: &str) -> String {
     let Ok(mut url) = Url::parse(http_or_https_base) else {
         return http_or_https_base.to_string();
@@ -30,10 +30,10 @@ mod tests {
 
     #[test]
     fn converts_https_to_wss() {
-        let url = websocket_url("https://api.tinyhumans.ai");
+        let url = websocket_url("https://api.eversilver.local");
         assert_eq!(
             url,
-            "wss://api.tinyhumans.ai/socket.io/?EIO=4&transport=websocket"
+            "wss://api.eversilver.local/socket.io/?EIO=4&transport=websocket"
         );
     }
 
@@ -57,19 +57,19 @@ mod tests {
 
     #[test]
     fn strips_trailing_slash() {
-        let url = websocket_url("https://api.tinyhumans.ai/");
+        let url = websocket_url("https://api.eversilver.local/");
         assert_eq!(
             url,
-            "wss://api.tinyhumans.ai/socket.io/?EIO=4&transport=websocket"
+            "wss://api.eversilver.local/socket.io/?EIO=4&transport=websocket"
         );
     }
 
     #[test]
     fn strips_multiple_trailing_slashes() {
-        let url = websocket_url("https://api.tinyhumans.ai///");
+        let url = websocket_url("https://api.eversilver.local///");
         assert_eq!(
             url,
-            "wss://api.tinyhumans.ai/socket.io/?EIO=4&transport=websocket"
+            "wss://api.eversilver.local/socket.io/?EIO=4&transport=websocket"
         );
     }
 }

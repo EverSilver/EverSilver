@@ -7,7 +7,7 @@ import {
   getNotificationPermissionState,
   showNativeNotification,
 } from '../../lib/nativeNotifications/tauriBridge';
-import OpenhumanLinkModal, { OPENHUMAN_LINK_EVENT } from '../OpenhumanLinkModal';
+import OpenhumanLinkModal, { EVERSILVER_LINK_EVENT } from '../OpenhumanLinkModal';
 
 vi.mock('@tauri-apps/api/core', () => ({ isTauri: vi.fn() }));
 
@@ -26,7 +26,7 @@ describe('OpenhumanLinkModal notifications test flow', () => {
   function openNotificationsModal() {
     act(() => {
       window.dispatchEvent(
-        new CustomEvent(OPENHUMAN_LINK_EVENT, { detail: { path: 'settings/notifications' } })
+        new CustomEvent(EVERSILVER_LINK_EVENT, { detail: { path: 'settings/notifications' } })
       );
     });
   }

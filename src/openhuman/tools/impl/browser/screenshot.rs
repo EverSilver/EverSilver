@@ -386,7 +386,7 @@ mod tests {
     #[tokio::test]
     async fn read_and_encode_file_not_found_returns_error() {
         let result = ScreenshotTool::read_and_encode(std::path::Path::new(
-            "/tmp/openhuman_test_nonexistent_12345.png",
+            "/tmp/eversilver_test_nonexistent_12345.png",
         ))
         .await
         .unwrap();

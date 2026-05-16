@@ -67,7 +67,7 @@ export async function waitForHomePage(timeout = 15_000) {
     'Good morning',
     'Good afternoon',
     'Good evening',
-    'Message OpenHuman',
+    'Message Eversilver',
     'Upgrade to Premium',
   ];
   const deadline = Date.now() + timeout;
@@ -298,7 +298,7 @@ export async function navigateToNotifications() {
 export const ONBOARDING_OVERLAY_TEXTS = [
   'Skip',
   'Welcome',
-  "Hi. I'm OpenHuman.",
+  "Hi. I'm Eversilver.",
   "Let's Start",
   'Connect your Gmail',
   'Skip for Now',

@@ -1,5 +1,5 @@
 //! Machine-local daemon UI preferences (tray visibility, etc.).
-//! Stored next to the main OpenHuman config file.
+//! Stored next to the main Eversilver config file.
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -16,12 +16,12 @@ impl Default for DaemonHostConfig {
     }
 }
 
-fn config_file_path(openhuman_base: &Path) -> PathBuf {
-    openhuman_base.join("daemon_host_config.json")
+fn config_file_path(eversilver_base: &Path) -> PathBuf {
+    eversilver_base.join("daemon_host_config.json")
 }
 
-pub async fn load_for_config_dir(openhuman_base: &Path) -> DaemonHostConfig {
-    let path = config_file_path(openhuman_base);
+pub async fn load_for_config_dir(eversilver_base: &Path) -> DaemonHostConfig {
+    let path = config_file_path(eversilver_base);
     let Ok(contents) = tokio::fs::read_to_string(path).await else {
         return DaemonHostConfig::default();
     };
@@ -29,10 +29,10 @@ pub async fn load_for_config_dir(openhuman_base: &Path) -> DaemonHostConfig {
 }
 
 pub async fn save_for_config_dir(
-    openhuman_base: &Path,
+    eversilver_base: &Path,
     config: &DaemonHostConfig,
 ) -> Result<(), String> {
-    let path = config_file_path(openhuman_base);
+    let path = config_file_path(eversilver_base);
     if let Some(parent) = path.parent() {
         tokio::fs::create_dir_all(parent)
             .await

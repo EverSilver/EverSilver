@@ -56,7 +56,7 @@ fn prompt_injects_workspace_files() {
     assert!(prompt.contains("Be helpful"), "missing SOUL content");
     assert!(prompt.contains("### IDENTITY.md"), "missing IDENTITY.md");
     assert!(
-        prompt.contains("Name: OpenHuman"),
+        prompt.contains("Name: Eversilver"),
         "missing IDENTITY content"
     );
     assert!(prompt.contains("### PROFILE.md"), "missing PROFILE.md");
@@ -225,7 +225,7 @@ fn prompt_empty_files_skipped() {
 
 #[test]
 fn channel_log_truncation_is_utf8_safe_for_multibyte_text() {
-    let msg = "Hello from OpenHuman 🌍. Current status is healthy, and café-style UTF-8 text stays safe in logs.";
+    let msg = "Hello from Eversilver 🌍. Current status is healthy, and café-style UTF-8 text stays safe in logs.";
 
     // Reproduces the production crash path where channel logs truncate at 80 chars.
     let result =

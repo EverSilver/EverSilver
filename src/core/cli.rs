@@ -1,4 +1,4 @@
-//! Command-line interface for the OpenHuman core binary.
+//! Command-line interface for the Eversilver core binary.
 //!
 //! This module handles argument parsing, subcommand dispatching, and help printing
 //! for the CLI. It supports commands for running the server, making RPC calls,
@@ -23,7 +23,7 @@ const CLI_BANNER: &str = r#"
 ▝▚▄▞▘█                ▐▌ ▐▌
      ▀
 
-Contribute & Star us on GitHub: https://github.com/tinyhumansai/openhuman
+Contribute & Star us on GitHub: https://github.com/eversilver/openhuman
 
 "#;
 
@@ -92,7 +92,7 @@ pub fn run_from_cli_args(args: &[String]) -> Result<()> {
 /// triggers a panic so the panic integration is exercised too.
 ///
 /// Requires a DSN resolvable at runtime — either via the
-/// `OPENHUMAN_CORE_SENTRY_DSN` env var (or the legacy `OPENHUMAN_SENTRY_DSN`
+/// `EVERSILVER_CORE_SENTRY_DSN` env var (or the legacy `EVERSILVER_SENTRY_DSN`
 /// alias) or baked into the binary at build time via `option_env!`. Absent a
 /// DSN, the command exits non-zero with a diagnostic instead of silently
 /// producing no telemetry.
@@ -124,7 +124,7 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
                 println!("                    panic integration reports it as a separate event.");
                 println!();
                 println!(
-                    "Requires OPENHUMAN_CORE_SENTRY_DSN (or the legacy OPENHUMAN_SENTRY_DSN alias)"
+                    "Requires EVERSILVER_CORE_SENTRY_DSN (or the legacy EVERSILVER_SENTRY_DSN alias)"
                 );
                 println!("at runtime, or baked into the binary at build time via option_env!. On");
                 println!("success, prints the event UUID to stdout.");
@@ -145,7 +145,7 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
         None => {
             return Err(anyhow::anyhow!(
                 "Sentry is not initialized in this binary — no DSN is resolvable. \
-                 Set OPENHUMAN_CORE_SENTRY_DSN (or the legacy OPENHUMAN_SENTRY_DSN alias) \
+                 Set EVERSILVER_CORE_SENTRY_DSN (or the legacy EVERSILVER_SENTRY_DSN alias) \
                  in the environment (or rebuild with it defined at compile time) and try again."
             ));
         }
@@ -187,13 +187,13 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
 ///
 /// Precedence:
 /// 1. Variables already set in the process environment are **not** overwritten.
-/// 2. If `OPENHUMAN_DOTENV_PATH` is set, that file is loaded.
+/// 2. If `EVERSILVER_DOTENV_PATH` is set, that file is loaded.
 /// 3. Otherwise, it searches for `.env` in the current working directory.
 fn load_dotenv_for_cli() -> Result<()> {
-    match std::env::var("OPENHUMAN_DOTENV_PATH") {
+    match std::env::var("EVERSILVER_DOTENV_PATH") {
         Ok(path) if !path.trim().is_empty() => {
             dotenvy::from_path(&path).map_err(|e| {
-                anyhow::anyhow!("failed to load dotenv from OPENHUMAN_DOTENV_PATH={path}: {e}")
+                anyhow::anyhow!("failed to load dotenv from EVERSILVER_DOTENV_PATH={path}: {e}")
             })?;
         }
         _ => {
@@ -257,10 +257,10 @@ fn run_server_command(args: &[String]) -> Result<()> {
                 println!("Usage: openhuman run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--autocomplete-logs] [-v|--verbose]");
                 println!();
                 println!(
-                    "  --host <addr>    Bind address (default: 127.0.0.1 or OPENHUMAN_CORE_HOST)"
+                    "  --host <addr>    Bind address (default: 127.0.0.1 or EVERSILVER_CORE_HOST)"
                 );
                 println!(
-                    "  --port <u16>     Listen address port (default: 7788 or OPENHUMAN_CORE_PORT)"
+                    "  --port <u16>     Listen address port (default: 7788 or EVERSILVER_CORE_PORT)"
                 );
                 println!("  --jsonrpc-only   HTTP JSON-RPC only; disable Socket.IO");
                 autocomplete_cli_adapter::print_run_scope_help_line();
@@ -517,7 +517,7 @@ fn grouped_schemas() -> BTreeMap<String, Vec<ControllerSchema>> {
 
 /// Prints the general help message listing available commands and namespaces.
 fn print_general_help(grouped: &BTreeMap<String, Vec<ControllerSchema>>) {
-    println!("OpenHuman core CLI\n");
+    println!("Eversilver core CLI\n");
     println!("Usage:");
     println!("  openhuman run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--verbose]");
     println!("  openhuman call --method <name> [--params '<json>']");

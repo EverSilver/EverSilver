@@ -11,8 +11,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useCoreState } from '../../providers/CoreStateProvider';
 import {
-  openhumanAutocompleteSetStyle,
-  openhumanAutocompleteStart,
+  eversilverAutocompleteSetStyle,
+  eversilverAutocompleteStart,
 } from '../../utils/tauriCommands/autocomplete';
 
 type Step = 'enable' | 'success';
@@ -44,9 +44,9 @@ export default function AutocompleteSetupModal({ onClose }: Props) {
     setEnableError(null);
     try {
       // Enable in config
-      await openhumanAutocompleteSetStyle({ enabled: true });
+      await eversilverAutocompleteSetStyle({ enabled: true });
       // Start the service
-      await openhumanAutocompleteStart();
+      await eversilverAutocompleteStart();
       await refresh();
       setStep('success');
     } catch (error) {

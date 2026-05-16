@@ -24,7 +24,7 @@
 //!
 //! ## Feature flag
 //!
-//! The triage path is gated on `OPENHUMAN_TRIGGER_TRIAGE_DISABLED` (set
+//! The triage path is gated on `EVERSILVER_TRIGGER_TRIAGE_DISABLED` (set
 //! to `1`/`true`/`yes` to disable). The pipeline is on by default; the
 //! env var is an opt-out escape hatch.
 //!
@@ -64,7 +64,7 @@ use super::providers::{get_provider, ProviderContext};
 /// enabled by default; set to `1`/`true`/`yes` to opt out (e.g. for
 /// debugging or in environments where LLM calls on every Composio
 /// webhook are undesirable).
-const TRIAGE_DISABLED_ENV: &str = "OPENHUMAN_TRIGGER_TRIAGE_DISABLED";
+const TRIAGE_DISABLED_ENV: &str = "EVERSILVER_TRIGGER_TRIAGE_DISABLED";
 
 /// How long we'll keep polling the backend after `composio_authorize`
 /// returns a `connectUrl`, waiting for the user to actually finish the
@@ -185,8 +185,8 @@ impl EventHandler for ComposioTriggerSubscriber {
         // [composio-direct] Direct-mode trigger gate.
         //
         // Inbound `composio:trigger` events ride the backend socket
-        // (`wss://api.tinyhumans.ai`) which only fans out events from
-        // the tinyhumans Composio tenant. When the user has switched
+        // (`wss://api.eversilver.local`) which only fans out events from
+        // the eversilver Composio tenant. When the user has switched
         // to direct mode, that tenant is no longer their active source
         // of truth — connections live on `backend.composio.dev` under
         // their own API key, and any backend-tenant triggers that keep
@@ -361,7 +361,7 @@ impl EventHandler for ComposioTriggerSubscriber {
     }
 }
 
-/// Returns `true` when `OPENHUMAN_TRIGGER_TRIAGE_DISABLED` is set to a
+/// Returns `true` when `EVERSILVER_TRIGGER_TRIAGE_DISABLED` is set to a
 /// truthy value. The pipeline is **on by default**; this env var is the
 /// opt-out escape hatch.
 fn triage_disabled() -> bool {

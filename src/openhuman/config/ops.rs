@@ -19,7 +19,7 @@ fn env_flag_enabled(key: &str) -> bool {
 
 /// Returns the core RPC URL from environment variables or a default value.
 pub fn core_rpc_url_from_env() -> String {
-    std::env::var("OPENHUMAN_CORE_RPC_URL")
+    std::env::var("EVERSILVER_CORE_RPC_URL")
         .unwrap_or_else(|_| "http://127.0.0.1:7788/rpc".to_string())
 }
 
@@ -57,14 +57,14 @@ pub async fn load_config_with_timeout() -> Result<Config, String> {
 
 /// Returns the default workspace directory fallback (~/.openhuman/workspace).
 fn fallback_workspace_dir() -> PathBuf {
-    crate::openhuman::config::default_root_openhuman_dir()
+    crate::openhuman::config::default_root_eversilver_dir()
         .unwrap_or_else(|_| env_scoped_fallback_root_dir())
         .join("workspace")
 }
 
-/// Returns the default OpenHuman configuration directory (~/.openhuman).
-fn default_openhuman_dir() -> PathBuf {
-    crate::openhuman::config::default_root_openhuman_dir()
+/// Returns the default Eversilver configuration directory (~/.openhuman).
+fn default_eversilver_dir() -> PathBuf {
+    crate::openhuman::config::default_root_eversilver_dir()
         .unwrap_or_else(|_| env_scoped_fallback_root_dir())
 }
 
@@ -80,12 +80,12 @@ fn env_scoped_fallback_root_dir() -> PathBuf {
 }
 
 /// Returns the path to the active workspace marker file.
-fn active_workspace_marker_path(default_openhuman_dir: &Path) -> PathBuf {
-    default_openhuman_dir.join("active_workspace.toml")
+fn active_workspace_marker_path(default_eversilver_dir: &Path) -> PathBuf {
+    default_eversilver_dir.join("active_workspace.toml")
 }
 
 /// Returns the parent directory of the config file.
-fn config_openhuman_dir(config: &Config) -> PathBuf {
+fn config_eversilver_dir(config: &Config) -> PathBuf {
     config
         .config_path
         .parent()
@@ -104,7 +104,7 @@ fn reset_local_data_remove_error(path: &Path, error: &std::io::Error) -> String 
             "[config] reset_local_data: Windows file lock blocked local data deletion"
         );
         return format!(
-            "Failed to remove {} because it is locked by another OpenHuman window or process. Close all OpenHuman windows and try again. ({error})",
+            "Failed to remove {} because it is locked by another Eversilver window or process. Close all Eversilver windows and try again. ({error})",
             path.display()
         );
     }
@@ -120,7 +120,7 @@ fn reset_local_data_marker_remove_error(path: &Path, error: &std::io::Error) -> 
             "[config] reset_local_data: Windows file lock blocked active workspace marker deletion"
         );
         return format!(
-            "Failed to remove active workspace marker {} because it is locked by another OpenHuman window or process. Close all OpenHuman windows and try again. ({error})",
+            "Failed to remove active workspace marker {} because it is locked by another Eversilver window or process. Close all Eversilver windows and try again. ({error})",
             path.display()
         );
     }
@@ -130,13 +130,13 @@ fn reset_local_data_marker_remove_error(path: &Path, error: &std::io::Error) -> 
 
 /// Internal helper to reset local data by removing specific directories and markers.
 async fn reset_local_data_for_paths(
-    current_openhuman_dir: &Path,
-    default_openhuman_dir: &Path,
+    current_eversilver_dir: &Path,
+    default_eversilver_dir: &Path,
 ) -> Result<RpcOutcome<serde_json::Value>, String> {
-    let active_workspace_marker = active_workspace_marker_path(default_openhuman_dir);
+    let active_workspace_marker = active_workspace_marker_path(default_eversilver_dir);
     tracing::debug!(
-        current_dir = %current_openhuman_dir.display(),
-        default_dir = %default_openhuman_dir.display(),
+        current_dir = %current_eversilver_dir.display(),
+        default_dir = %default_eversilver_dir.display(),
         marker = %active_workspace_marker.display(),
         "[config] reset_local_data: starting"
     );
@@ -157,7 +157,7 @@ async fn reset_local_data_for_paths(
         removed_paths.push(active_workspace_marker.display().to_string());
     }
 
-    for target_dir in [current_openhuman_dir, default_openhuman_dir] {
+    for target_dir in [current_eversilver_dir, default_eversilver_dir] {
         if !target_dir.exists() {
             tracing::debug!(
                 dir = %target_dir.display(),
@@ -179,17 +179,17 @@ async fn reset_local_data_for_paths(
     Ok(RpcOutcome::new(
         json!({
             "removed_paths": removed_paths,
-            "current_openhuman_dir": current_openhuman_dir.display().to_string(),
-            "default_openhuman_dir": default_openhuman_dir.display().to_string(),
+            "current_eversilver_dir": current_eversilver_dir.display().to_string(),
+            "default_eversilver_dir": default_eversilver_dir.display().to_string(),
         }),
         vec![
             format!(
                 "reset local data for active config dir {}",
-                current_openhuman_dir.display()
+                current_eversilver_dir.display()
             ),
             format!(
                 "removed default data dir {} if present",
-                default_openhuman_dir.display()
+                default_eversilver_dir.display()
             ),
         ],
     ))
@@ -209,14 +209,14 @@ pub fn snapshot_config_json(config: &Config) -> Result<serde_json::Value, String
 pub struct ModelSettingsPatch {
     pub api_url: Option<String>,
     /// Custom OpenAI-compatible LLM endpoint. Empty string clears the
-    /// override (inference falls back through the OpenHuman backend).
+    /// override (inference falls back through the Eversilver backend).
     pub inference_url: Option<String>,
     pub api_key: Option<String>,
     pub default_model: Option<String>,
     pub default_temperature: Option<f64>,
     /// When `Some`, REPLACES the entire `config.model_routes` array with the
     /// supplied (hint, model) pairs. Pass `Some(vec![])` to clear all routes
-    /// (e.g. when switching back to the OpenHuman backend whose built-in
+    /// (e.g. when switching back to the Eversilver backend whose built-in
     /// router picks per-task models on its own). Leave `None` to keep the
     /// current routes untouched.
     pub model_routes: Option<Vec<crate::openhuman::config::ModelRouteConfig>>,
@@ -227,7 +227,7 @@ pub struct ModelSettingsPatch {
     pub cloud_providers:
         Option<Vec<crate::openhuman::config::schema::cloud_providers::CloudProviderCreds>>,
     /// Id of the `cloud_providers` entry used when a workload routes to
-    /// `"cloud"`. Empty string clears (factory falls back to OpenHuman).
+    /// `"cloud"`. Empty string clears (factory falls back to Eversilver).
     pub primary_cloud: Option<String>,
     pub reasoning_provider: Option<String>,
     pub agentic_provider: Option<String>,
@@ -373,7 +373,7 @@ pub async fn apply_model_settings(
     }
     if let Some(routes) = update.model_routes {
         // Full replacement — UI sends the canonical set for the active provider
-        // (or an empty vec when switching back to the OpenHuman in-built router).
+        // (or an empty vec when switching back to the Eversilver in-built router).
         config.model_routes = routes;
     }
     if let Some(providers) = update.cloud_providers {
@@ -809,23 +809,23 @@ pub async fn workspace_onboarding_flag_resolve(
 pub fn get_runtime_flags() -> RpcOutcome<RuntimeFlagsOut> {
     RpcOutcome::single_log(
         RuntimeFlagsOut {
-            browser_allow_all: env_flag_enabled("OPENHUMAN_BROWSER_ALLOW_ALL"),
-            log_prompts: env_flag_enabled("OPENHUMAN_LOG_PROMPTS"),
+            browser_allow_all: env_flag_enabled("EVERSILVER_BROWSER_ALLOW_ALL"),
+            log_prompts: env_flag_enabled("EVERSILVER_LOG_PROMPTS"),
         },
         "runtime flags read",
     )
 }
 
-/// Updates the `OPENHUMAN_BROWSER_ALLOW_ALL` environment flag.
+/// Updates the `EVERSILVER_BROWSER_ALLOW_ALL` environment flag.
 pub fn set_browser_allow_all(enabled: bool) -> RpcOutcome<RuntimeFlagsOut> {
     if enabled {
-        std::env::set_var("OPENHUMAN_BROWSER_ALLOW_ALL", "1");
+        std::env::set_var("EVERSILVER_BROWSER_ALLOW_ALL", "1");
     } else {
-        std::env::remove_var("OPENHUMAN_BROWSER_ALLOW_ALL");
+        std::env::remove_var("EVERSILVER_BROWSER_ALLOW_ALL");
     }
     let flags = RuntimeFlagsOut {
-        browser_allow_all: env_flag_enabled("OPENHUMAN_BROWSER_ALLOW_ALL"),
-        log_prompts: env_flag_enabled("OPENHUMAN_LOG_PROMPTS"),
+        browser_allow_all: env_flag_enabled("EVERSILVER_BROWSER_ALLOW_ALL"),
+        log_prompts: env_flag_enabled("EVERSILVER_LOG_PROMPTS"),
     };
     RpcOutcome::single_log(flags, "browser allow-all flag updated")
 }
@@ -1131,7 +1131,7 @@ pub fn agent_server_status() -> RpcOutcome<serde_json::Value> {
 /// Runs **inside the core's tokio task**, which means the running core
 /// holds open handles to SQLite databases, log files, the Sentry session
 /// store, etc. On Windows, `remove_dir_all` therefore fails with
-/// `ERROR_SHARING_VIOLATION` (os error 32) — see OPENHUMAN-TAURI-AF.
+/// `ERROR_SHARING_VIOLATION` (os error 32) — see EVERSILVER-TAURI-AF.
 ///
 /// GUI callers must use the Tauri-side `reset_local_data` command instead:
 /// it stops the embedded core via `CoreProcessHandle::shutdown` (dropping
@@ -1142,9 +1142,9 @@ pub fn agent_server_status() -> RpcOutcome<serde_json::Value> {
 /// without the core attached, so no handle is in the way).
 pub async fn reset_local_data() -> Result<RpcOutcome<serde_json::Value>, String> {
     let config = load_config_with_timeout().await?;
-    let current_openhuman_dir = config_openhuman_dir(&config);
-    let default_openhuman_dir = default_openhuman_dir();
-    reset_local_data_for_paths(&current_openhuman_dir, &default_openhuman_dir).await
+    let current_eversilver_dir = config_eversilver_dir(&config);
+    let default_eversilver_dir = default_eversilver_dir();
+    reset_local_data_for_paths(&current_eversilver_dir, &default_eversilver_dir).await
 }
 
 /// Reports the resolved paths that `reset_local_data` would remove, without
@@ -1152,26 +1152,26 @@ pub async fn reset_local_data() -> Result<RpcOutcome<serde_json::Value>, String>
 ///
 /// Lets the Tauri-side `reset_local_data` command discover the active
 /// workspace dir, the default `~/.openhuman` dir (which can differ when
-/// `OPENHUMAN_WORKSPACE` is set or a staging build is in use), and the
+/// `EVERSILVER_WORKSPACE` is set or a staging build is in use), and the
 /// active workspace marker file **before** the core sidecar is shut down —
 /// after which the Tauri shell removes them while no process holds open
-/// handles. See OPENHUMAN-TAURI-AF for the Windows file-locking failure
+/// handles. See EVERSILVER-TAURI-AF for the Windows file-locking failure
 /// that motivated the split.
 pub async fn get_data_paths() -> Result<RpcOutcome<serde_json::Value>, String> {
     let config = load_config_with_timeout().await?;
-    let current_openhuman_dir = config_openhuman_dir(&config);
-    let default_openhuman_dir = default_openhuman_dir();
-    let active_workspace_marker = active_workspace_marker_path(&default_openhuman_dir);
+    let current_eversilver_dir = config_eversilver_dir(&config);
+    let default_eversilver_dir = default_eversilver_dir();
+    let active_workspace_marker = active_workspace_marker_path(&default_eversilver_dir);
     Ok(RpcOutcome::new(
         json!({
-            "current_openhuman_dir": current_openhuman_dir.display().to_string(),
-            "default_openhuman_dir": default_openhuman_dir.display().to_string(),
+            "current_eversilver_dir": current_eversilver_dir.display().to_string(),
+            "default_eversilver_dir": default_eversilver_dir.display().to_string(),
             "active_workspace_marker_path": active_workspace_marker.display().to_string(),
         }),
         vec![format!(
             "data paths resolved (current={}, default={})",
-            current_openhuman_dir.display(),
-            default_openhuman_dir.display()
+            current_eversilver_dir.display(),
+            default_eversilver_dir.display()
         )],
     ))
 }

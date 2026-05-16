@@ -102,7 +102,7 @@ pub async fn agent_chat_simple(
 
     let options = ProviderRuntimeOptions {
         auth_profile_override: None,
-        openhuman_dir: effective.config_path.parent().map(std::path::PathBuf::from),
+        eversilver_dir: effective.config_path.parent().map(std::path::PathBuf::from),
         secrets_encrypt: effective.secrets.encrypt,
         reasoning_enabled: effective.runtime.reasoning_enabled,
     };
@@ -153,7 +153,7 @@ pub async fn local_ai_status(
     ))
 }
 
-/// Stop the local-AI runtime, killing the Ollama daemon ONLY if OpenHuman
+/// Stop the local-AI runtime, killing the Ollama daemon ONLY if Eversilver
 /// spawned it, and shift any workload routed to `ollama:<model>` back to
 /// `"cloud"` (= primary).
 ///
@@ -161,7 +161,7 @@ pub async fn local_ai_status(
 ///
 /// 1. **Daemon shutdown** — `shutdown_owned_ollama` kills the child process
 ///    only when the spawn marker matches. External daemons (system service,
-///    user-launched `ollama serve`, daemons from another OpenHuman workspace)
+///    user-launched `ollama serve`, daemons from another Eversilver workspace)
 ///    are left untouched, per the same friendly-fire-avoidance rule
 ///    `ensure_ollama_server` follows at startup.
 ///
@@ -390,7 +390,7 @@ pub async fn local_ai_transcribe_bytes(
         return Err("Invalid audio extension".to_string());
     }
 
-    let voice_dir = std::env::temp_dir().join("openhuman_voice_input");
+    let voice_dir = std::env::temp_dir().join("eversilver_voice_input");
     tokio::fs::create_dir_all(&voice_dir)
         .await
         .map_err(|e| format!("Failed to create voice input directory: {e}"))?;

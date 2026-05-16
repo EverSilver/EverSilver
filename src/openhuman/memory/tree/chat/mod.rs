@@ -6,12 +6,12 @@
 //! local Ollama daemon directly. This module replaces that with a single
 //! [`ChatProvider`] trait so the same call site can be served by either:
 //!
-//! - **Cloud** — `providers::router` against the OpenHuman backend with
+//! - **Cloud** — `providers::router` against the Eversilver backend with
 //!   the `summarization-v1` model. No local daemon required. Default for new
 //!   installs.
 //! - **Local** — the legacy Ollama-direct path. Opt-in via
 //!   `memory_tree.llm_backend = "local"` in config or
-//!   `OPENHUMAN_MEMORY_TREE_LLM_BACKEND=local`.
+//!   `EVERSILVER_MEMORY_TREE_LLM_BACKEND=local`.
 //!
 //! ## Why a memory-tree-local trait
 //!
@@ -102,7 +102,7 @@ pub trait ChatProvider: Send + Sync {
 /// `Config::workload_local_model("memory")`.
 ///
 /// - When that returns `None` (i.e. `memory_provider` is unset / `"cloud"`):
-///   wires [`cloud::CloudChatProvider`] against the OpenHuman backend with
+///   wires [`cloud::CloudChatProvider`] against the Eversilver backend with
 ///   `cloud_llm_model` (defaulting to `summarization-v1`).
 /// - When it returns `Some(model)` (i.e. `memory_provider = "ollama:<m>"`):
 ///   wires [`local::OllamaChatProvider`] against the legacy
@@ -167,23 +167,23 @@ pub fn build_chat_provider(
             .clone()
             .unwrap_or_else(|| DEFAULT_CLOUD_LLM_MODEL.to_string());
         // The `auth-profiles.json` lives next to `config.toml`, so the
-        // openhuman_dir is the parent of config_path. Without this the
-        // inner OpenHumanBackendProvider falls back to `~/.openhuman`
+        // eversilver_dir is the parent of config_path. Without this the
+        // inner EversilverBackendProvider falls back to `~/.openhuman`
         // and fails with "No backend session" on any workspace not
         // located at the home default — the bug observed when running
-        // with `OPENHUMAN_WORKSPACE` pointed elsewhere.
-        let openhuman_dir = config.config_path.parent().map(std::path::PathBuf::from);
+        // with `EVERSILVER_WORKSPACE` pointed elsewhere.
+        let eversilver_dir = config.config_path.parent().map(std::path::PathBuf::from);
         log::debug!(
             "[memory_tree::chat] building Cloud provider consumer={} model={} \
-             openhuman_dir={:?}",
+             eversilver_dir={:?}",
             consumer.as_str(),
             model,
-            openhuman_dir
+            eversilver_dir
         );
         Ok(Arc::new(cloud::CloudChatProvider::new(
             config.api_url.clone(),
             model,
-            openhuman_dir,
+            eversilver_dir,
             config.secrets.encrypt,
         )))
     }

@@ -1,6 +1,6 @@
 //! Prompt and response dump utilities for KV-cache debugging.
 //!
-//! When `OPENHUMAN_PROMPT_DUMP_DIR` is set, both the outbound request payload
+//! When `EVERSILVER_PROMPT_DUMP_DIR` is set, both the outbound request payload
 //! and the inbound response body are written to timestamped files under that
 //! directory. Best-effort: failures are logged and swallowed so a dump outage
 //! never breaks inference.
@@ -22,7 +22,7 @@ pub(crate) fn reserve_dump_seq() -> u64 {
     PROMPT_DUMP_SEQ.fetch_add(1, Ordering::Relaxed)
 }
 
-/// When `OPENHUMAN_PROMPT_DUMP_DIR` is set, write `body` (the exact JSON
+/// When `EVERSILVER_PROMPT_DUMP_DIR` is set, write `body` (the exact JSON
 /// payload we're about to POST to the provider) to a timestamped file
 /// under that directory. Best-effort: failures are logged and swallowed
 /// so a dump outage never breaks inference.
@@ -35,7 +35,7 @@ pub(crate) fn dump_prompt_if_enabled<T: Serialize>(
     seq: u64,
     body: &T,
 ) {
-    let Ok(dir) = std::env::var("OPENHUMAN_PROMPT_DUMP_DIR") else {
+    let Ok(dir) = std::env::var("EVERSILVER_PROMPT_DUMP_DIR") else {
         return;
     };
     let dir = std::path::PathBuf::from(dir);
@@ -83,7 +83,7 @@ pub(crate) fn dump_prompt_if_enabled<T: Serialize>(
 /// `dump_prompt_if_enabled` so request/response files sort next to
 /// each other.
 pub(crate) fn dump_response_if_enabled(provider: &str, model: &str, seq: u64, bytes: &[u8]) {
-    let Ok(dir) = std::env::var("OPENHUMAN_PROMPT_DUMP_DIR") else {
+    let Ok(dir) = std::env::var("EVERSILVER_PROMPT_DUMP_DIR") else {
         return;
     };
     let dir = std::path::PathBuf::from(dir);

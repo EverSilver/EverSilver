@@ -4,7 +4,7 @@
 //! `src/openhuman/tokenjuice/tests/fixtures/` and asserts that
 //! `reduce_execution_with_rules` produces the expected output.
 
-use openhuman_core::openhuman::tokenjuice::{
+use eversilver_core::openhuman::tokenjuice::{
     reduce::reduce_execution_with_rules, rules::load_builtin_rules, types::RuleFixture,
 };
 
