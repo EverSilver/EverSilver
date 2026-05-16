@@ -2,7 +2,7 @@
   🌐 <a href="./README.md">English</a> | <a href="./README.zh-CN.md">简体中文</a>
 </p>
 
-<h1 align="center">OpenHuman</h1>
+<h1 align="center">Eversilver</h1>
 
 <p align="center">
  <img src="./gitbooks/.gitbook/assets/demo.png" alt="The Tet" />
@@ -15,11 +15,11 @@
 </p>
 
 <p align="center" style="display: inline-block">
- <a href="https://www.producthunt.com/products/openhuman?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-openhuman" target="_blank" rel="noopener noreferrer"><img alt="OpenHuman - An open source AI harness built with the human in mind | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1136902&amp;theme=light&amp;t=1778829432446"></a>
+ <a href="https://www.producthunt.com/products/openhuman?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-openhuman" target="_blank" rel="noopener noreferrer"><img alt="Eversilver - An open source AI harness built with the human in mind | Product Hunt" width="250" height="54" src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1136902&amp;theme=light&amp;t=1778829432446"></a>
 </p>
 
 <p align="center">
- <strong>OpenHuman 是你的个人 AI 超级智能。私密、简洁、极其强大。</strong>
+ <strong>Eversilver 是你的个人 AI 超级智能。私密、简洁、极其强大。</strong>
 </p>
 
 
@@ -53,9 +53,9 @@ curl -fsSL https://raw.githubusercontent.com/tinyhumansai/openhuman/main/scripts
 irm https://raw.githubusercontent.com/tinyhumansai/openhuman/main/scripts/install.ps1 | iex
 ```
 
-# 什么是 OpenHuman？
+# 什么是 Eversilver？
 
-OpenHuman 是一个开源智能助手，旨在融入你的日常生活。以下每条链接都指向[文档](https://tinyhumans.gitbook.io/openhuman/)中更详细的说明。
+Eversilver 是一个开源智能助手，旨在融入你的日常生活。以下每条链接都指向[文档](https://tinyhumans.gitbook.io/openhuman/)中更详细的说明。
 
 - **简洁、UI 优先、人性化** — 清爽的桌面体验和简短的入门流程让你从安装到拥有一个可用的智能体仅需几次点击——无需先配置，无需终端。智能体有[一张脸](https://tinyhumans.gitbook.io/openhuman/features/mascot)：一个桌面吉祥物，会说话、能感知周围环境、可作为真实参与者[加入你的 Google Meet 会议](https://tinyhumans.gitbook.io/openhuman/features/mascot/meeting-agents)、跨周记住你，即使你停止输入后仍在后台持续思考。
 
@@ -75,31 +75,31 @@ OpenHuman 是一个开源智能助手，旨在融入你的日常生活。以下�
 
 1. 安装 Git、Node.js 24+、pnpm 10.10.0、Rust 1.93.0（`rustfmt` + `clippy`）、CMake、Ninja、ripgrep，以及各平台桌面构建的前置依赖。
 2. Fork 并克隆仓库，然后运行 `git submodule update --init --recursive` 之后再执行 `pnpm install`，确保内置的 Tauri/CEF 源码就位。
-3. 使用 `pnpm dev` 进行纯 Web UI 开发，`pnpm --filter openhuman-app dev:app` 用于桌面壳，在提交 PR 之前运行针对性的检查如 `pnpm typecheck`、`pnpm format:check` 和 `cargo check -p openhuman --lib`。
+3. 使用 `pnpm dev` 进行纯 Web UI 开发，`pnpm --filter eversilver-app dev:app` 用于桌面壳，在提交 PR 之前运行针对性的检查如 `pnpm typecheck`、`pnpm format:check` 和 `cargo check -p openhuman --lib`。
 
 更多文档：[架构](https://tinyhumans.gitbook.io/openhuman/developing/architecture) · [环境搭建](https://tinyhumans.gitbook.io/openhuman/developing/getting-set-up) · [云端部署](./gitbooks/features/cloud-deploy.md)。
 
 ## 几分钟内建立上下文，而非数周
 
-OpenHuman 是首个能在几分钟内了解你的智能体框架。灵感来源于 [Karpathy 的 LLM 知识库](https://x.com/karpathy/status/2039805659525644595)。大多数智能体从零开始——Hermes 通过观察你的工作来学习；OpenClaw 等待插件输送上下文。无论哪种方式，你都需要花费数天甚至数周时间，智能体才能对你的技术栈有足够的了解从而真正发挥作用。
+Eversilver 是首个能在几分钟内了解你的智能体框架。灵感来源于 [Karpathy 的 LLM 知识库](https://x.com/karpathy/status/2039805659525644595)。大多数智能体从零开始——Hermes 通过观察你的工作来学习；OpenClaw 等待插件输送上下文。无论哪种方式，你都需要花费数天甚至数周时间，智能体才能对你的技术栈有足够的了解从而真正发挥作用。
 
 <p align="center">
- <img src="./gitbooks/.gitbook/assets/image (1).png" alt="OpenHuman 上下文构建示意图" />
+ <img src="./gitbooks/.gitbook/assets/image (1).png" alt="Eversilver 上下文构建示意图" />
 </p>
 
-> OpenHuman 将你的所有文档、邮件和聊天记录进行摘要和压缩，并创建一个记忆图谱，让你的智能体记住关于你的一切。
+> Eversilver 将你的所有文档、邮件和聊天记录进行摘要和压缩，并创建一个记忆图谱，让你的智能体记住关于你的一切。
 
-OpenHuman 跳过了等待期。连接你的账户，让[自动拉取](https://tinyhumans.gitbook.io/openhuman/features/integrations/auto-fetch)以 20 分钟为周期将数据拉到本地，然后由[记忆树](https://tinyhumans.gitbook.io/openhuman/features/memory-tree)将所有内容压缩为 Markdown 文件，智能存储在一个 [Karpathy 风格的 Obsidian wiki](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki) 中。
+Eversilver 跳过了等待期。连接你的账户，让[自动拉取](https://tinyhumans.gitbook.io/openhuman/features/integrations/auto-fetch)以 20 分钟为周期将数据拉到本地，然后由[记忆树](https://tinyhumans.gitbook.io/openhuman/features/memory-tree)将所有内容压缩为 Markdown 文件，智能存储在一个 [Karpathy 风格的 Obsidian wiki](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki) 中。
 
 仅需一次同步，智能体就拥有了你收件箱、日历、仓库、文档、消息的完整（压缩后的）上下文。无需训练期，无需"给它几周时间"。它成为你，由你掌控。
 
-已经在其他编码智能体中自托管 [agentmemory](https://github.com/rohitg00/agentmemory)？OpenHuman 提供可选的 `Memory` 后端来代理它——在 `config.toml` 中设置 `memory.backend = "agentmemory"`，同一个持久化存储将同时服务于 OpenHuman 和 Claude Code、Cursor、Codex、OpenCode。详见 [agentmemory 后端](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki/agentmemory-backend)页面。
+已经在其他编码智能体中自托管 [agentmemory](https://github.com/rohitg00/agentmemory)？Eversilver 提供可选的 `Memory` 后端来代理它——在 `config.toml` 中设置 `memory.backend = "agentmemory"`，同一个持久化存储将同时服务于 Eversilver 和 Claude Code、Cursor、Codex、OpenCode。详见 [agentmemory 后端](https://tinyhumans.gitbook.io/openhuman/features/obsidian-wiki/agentmemory-backend)页面。
 
-## OpenHuman vs 其他智能体框架
+## Eversilver vs 其他智能体框架
 
-高层次对比（产品持续演进，请以各厂商最新情况为准）。OpenHuman 的设计目标是**减少供应商碎片化**、将**工作流知识保留在设备上**、为智能体提供对你数据的**持久记忆**，而不仅仅是对话。
+高层次对比（产品持续演进，请以各厂商最新情况为准）。Eversilver 的设计目标是**减少供应商碎片化**、将**工作流知识保留在设备上**、为智能体提供对你数据的**持久记忆**，而不仅仅是对话。
 
-|                     | Claude Cowork     | OpenClaw          | Hermes Agent      | OpenHuman                          |
+|                     | Claude Cowork     | OpenClaw          | Hermes Agent      | Eversilver                         |
 | ------------------- | ----------------- | ----------------- | ----------------- | ---------------------------------- |
 | **开源**            | 🚫 闭源           | ✅ MIT            | ✅ MIT            | ✅ GNU                             |
 | **易上手**          | ✅ 桌面 + CLI     | ⚠️ 终端优先       | ⚠️ 终端优先       | ✅ 清爽 UI，几分钟上手             |
@@ -130,5 +130,5 @@ _致力于 AGI 和人工意识？为仓库加星，帮助更多人找到这条�
 贡献一份力量，进入名人堂。贡献者可获得免费周边以及我们 [Discord](https://discord.tinyhumans.ai/) 的专属访问权限。
 
 <a href="https://github.com/tinyhumansai/openhuman/graphs/contributors">
- <img src="https://contrib.rocks/image?repo=tinyhumansai/openhuman" alt="OpenHuman contributors" />
+ <img src="https://contrib.rocks/image?repo=tinyhumansai/openhuman" alt="Eversilver contributors" />
 </a>

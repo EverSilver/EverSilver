@@ -2,7 +2,7 @@
 name = "openhuman"
 version = "0.53.49"
 edition = "2021"
-description = "OpenHuman core business logic and RPC server"
+description = "Eversilver core business logic and RPC server"
 autobins = false
 
 [[bin]]
