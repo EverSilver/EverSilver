@@ -1,7 +1,8 @@
-[submodule "app/src-tauri/vendor/tauri-cef"]
+﻿[submodule "app/src-tauri/vendor/tauri-cef"]
 	path = app/src-tauri/vendor/tauri-cef
 	url = https://github.com/EverSilver/tauri-cef.git
-	branch = feat/cef
+	branch = feat/openhuman-audio-handler
 [submodule "app/src-tauri/vendor/tauri-plugin-notification"]
 	path = app/src-tauri/vendor/tauri-plugin-notification
 	url = https://github.com/EverSilver/tauri-plugin-notification.git
+
