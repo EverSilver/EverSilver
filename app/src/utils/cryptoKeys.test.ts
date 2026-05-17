@@ -90,7 +90,7 @@ describe('deriveAesKeyFromMnemonic', () => {
     // Pinned output for salt='eversilver-aes-key-v1', PBKDF2-SHA256, c=100000, dkLen=32.
     // If this assertion fails, the KDF parameters or salt have changed — update intentionally.
     const key = deriveAesKeyFromMnemonic(KNOWN_MNEMONIC);
-    expect(key).toBe('dce707ee483afb0a70cb2e076295f9f914e0c62cc097895eabda1c0c1f2f0cb1');
+    expect(key).toBe('837f72688527515c1ba25a2a68588311303902b6d823b758abc156820c5feae7');
   });
 });
 

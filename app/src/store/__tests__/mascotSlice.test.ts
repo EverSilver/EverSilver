@@ -46,9 +46,9 @@ describe('mascotSlice', () => {
     expect(selectMascotColor({ mascot: state })).toBe('black');
   });
 
-  it('exposes all five supported colors', () => {
+  it('exposes the supported color palette', () => {
     expect(new Set(SUPPORTED_MASCOT_COLORS)).toEqual(
-      new Set(['yellow', 'burgundy', 'black', 'navy', 'green'])
+      new Set(['moonlight', 'yellow', 'burgundy', 'black', 'navy', 'green'])
     );
   });
 

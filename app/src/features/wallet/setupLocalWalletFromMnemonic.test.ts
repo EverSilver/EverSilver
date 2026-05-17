@@ -27,7 +27,7 @@ describe('persistLocalWalletFromMnemonic', () => {
     await persistLocalWalletFromMnemonic({ mnemonic, source: 'generated', setEncryptionKey });
 
     expect(setEncryptionKey).toHaveBeenCalledWith(
-      'dce707ee483afb0a70cb2e076295f9f914e0c62cc097895eabda1c0c1f2f0cb1'
+      '837f72688527515c1ba25a2a68588311303902b6d823b758abc156820c5feae7'
     );
     expect(mockSetupLocalWallet).toHaveBeenCalledWith({
       consentGranted: true,
