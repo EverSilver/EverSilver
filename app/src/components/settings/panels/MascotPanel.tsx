@@ -22,6 +22,7 @@ interface ColorOption {
 }
 
 const COLOR_OPTIONS: ColorOption[] = [
+  { id: 'moonlight', label: 'Moonlight' },
   { id: 'yellow', label: 'Yellow' },
   { id: 'burgundy', label: 'Burgundy' },
   { id: 'black', label: 'Black' },

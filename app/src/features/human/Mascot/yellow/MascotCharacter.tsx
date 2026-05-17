@@ -15,7 +15,9 @@ export const mascotSchema = z.object({
   sleeping: z.boolean().default(false),
   thinking: z.boolean().default(false),
   greeting: z.boolean().default(false),
-  mascotColor: z.enum(['yellow', 'burgundy', 'black', 'navy', 'green']).default('yellow'),
+  mascotColor: z
+    .enum(['yellow', 'burgundy', 'black', 'navy', 'green', 'moonlight'])
+    .default('moonlight'),
   recordingColor: zColor().default('#ff3b30'),
   loadingColor: zColor().default('#ffffff'),
 });

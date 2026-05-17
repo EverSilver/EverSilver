@@ -5,6 +5,7 @@ import type { MascotColor } from '../features/human/Mascot/mascotPalette';
 import { resetUserScopedState } from './resetActions';
 
 export const SUPPORTED_MASCOT_COLORS: readonly MascotColor[] = [
+  'moonlight',
   'yellow',
   'burgundy',
   'black',
@@ -12,7 +13,7 @@ export const SUPPORTED_MASCOT_COLORS: readonly MascotColor[] = [
   'green',
 ];
 
-export const DEFAULT_MASCOT_COLOR: MascotColor = 'yellow';
+export const DEFAULT_MASCOT_COLOR: MascotColor = 'moonlight';
 
 /**
  * Maximum length of a stored mascot voice id. ElevenLabs voice ids are
