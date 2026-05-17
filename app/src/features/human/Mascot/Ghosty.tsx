@@ -42,6 +42,14 @@ export interface GhostyProps {
   /** Override SVG element size; defaults to filling the parent. */
   size?: number | string;
   idPrefix?: string;
+  /** Color of the eye shape itself. Defaults to dark. Eversilver uses white. */
+  eyeColor?: string;
+  /** Color of the pupil/highlight dot. Defaults to white. */
+  pupilColor?: string;
+  /** Color of brows + mouth. Defaults to dark. */
+  featureColor?: string;
+  /** Glow radius around the eyes in SVG units. 0 disables glow. */
+  eyeGlow?: number;
 }
 
 interface FacePreset {
@@ -138,6 +146,10 @@ export const Ghosty: React.FC<GhostyProps> = ({
   viseme,
   size = '100%',
   idPrefix = 'mascot',
+  eyeColor = '#0a0a0a',
+  pupilColor = '#ffffff',
+  featureColor = '#0a0a0a',
+  eyeGlow = 0,
 }) => {
   const t = useMascotClock();
   const preset = presetFor(face);
@@ -234,7 +246,7 @@ export const Ghosty: React.FC<GhostyProps> = ({
         />
 
         {preset.showBrows && (
-          <g fill="#0a0a0a" data-face-brows={face}>
+          <g fill={featureColor} data-face-brows={face}>
             <rect
               x={385}
               y={455 + preset.browDy}
@@ -254,33 +266,33 @@ export const Ghosty: React.FC<GhostyProps> = ({
           </g>
         )}
 
-        <g>
+        <g filter={eyeGlow > 0 ? `url(#${id('eye-glow')})` : undefined}>
           <ellipse
             cx={415}
             cy={515}
             rx={30 * preset.eyeScaleX}
             ry={40 * preset.eyeScaleY * blinkScale}
-            fill="#0a0a0a"
+            fill={eyeColor}
           />
           <ellipse
             cx={625}
             cy={515}
             rx={30 * preset.eyeScaleX}
             ry={40 * preset.eyeScaleY * blinkScale}
-            fill="#0a0a0a"
+            fill={eyeColor}
           />
           {!inBlink && (
             <>
-              <circle cx={425} cy={501} r={7} fill="#ffffff" />
-              <circle cx={635} cy={501} r={7} fill="#ffffff" />
+              <circle cx={425} cy={501} r={7} fill={pupilColor} />
+              <circle cx={635} cy={501} r={7} fill={pupilColor} />
             </>
           )}
         </g>
 
         {face === 'speaking' ? (
-          <path d={visemePath(viseme ?? VISEMES.REST)} fill="#0a0a0a" data-face={face} />
+          <path d={visemePath(viseme ?? VISEMES.REST)} fill={featureColor} data-face={face} />
         ) : (
-          <path d={restMouth} fill="#0a0a0a" data-face={face} />
+          <path d={restMouth} fill={featureColor} data-face={face} />
         )}
 
         <ellipse

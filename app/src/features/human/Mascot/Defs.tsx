@@ -54,6 +54,13 @@ export const GhostyDefs: React.FC<{ idPrefix: string; bodyColor: string }> = ({
           <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
+      <filter id={id('eye-glow')} x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
       <radialGradient id={id('ground')} cx="0.5" cy="0.5" r="0.5">
         <stop offset="0%" stopColor="#000000" stopOpacity="0.35" />
         <stop offset="100%" stopColor="#000000" stopOpacity="0" />

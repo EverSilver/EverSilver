@@ -1,4 +1,4 @@
-export type MascotColor = 'yellow' | 'burgundy' | 'black' | 'navy' | 'green';
+export type MascotColor = 'yellow' | 'burgundy' | 'black' | 'navy' | 'green' | 'moonlight';
 
 export interface MascotPalette {
   armHighlightMatrix: string;
@@ -65,6 +65,17 @@ const palettes: Record<MascotColor, MascotPalette> = {
     headHighlightMatrix: '0 0 0 0 0.780392 0 0 0 0 0.894118 0 0 0 0 0.733333 0 0 0 1 0',
     headShadowMatrix: '0 0 0 0 0.113725 0 0 0 0 0.270588 0 0 0 0 0.117647 0 0 0 1 0',
     neckShadowColor: '#2E5A24',
+  },
+  // Eversilver brand palette — cool silver/moonlit body to pair with white glowing eyes.
+  moonlight: {
+    armHighlightMatrix: '0 0 0 0 0.85 0 0 0 0 0.87 0 0 0 0 0.92 0 0 0 1 0',
+    armShadowMatrix: '0 0 0 0 0.18 0 0 0 0 0.20 0 0 0 0 0.26 0 0 0 1 0',
+    bodyFill: '#5b6478',
+    bodyHighlightMatrix: '0 0 0 0 0.82 0 0 0 0 0.85 0 0 0 0 0.92 0 0 0 1 0',
+    bodyShadowMatrix: '0 0 0 0 0.10 0 0 0 0 0.11 0 0 0 0 0.16 0 0 0 1 0',
+    headHighlightMatrix: '0 0 0 0 0.95 0 0 0 0 0.97 0 0 0 0 1.00 0 0 0 1 0',
+    headShadowMatrix: '0 0 0 0 0.10 0 0 0 0 0.11 0 0 0 0 0.16 0 0 0 1 0',
+    neckShadowColor: '#0c0e14',
   },
 };
 

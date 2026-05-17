@@ -55,7 +55,7 @@ function variantForFace(
     loadingColor: '#ffffff',
     greeting: false,
     sleeping: false,
-    mascotColor: extras.mascotColor ?? 'yellow',
+    mascotColor: extras.mascotColor ?? 'moonlight',
   };
   switch (face) {
     case 'sleep':
