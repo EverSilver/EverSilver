@@ -1,14 +1,34 @@
 /**
- * Eversilver Pricing Screen — INR / UPI
+ * Eversilver Pricing Screen
+ *
+ * In preview mode (BILLING_ENABLED=false) this screen shows a single
+ * "free during preview — everything unlocked" panel instead of tier cards.
  */
 import { usePaywall } from './PaywallProvider';
 import { TIERS, formatInr } from './tiers';
+import { BILLING_ENABLED } from './config';
 import type { SubscriptionTier } from '../auth';
 
 const TIER_ORDER: SubscriptionTier[] = ['free', 'pro', 'ultra'];
 
+function PreviewBanner() {
+  return (
+    <div className="eversilver-pricing-screen">
+      <div className="eversilver-preview-banner">
+        <h1>Free during preview</h1>
+        <p>Every feature is unlocked while Eversilver is in private preview.</p>
+        <p className="eversilver-preview-note">
+          No payment required. Pricing will be announced later.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function PricingScreen() {
   const { currentTier, checkout, isAtLeast } = usePaywall();
+
+  if (!BILLING_ENABLED) return <PreviewBanner />;
 
   return (
     <div className="eversilver-pricing-screen">
@@ -55,7 +75,7 @@ export function PricingScreen() {
                   onClick={() => checkout(tierId)}
                   className="eversilver-pricing-cta"
                 >
-                  {tierId === 'free' ? 'Start free' : `Pay with UPI`}
+                  {tierId === 'free' ? 'Start free' : 'Pay with UPI'}
                 </button>
               )}
             </div>

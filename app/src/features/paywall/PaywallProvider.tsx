@@ -1,21 +1,16 @@
 /**
- * Eversilver Paywall Provider (India / UPI / Razorpay)
+ * Eversilver Paywall Provider
  *
- * Centralized entitlement checks + Razorpay checkout dispatch.
- *
- * Flow:
- *  1. User taps "Upgrade" → checkout(tier)
- *  2. Frontend calls backend POST /api/billing/subscribe { tierId, userId }
- *  3. Backend creates Razorpay subscription, returns { subscriptionId, keyId }
- *  4. Frontend opens Razorpay checkout (UPI-first)
- *  5. After successful UPI authorization, Razorpay webhook hits backend
- *  6. Backend marks user.tier server-side and pushes update to client
- *  7. Client calls upgradeTier(tier) so the UI reflects entitlement immediately
+ * When BILLING_ENABLED is false (current default), every authenticated user
+ * gets the PREVIEW_TIER automatically — useful while the product is in
+ * private/personal preview. Flip VITE_BILLING_ENABLED=true to activate
+ * Razorpay checkout flow.
  */
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import { useAuth, type SubscriptionTier } from '../auth';
 import { TIERS, hasFeature, minimumTierFor, tierRank } from './tiers';
 import { openRazorpayCheckout } from './razorpay';
+import { BILLING_ENABLED, PREVIEW_TIER } from './config';
 
 interface PaywallContextValue {
   currentTier: SubscriptionTier;
@@ -23,6 +18,8 @@ interface PaywallContextValue {
   requiredTierFor: (feature: string) => SubscriptionTier | null;
   isAtLeast: (tier: SubscriptionTier) => boolean;
   checkout: (tier: SubscriptionTier) => Promise<void>;
+  /** True when the paywall is dormant and every feature is free. */
+  billingEnabled: boolean;
 }
 
 const PaywallContext = createContext<PaywallContextValue | null>(null);
@@ -32,11 +29,6 @@ interface SubscribeResponse {
   keyId: string;
 }
 
-/**
- * Replace this with a real backend call once your billing service is up.
- * Until then, the function falls back to a local-only upgrade so the UI
- * stays functional during dev.
- */
 async function createSubscription(
   tier: SubscriptionTier,
   userId: string
@@ -55,10 +47,20 @@ async function createSubscription(
 
 export function PaywallProvider({ children }: { children: ReactNode }) {
   const { user, upgradeTier } = useAuth();
-  const currentTier: SubscriptionTier = user?.tier ?? 'free';
+
+  // When billing is disabled, silently promote every signed-in user to PREVIEW_TIER.
+  useEffect(() => {
+    if (!BILLING_ENABLED && user && user.tier !== PREVIEW_TIER) {
+      void upgradeTier(PREVIEW_TIER);
+    }
+  }, [user, upgradeTier]);
+
+  const currentTier: SubscriptionTier = BILLING_ENABLED
+    ? user?.tier ?? 'free'
+    : PREVIEW_TIER;
 
   const checkFeature = useCallback(
-    (feature: string) => hasFeature(currentTier, feature),
+    (feature: string) => (BILLING_ENABLED ? hasFeature(currentTier, feature) : true),
     [currentTier]
   );
   const requiredTierFor = useCallback((feature: string) => minimumTierFor(feature), []);
@@ -69,6 +71,10 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
 
   const checkout = useCallback(
     async (tier: SubscriptionTier) => {
+      if (!BILLING_ENABLED) {
+        // Paywall dormant — do nothing. UI should not show upgrade CTAs.
+        return;
+      }
       const def = TIERS[tier];
       if (!def.razorpayPlanId || def.razorpayPlanId.startsWith('plan_REPLACE_ME')) {
         console.warn('[Eversilver Paywall] Razorpay plan id not set; granting tier locally.');
@@ -101,9 +107,8 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
           appName: 'Eversilver',
           themeColor: '#5b6478',
           prefill: { name: user.displayName, email: user.email },
-          upiOnly: false, // set true if you want to restrict to UPI only
+          upiOnly: false,
         });
-        // Webhook will confirm and update server-side; reflect locally too.
         await upgradeTier(tier);
       } catch (err) {
         console.error('[Eversilver Paywall] Checkout failed:', err);
@@ -113,7 +118,14 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<PaywallContextValue>(
-    () => ({ currentTier, hasFeature: checkFeature, requiredTierFor, isAtLeast, checkout }),
+    () => ({
+      currentTier,
+      hasFeature: checkFeature,
+      requiredTierFor,
+      isAtLeast,
+      checkout,
+      billingEnabled: BILLING_ENABLED,
+    }),
     [currentTier, checkFeature, requiredTierFor, isAtLeast, checkout]
   );
 

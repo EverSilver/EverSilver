@@ -79,6 +79,39 @@
   line-height: 1.5;
 }
 
+.eversilver-preview-banner {
+  max-width: 540px;
+  margin: 4rem auto;
+  padding: 3rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(106, 123, 184, 0.06) 0%, rgba(138, 146, 216, 0.03) 100%);
+  border: 1px solid rgba(138, 146, 216, 0.2);
+  border-radius: 16px;
+}
+
+.eversilver-preview-banner h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #c0c7e0 0%, #8a92b8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eversilver-preview-banner p {
+  color: #c0c7e0;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+.eversilver-preview-note {
+  color: #6c7396 !important;
+  font-size: 0.85rem !important;
+  margin-top: 1rem !important;
+}
+
 /* Pricing Screen */
 .eversilver-pricing-screen {
   padding: 3rem 2rem;

@@ -2,7 +2,7 @@
  * Eversilver Paywall Gate
  *
  * Wrap premium UI: <PaywallGate feature="core.voice">...</PaywallGate>
- * Shows an upgrade prompt when the user lacks entitlement.
+ * When billing is disabled (preview mode), the gate is a pass-through.
  */
 import type { ReactNode } from 'react';
 import { useEntitlement, usePaywall } from './PaywallProvider';
@@ -16,14 +16,14 @@ interface PaywallGateProps {
 
 export function PaywallGate({ feature, children, fallback }: PaywallGateProps) {
   const allowed = useEntitlement(feature);
-  const { requiredTierFor, checkout } = usePaywall();
+  const { requiredTierFor, checkout, billingEnabled } = usePaywall();
 
   if (allowed) return <>{children}</>;
+  if (!billingEnabled) return <>{children}</>; // safety net — should never block in preview
   if (fallback) return <>{fallback}</>;
 
   const requiredTier = requiredTierFor(feature);
   if (!requiredTier) return null;
-
   const def = TIERS[requiredTier];
 
   return (
