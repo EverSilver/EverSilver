@@ -12,7 +12,7 @@
  *
  *   2. **Core RPC over the relay**. We hit `eversilver.about_app_list` — a
  *      cheap read-only method that returns the capability catalogue —
- *      through the same `callOpenhumanRpc` helper every product spec uses.
+ *      through the same `callEversilverRpc` helper every product spec uses.
  *      That round-trips renderer → Tauri IPC → relay → core → response.
  *
  * The Tauri commands are invoked via `window.__TAURI__.core.invoke` inside
@@ -23,7 +23,7 @@
  * exception.
  */
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { hasAppChrome } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 
@@ -96,7 +96,7 @@ describe('Tauri commands', () => {
   });
 
   it('round-trips an RPC through the relay (eversilver.about_app_list)', async () => {
-    const res = await callOpenhumanRpc<{ capabilities: unknown[] }>('eversilver.about_app_list', {});
+    const res = await callEversilverRpc<{ capabilities: unknown[] }>('eversilver.about_app_list', {});
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(Array.isArray(res.result.capabilities)).toBe(true);

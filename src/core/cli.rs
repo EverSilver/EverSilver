@@ -23,7 +23,7 @@ const CLI_BANNER: &str = r#"
 ▝▚▄▞▘█                ▐▌ ▐▌
      ▀
 
-Contribute & Star us on GitHub: https://github.com/eversilver/openhuman
+Contribute & Star us on GitHub: https://github.com/eversilver/eversilver
 
 "#;
 
@@ -60,15 +60,15 @@ pub fn run_from_cli_args(args: &[String]) -> Result<()> {
     // Match on the first argument to determine the subcommand.
     match args[0].as_str() {
         "run" | "serve" => run_server_command(&args[1..]),
-        "mcp" | "mcp-server" => crate::openhuman::mcp_server::run_stdio_from_cli(&args[1..]),
+        "mcp" | "mcp-server" => crate::eversilver::mcp_server::run_stdio_from_cli(&args[1..]),
         "call" => run_call_command(&args[1..]),
         // Domain-specific CLI adapters that don't follow the generic namespace pattern.
         "screen-intelligence" => {
-            crate::openhuman::screen_intelligence::cli::run_screen_intelligence_command(&args[1..])
+            crate::eversilver::screen_intelligence::cli::run_screen_intelligence_command(&args[1..])
         }
-        "text-input" => crate::openhuman::text_input::cli::run_text_input_command(&args[1..]),
+        "text-input" => crate::eversilver::text_input::cli::run_text_input_command(&args[1..]),
         "tree-summarizer" => {
-            crate::openhuman::tree_summarizer::cli::run_tree_summarizer_command(&args[1..])
+            crate::eversilver::tree_summarizer::cli::run_tree_summarizer_command(&args[1..])
         }
         "memory" => crate::core::memory_cli::run_memory_command(&args[1..]),
         "agent" => {
@@ -79,7 +79,7 @@ pub fn run_from_cli_args(args: &[String]) -> Result<()> {
             crate::core::agent_cli::run_agent_command(&args[1..])
         }
         "sentry-test" => run_sentry_test_command(&args[1..]),
-        // Generic namespace dispatcher: `openhuman <namespace> <function> ...`
+        // Generic namespace dispatcher: `eversilver <namespace> <function> ...`
         namespace => run_namespace_command(namespace, &args[1..], &grouped),
     }
 }
@@ -116,10 +116,10 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
                 i += 1;
             }
             "-h" | "--help" => {
-                println!("Usage: openhuman sentry-test [--message <text>] [--panic]");
+                println!("Usage: eversilver sentry-test [--message <text>] [--panic]");
                 println!();
                 println!("  --message <text>  Body of the Error-level event sent to Sentry");
-                println!("                    (default: \"openhuman sentry-test ping\")");
+                println!("                    (default: \"eversilver sentry-test ping\")");
                 println!("  --panic           After capturing the event, trigger a panic so the");
                 println!("                    panic integration reports it as a separate event.");
                 println!();
@@ -151,7 +151,7 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
         }
     }
 
-    let msg = message.unwrap_or_else(|| "openhuman sentry-test ping".to_string());
+    let msg = message.unwrap_or_else(|| "eversilver sentry-test ping".to_string());
 
     sentry::configure_scope(|scope| {
         scope.set_tag("test", "true");
@@ -174,7 +174,7 @@ fn run_sentry_test_command(args: &[String]) -> Result<()> {
         eprintln!(
             "[sentry-test] Triggering panic as requested — the panic integration should capture it."
         );
-        panic!("openhuman sentry-test intentional panic");
+        panic!("eversilver sentry-test intentional panic");
     }
 
     Ok(())
@@ -254,7 +254,7 @@ fn run_server_command(args: &[String]) -> Result<()> {
                 i += 1;
             }
             "-h" | "--help" => {
-                println!("Usage: openhuman run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--autocomplete-logs] [-v|--verbose]");
+                println!("Usage: eversilver run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--autocomplete-logs] [-v|--verbose]");
                 println!();
                 println!(
                     "  --host <addr>    Bind address (default: 127.0.0.1 or EVERSILVER_CORE_HOST)"
@@ -266,7 +266,7 @@ fn run_server_command(args: &[String]) -> Result<()> {
                 autocomplete_cli_adapter::print_run_scope_help_line();
                 println!("  -v, --verbose    Shorthand for RUST_LOG=debug when RUST_LOG is unset");
                 println!();
-                println!("Logging: set RUST_LOG (e.g. RUST_LOG=debug openhuman run). Default level is info.");
+                println!("Logging: set RUST_LOG (e.g. RUST_LOG=debug eversilver run). Default level is info.");
                 return Ok(());
             }
             other => return Err(anyhow::anyhow!("unknown run arg: {other}")),
@@ -316,7 +316,7 @@ fn run_call_command(args: &[String]) -> Result<()> {
                 i += 2;
             }
             "-h" | "--help" => {
-                println!("Usage: openhuman call --method <name> [--params '<json>']");
+                println!("Usage: eversilver call --method <name> [--params '<json>']");
                 return Ok(());
             }
             other => return Err(anyhow::anyhow!("unknown call arg: {other}")),
@@ -338,7 +338,7 @@ fn run_call_command(args: &[String]) -> Result<()> {
     Ok(())
 }
 
-/// Dispatches commands that fall under a specific namespace (e.g., `openhuman <namespace> <function>`).
+/// Dispatches commands that fall under a specific namespace (e.g., `eversilver <namespace> <function>`).
 ///
 /// It looks up the function schema for validation and executes the request.
 ///
@@ -354,7 +354,7 @@ fn run_namespace_command(
 ) -> Result<()> {
     let Some(schemas) = grouped.get(namespace) else {
         return Err(anyhow::anyhow!(
-            "unknown namespace '{namespace}'. Run `openhuman --help` to see available namespaces."
+            "unknown namespace '{namespace}'. Run `eversilver --help` to see available namespaces."
         ));
     };
 
@@ -376,7 +376,7 @@ fn run_namespace_command(
     let function = args[0].as_str();
     let Some(schema) = schemas.iter().find(|s| s.function == function).cloned() else {
         return Err(anyhow::anyhow!(
-            "unknown function '{namespace} {function}'. Run `openhuman {namespace} --help`."
+            "unknown function '{namespace} {function}'. Run `eversilver {namespace} --help`."
         ));
     };
 
@@ -519,24 +519,24 @@ fn grouped_schemas() -> BTreeMap<String, Vec<ControllerSchema>> {
 fn print_general_help(grouped: &BTreeMap<String, Vec<ControllerSchema>>) {
     println!("Eversilver core CLI\n");
     println!("Usage:");
-    println!("  openhuman run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--verbose]");
-    println!("  openhuman call --method <name> [--params '<json>']");
+    println!("  eversilver run [--host <addr>] [--port <u16>] [--jsonrpc-only] [--verbose]");
+    println!("  eversilver call --method <name> [--params '<json>']");
     println!(
-        "  openhuman mcp [-v|--verbose]              (stdio MCP server; read-only memory tools)"
+        "  eversilver mcp [-v|--verbose]              (stdio MCP server; read-only memory tools)"
     );
-    println!("  openhuman skills <subcommand> [options]   (skill development runtime)");
-    println!("  openhuman agent <subcommand> [options]    (inspect agent definitions & prompts)");
-    println!("  openhuman voice [--hotkey <combo>] [--mode <tap|push>]  (voice dictation server)");
-    println!("  openhuman tree-summarizer <subcommand> [options]  (summary tree CLI)");
-    println!("  openhuman sentry-test [--message <text>] [--panic]  (verify Sentry wiring)");
-    println!("  openhuman <namespace> <function> [--param value ...]\n");
+    println!("  eversilver skills <subcommand> [options]   (skill development runtime)");
+    println!("  eversilver agent <subcommand> [options]    (inspect agent definitions & prompts)");
+    println!("  eversilver voice [--hotkey <combo>] [--mode <tap|push>]  (voice dictation server)");
+    println!("  eversilver tree-summarizer <subcommand> [options]  (summary tree CLI)");
+    println!("  eversilver sentry-test [--message <text>] [--panic]  (verify Sentry wiring)");
+    println!("  eversilver <namespace> <function> [--param value ...]\n");
     println!("Available namespaces:");
     for namespace in grouped.keys() {
         let description = all::namespace_description(namespace.as_str())
             .unwrap_or("No namespace description available.");
         println!("  {namespace} - {description}");
     }
-    println!("\nUse `openhuman <namespace> --help` to see functions.");
+    println!("\nUse `eversilver <namespace> --help` to see functions.");
 }
 
 /// Prints help for a specific namespace, listing its functions.
@@ -549,7 +549,7 @@ fn print_namespace_help(namespace: &str, schemas: &[ControllerSchema]) {
     for schema in schemas {
         println!("  {} - {}", schema.function, schema.description);
     }
-    println!("\nUse `openhuman {namespace} <function> --help` for parameters.");
+    println!("\nUse `eversilver {namespace} <function> --help` for parameters.");
     autocomplete_cli_adapter::maybe_print_namespace_help_footer(namespace);
 }
 

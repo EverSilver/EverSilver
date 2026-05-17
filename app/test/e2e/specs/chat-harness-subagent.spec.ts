@@ -43,7 +43,7 @@ import {
   hexEncodeThreadId,
   typeIntoComposer,
 } from '../helpers/chat-harness';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { textExists } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 import { navigateViaHash } from '../helpers/shared-flows';
@@ -176,7 +176,7 @@ describe('Chat harness — orchestrator → subagent flow', () => {
     // IN_FLIGHT must drain after chat_done.
     await browser.waitUntil(
       async () => {
-        const snap = await callOpenhumanRpc<{ result: { entries: Array<unknown> } }>(
+        const snap = await callEversilverRpc<{ result: { entries: Array<unknown> } }>(
           'eversilver.test_support_in_flight_chats',
           {}
         );
@@ -205,7 +205,7 @@ describe('Chat harness — orchestrator → subagent flow', () => {
     let content = '';
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline) {
-      const read = await callOpenhumanRpc<{ result: { content_utf8: string } }>(
+      const read = await callEversilverRpc<{ result: { content_utf8: string } }>(
         'eversilver.test_support_read_workspace_file',
         { rel_path: relPath, max_bytes: 131_072 }
       );

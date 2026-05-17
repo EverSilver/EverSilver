@@ -108,7 +108,7 @@ async function main() {
   console.log(`[memory-email-ingest] rpc_url=${RPC_URL}`);
 
   // Sanity-check that the core is up.
-  await rpc("openhuman.health_snapshot", {}).catch((err) => {
+  await rpc("eversilver.health_snapshot", {}).catch((err) => {
     throw new Error(
       `core not reachable at ${RPC_URL} — start it with \`cargo run --bin eversilver -- serve\`. (${err.message})`,
     );
@@ -145,7 +145,7 @@ async function main() {
       `  · ${sourceId}  (${t.messages.length} msg, subject="${t.subject.slice(0, 60)}") … `,
     );
     try {
-      const result = await rpc("openhuman.memory_tree_ingest", params);
+      const result = await rpc("eversilver.memory_tree_ingest", params);
       const r = result?.result || result || {};
       chunksWritten += r.chunks_written || 0;
       chunksDropped += r.chunks_dropped || 0;
@@ -162,7 +162,7 @@ async function main() {
   );
 
   // Quick verification — pull email chunks back out and print a count.
-  const list = await rpc("openhuman.memory_tree_list_chunks", {
+  const list = await rpc("eversilver.memory_tree_list_chunks", {
     source_kind: "email",
     owner: OWNER,
     limit: 100,

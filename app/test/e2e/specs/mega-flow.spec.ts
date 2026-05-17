@@ -31,7 +31,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { triggerDeepLink } from '../helpers/deep-link-helpers';
 import { hasAppChrome } from '../helpers/element-helpers';
 import {
@@ -227,7 +227,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
       composioActiveTriggers: JSON.stringify([]),
     });
 
-    const before = await callOpenhumanRpc('eversilver.composio_list_triggers', {});
+    const before = await callEversilverRpc('eversilver.composio_list_triggers', {});
     expect(before.ok).toBe(true);
     const beforeList = (before.result?.triggers ??
       before.value?.result?.triggers ??
@@ -235,13 +235,13 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     expect(Array.isArray(beforeList)).toBe(true);
     expect(beforeList).toHaveLength(0);
 
-    const enable = await callOpenhumanRpc('eversilver.composio_enable_trigger', {
+    const enable = await callEversilverRpc('eversilver.composio_enable_trigger', {
       connection_id: 'c1',
       slug: 'GMAIL_NEW_GMAIL_MESSAGE',
     });
     expect(enable.ok).toBe(true);
 
-    const after = await callOpenhumanRpc('eversilver.composio_list_triggers', {});
+    const after = await callEversilverRpc('eversilver.composio_list_triggers', {});
     expect(after.ok).toBe(true);
     const afterList = (after.result?.triggers ?? after.value?.result?.triggers ?? []) as unknown[];
     expect(afterList.length).toBeGreaterThan(0);
@@ -270,7 +270,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
       (await waitForMockRequest('GET', '/auth/integrations', 3_000));
     // It's OK if neither call fires (the error path may not trigger a refresh),
     // but the RPC layer must still be alive.
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
     console.log(`${LOG} oauth error: core.ping still ok after error deep link`);
     if (post) console.log(`${LOG} post-error follow-up:`, post.url);
@@ -293,7 +293,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     // Attempt to append a message to a thread ID that does not exist.
     // The core must return a structured error (kind=ThreadNotFound) rather
     // than a hard crash or an opaque 500.
-    const result = await callOpenhumanRpc('eversilver.threads_message_append', {
+    const result = await callEversilverRpc('eversilver.threads_message_append', {
       thread_id: 'stale-thread-does-not-exist',
       role: 'user',
       content: 'hello from mega-flow stale thread test',
@@ -309,7 +309,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     console.log(`${LOG} stale-thread: error returned = ${errorMessage}`);
 
     // Core must still respond to ping — the error must not have torn down the session.
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
     console.log(`${LOG} stale-thread: core.ping healthy after structured error`);
   });
@@ -327,7 +327,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     clearRequestLog();
 
     // Call a method name that no controller has registered.
-    const result = await callOpenhumanRpc('eversilver.nonexistent_method_for_capability_test', {});
+    const result = await callEversilverRpc('eversilver.nonexistent_method_for_capability_test', {});
 
     // Must fail — the core does not have this method.
     expect(result.ok).toBe(false);
@@ -338,7 +338,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     console.log(`${LOG} unknown-method: error = ${errorMsg}`);
 
     // Session must survive — core.ping must still respond.
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
     console.log(`${LOG} unknown-method: core.ping healthy after method-not-found`);
   });
@@ -376,7 +376,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     clearRequestLog();
 
     // Seed two chats via the internal ingest path.
-    const ingest = await callOpenhumanRpc('eversilver.whatsapp_data_ingest', {
+    const ingest = await callEversilverRpc('eversilver.whatsapp_data_ingest', {
       account_id: 'wa-e2e@test',
       chats: { 'chat-jid-1@test': { name: 'E2E Chat Alpha' }, 'chat-jid-2@test': { name: null } },
       messages: [
@@ -401,7 +401,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     }
 
     // list_chats is always agent-facing and must be reachable.
-    const list = await callOpenhumanRpc('eversilver.whatsapp_data_list_chats', {});
+    const list = await callEversilverRpc('eversilver.whatsapp_data_list_chats', {});
     expect(list.ok).toBe(true);
     // Result has a "chats" array — may be empty if ingest was unavailable.
     const chats: unknown[] =
@@ -413,7 +413,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     console.log(`${LOG} whatsapp list_chats returned ${chats.length} chat(s)`);
 
     // Session must still be healthy.
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
@@ -452,7 +452,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     clearRequestLog();
 
     // Create a thread as user A.
-    const createA = await callOpenhumanRpc('eversilver.threads_create_new', {
+    const createA = await callEversilverRpc('eversilver.threads_create_new', {
       title: 'Thread for user A',
     });
     expect(createA.ok).toBe(true);
@@ -461,7 +461,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     console.log(`${LOG} acct-switch: user A thread id = ${threadId || '(unknown)'}`);
 
     // List threads — must have at least 1.
-    const listA = await callOpenhumanRpc('eversilver.threads_list', {});
+    const listA = await callEversilverRpc('eversilver.threads_list', {});
     expect(listA.ok).toBe(true);
     const threadsA: unknown[] =
       listA.result?.result?.threads ?? listA.result?.threads ?? listA.value?.result?.threads ?? [];
@@ -476,7 +476,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     clearRequestLog();
 
     // User B must see zero threads (fresh workspace).
-    const listB = await callOpenhumanRpc('eversilver.threads_list', {});
+    const listB = await callEversilverRpc('eversilver.threads_list', {});
     expect(listB.ok).toBe(true);
     const threadsB: unknown[] =
       listB.result?.result?.threads ?? listB.result?.threads ?? listB.value?.result?.threads ?? [];
@@ -495,7 +495,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     await waitForMockRequest('POST', '/telegram/login-tokens/', 15_000);
     clearRequestLog();
 
-    const listA2 = await callOpenhumanRpc('eversilver.threads_list', {});
+    const listA2 = await callEversilverRpc('eversilver.threads_list', {});
     expect(listA2.ok).toBe(true);
     const threadsA2: unknown[] =
       listA2.result?.result?.threads ??
@@ -510,7 +510,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
       `${LOG} acct-switch: user A (re-login) sees ${threadsA2.length} thread(s) — RPC healthy`
     );
 
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
@@ -545,7 +545,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     });
 
     // Step 1 — enable trigger.
-    const enable = await callOpenhumanRpc('eversilver.composio_enable_trigger', {
+    const enable = await callEversilverRpc('eversilver.composio_enable_trigger', {
       connection_id: 'c2',
       slug: 'GITHUB_PULL_REQUEST_EVENT',
     });
@@ -554,7 +554,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
 
     // Step 2 — register an echo tunnel so the core has a tunnel ID to work with.
     const tunnelUuid = 'mega-flow-composio-tunnel';
-    const register = await callOpenhumanRpc('eversilver.webhooks_register_echo', {
+    const register = await callEversilverRpc('eversilver.webhooks_register_echo', {
       tunnel_uuid: tunnelUuid,
       tunnel_name: 'Mega Flow Composio Tunnel',
       backend_tunnel_id: 'backend-mega-composio',
@@ -588,7 +588,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     expect(ingressHit).toBeDefined();
 
     // Step 4 — verify the enabled trigger is still listed.
-    const list = await callOpenhumanRpc('eversilver.composio_list_triggers', {});
+    const list = await callEversilverRpc('eversilver.composio_list_triggers', {});
     expect(list.ok).toBe(true);
     const triggers: unknown[] = list.result?.triggers ?? list.value?.result?.triggers ?? [];
     expect(triggers.length).toBeGreaterThan(0);
@@ -596,7 +596,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
       `${LOG} composio+webhook: list_triggers after ingest has ${triggers.length} entry(s)`
     );
 
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
@@ -616,7 +616,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     await waitForMockRequest('POST', '/telegram/login-tokens/', 15_000);
     clearRequestLog();
 
-    const result = await callOpenhumanRpc('eversilver.update_version', {});
+    const result = await callEversilverRpc('eversilver.update_version', {});
     expect(result.ok).toBe(true);
 
     // The version_info envelope may be one or two levels deep depending on
@@ -658,7 +658,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     );
     expect(outbound).toBeUndefined();
 
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
@@ -685,20 +685,20 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     };
 
     // First ingest — must succeed.
-    const first = await callOpenhumanRpc('eversilver.notification_ingest', notifPayload);
+    const first = await callEversilverRpc('eversilver.notification_ingest', notifPayload);
     expect(first.ok).toBe(true);
     const firstSkipped: boolean = first.result?.skipped ?? first.result?.result?.skipped ?? false;
     console.log(`${LOG} dedup: first ingest skipped=${firstSkipped}`);
 
     // Second ingest with identical params — must also return ok (not crash).
-    const second = await callOpenhumanRpc('eversilver.notification_ingest', notifPayload);
+    const second = await callEversilverRpc('eversilver.notification_ingest', notifPayload);
     expect(second.ok).toBe(true);
     const secondSkipped: boolean =
       second.result?.skipped ?? second.result?.result?.skipped ?? false;
     console.log(`${LOG} dedup: second ingest skipped=${secondSkipped}`);
 
     // List all notifications for the gmail provider.
-    const list = await callOpenhumanRpc('eversilver.notification_list', {
+    const list = await callEversilverRpc('eversilver.notification_list', {
       provider: 'gmail',
       limit: 50,
     });
@@ -721,7 +721,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     expect(matchingItems.length).toBeLessThanOrEqual(1);
     console.log(`${LOG} dedup: found ${matchingItems.length} matching record(s) — dedup confirmed`);
 
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
@@ -741,7 +741,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     clearRequestLog();
 
     // Step 1 — create a fresh thread.
-    const create = await callOpenhumanRpc('eversilver.threads_create_new', {});
+    const create = await callEversilverRpc('eversilver.threads_create_new', {});
     expect(create.ok).toBe(true);
     const threadId: string =
       create.result?.result?.id ?? create.result?.id ?? create.value?.result?.id ?? '';
@@ -752,7 +752,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     // Step 2 — append a user message.
     const now = new Date().toISOString();
     const msgId = `msg-e2e-batch3-${Date.now()}`;
-    const append = await callOpenhumanRpc('eversilver.threads_message_append', {
+    const append = await callEversilverRpc('eversilver.threads_message_append', {
       thread_id: threadId,
       message: {
         id: msgId,
@@ -768,7 +768,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
 
     // Step 3 — list messages for the thread and assert the appended message
     // appears in the result.
-    const msgList = await callOpenhumanRpc('eversilver.threads_messages_list', {
+    const msgList = await callEversilverRpc('eversilver.threads_messages_list', {
       thread_id: threadId,
     });
     expect(msgList.ok).toBe(true);
@@ -790,7 +790,7 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
       `${LOG} thread-crud: message ${msgId} confirmed in list (${messages.length} total)`
     );
 
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 });

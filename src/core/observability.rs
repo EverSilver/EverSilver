@@ -31,7 +31,7 @@ pub type Tag<'a> = (&'a str, &'a str);
 /// - **504** Gateway Timeout
 ///
 /// Single source of truth for both the call-site classifier
-/// (`openhuman::providers::ops::should_report_provider_http_failure`) and the
+/// (`eversilver::providers::ops::should_report_provider_http_failure`) and the
 /// `before_send` filter (`is_transient_provider_http_failure`). Update here
 /// and both sites pick it up — keeps the two layers from drifting.
 pub const TRANSIENT_PROVIDER_HTTP_STATUSES: &[u16] = &[408, 429, 502, 503, 504, 520];
@@ -65,7 +65,7 @@ const UPDATER_TRANSIENT_MESSAGE_PHRASES: &[&str] = &[
     "failed to check for updates: error sending request",
     "github api error: 403",
     "github api error: 5",
-    "error sending request for url (https://github.com/eversilver/openhuman/releases/",
+    "error sending request for url (https://github.com/eversilver/eversilver/releases/",
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -123,7 +123,7 @@ pub fn expected_error_kind(message: &str) -> Option<ExpectedErrorKind> {
     if is_local_ai_capability_unavailable_message(&lower) {
         return Some(ExpectedErrorKind::LocalAiCapabilityUnavailable);
     }
-    if crate::openhuman::providers::is_budget_exhausted_message(message) {
+    if crate::eversilver::providers::is_budget_exhausted_message(message) {
         return Some(ExpectedErrorKind::BudgetExhausted);
     }
     if is_session_expired_message(message) {
@@ -249,8 +249,8 @@ fn is_transient_upstream_http_message(lower: &str) -> bool {
 /// bugs Sentry can act on.
 ///
 /// The canonical wire format from
-/// [`crate::openhuman::integrations::client::IntegrationClient::post`] / `get`
-/// and [`crate::openhuman::composio::client::ComposioClient`] is:
+/// [`crate::eversilver::integrations::client::IntegrationClient::post`] / `get`
+/// and [`crate::eversilver::composio::client::ComposioClient`] is:
 /// `"Backend returned <status> <reason> for <METHOD> <url>: <detail>"` — e.g.
 /// `"Backend returned 400 Bad Request for POST https://api.eversilver.local/agent-integrations/composio/authorize: Composio authorization failed: 400 …"`
 /// (EVERSILVER-TAURI-BC: user submitted SharePoint authorize without filling in
@@ -271,7 +271,7 @@ fn is_transient_upstream_http_message(lower: &str) -> bool {
 /// 5xx is intentionally **not** classified here — server-side failures from
 /// our backend are real bugs that should reach Sentry. The transient
 /// 502/503/504 deduplication is handled by the threshold logic in callers
-/// (see e.g. `openhuman::socket::ws_loop::FAIL_ESCALATE_THRESHOLD`).
+/// (see e.g. `eversilver::socket::ws_loop::FAIL_ESCALATE_THRESHOLD`).
 fn is_backend_user_error_message(lower: &str) -> bool {
     let Some(rest) = lower.split_once("backend returned ").map(|(_, r)| r) else {
         return false;
@@ -578,7 +578,7 @@ fn report_expected_message(kind: ExpectedErrorKind, message: &str, domain: &str,
 /// `sentry::capture_message` synchronously routes through the active hub
 /// and is deterministic, which keeps both production reporting and tests
 /// honest.
-pub const REPORT_ERROR_TRACING_TARGET: &str = "openhuman::observability::report_error";
+pub const REPORT_ERROR_TRACING_TARGET: &str = "eversilver::observability::report_error";
 
 pub(crate) fn report_error_message(
     message: &str,
@@ -617,7 +617,7 @@ pub(crate) fn report_error_message(
 /// that the reliable-provider layer already handles via retry + fallback.
 ///
 /// The primary suppression lives at the call site
-/// (`openhuman::providers::ops::should_report_provider_http_failure`),
+/// (`eversilver::providers::ops::should_report_provider_http_failure`),
 /// which short-circuits transient codes before `report_error` ever fires.
 /// This helper is intended for use inside the `sentry::ClientOptions`
 /// `before_send` hook as defense-in-depth — it catches any future call
@@ -646,7 +646,7 @@ pub fn is_transient_provider_http_failure(event: &sentry::protocol::Event<'_>) -
 
 /// Returns true when a Sentry event's message/exception text contains the
 /// canonical max-tool-iterations cap phrase (see
-/// `openhuman::agent::error::MAX_ITERATIONS_ERROR_PREFIX`).
+/// `eversilver::agent::error::MAX_ITERATIONS_ERROR_PREFIX`).
 ///
 /// Defense-in-depth filter for the Sentry `before_send` hook: the primary
 /// suppression lives at the call sites in `agent::harness::session::
@@ -669,7 +669,7 @@ pub fn is_max_iterations_event(event: &sentry::protocol::Event<'_>) -> bool {
     [direct, from_exception]
         .into_iter()
         .flatten()
-        .any(crate::openhuman::agent::error::is_max_iterations_error)
+        .any(crate::eversilver::agent::error::is_max_iterations_error)
 }
 
 /// Tag + body classifier for the `before_send` chain — drops Sentry events
@@ -814,10 +814,10 @@ pub fn is_transient_backend_api_failure(event: &sentry::protocol::Event<'_>) -> 
 /// gateway hiccups).
 ///
 /// Accepts both `domain="integrations"` (the shared
-/// [`crate::openhuman::integrations::IntegrationClient`] HTTP wrapper that
+/// [`crate::eversilver::integrations::IntegrationClient`] HTTP wrapper that
 /// fronts every backend-proxied integration) and `domain="composio"` (errors
 /// reported from the Composio op layer in
-/// [`crate::openhuman::composio::ops`]). Composio routes through the same
+/// [`crate::eversilver::composio::ops`]). Composio routes through the same
 /// `IntegrationClient`, so the failure shape is identical — but op-level
 /// reporters that wrap and re-emit those errors with their own domain tag
 /// would otherwise escape the integrations-scoped filter (EVERSILVER-TAURI-35
@@ -920,7 +920,7 @@ fn event_contains_budget_exhausted_message(event: &sentry::protocol::Event<'_>) 
     if event
         .message
         .as_deref()
-        .is_some_and(crate::openhuman::providers::is_budget_exhausted_message)
+        .is_some_and(crate::eversilver::providers::is_budget_exhausted_message)
     {
         return true;
     }
@@ -929,7 +929,7 @@ fn event_contains_budget_exhausted_message(event: &sentry::protocol::Event<'_>) 
         exception
             .value
             .as_deref()
-            .is_some_and(crate::openhuman::providers::is_budget_exhausted_message)
+            .is_some_and(crate::eversilver::providers::is_budget_exhausted_message)
     })
 }
 
@@ -1103,7 +1103,7 @@ mod tests {
     #[test]
     fn integrations_post_composio_timeout_dropped() {
         // EVERSILVER-TAURI-18 / -G regression guard. The integrations
-        // client at `crate::openhuman::integrations::client::IntegrationClient::post`
+        // client at `crate::eversilver::integrations::client::IntegrationClient::post`
         // builds the reqwest error chain and routes it through
         // `report_error_or_expected(.., "integrations", "post", &[("failure",
         // "transport")])`. The chain text contains the
@@ -2023,7 +2023,7 @@ mod tests {
     fn updater_real_panic_still_reported() {
         let event = event_with_tags_and_message(
             &[("domain", "update"), ("operation", "check_releases")],
-            "thread 'main' panicked at src/openhuman/update/core.rs: index out of bounds",
+            "thread 'main' panicked at src/eversilver/update/core.rs: index out of bounds",
         );
         assert!(
             !is_updater_transient_event(&event),
@@ -2130,7 +2130,7 @@ mod tests {
             "local ai is disabled",
             "rpc",
             "invoke_method",
-            &[("method", "openhuman.local_ai_prompt")],
+            &[("method", "eversilver.local_ai_prompt")],
         );
         report_error_or_expected(
             "ollama API key not set",

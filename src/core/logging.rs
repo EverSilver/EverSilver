@@ -1,12 +1,12 @@
-//! Logging for `openhuman run` (and other CLI paths that need stderr output).
+//! Logging for `eversilver run` (and other CLI paths that need stderr output).
 //!
 //! Without initializing a subscriber, `log::` and `tracing::` macros are no-ops.
 //!
 //! Two entry points share the same formatter and `EnvFilter`:
-//!   * [`init_for_cli_run`] — stderr only, used by `openhuman run` / CLI
+//!   * [`init_for_cli_run`] — stderr only, used by `eversilver run` / CLI
 //!     subcommands.
 //!   * [`init_for_embedded`] — stderr + a daily-rotated file under
-//!     `<data_dir>/logs/openhuman-YYYY-MM-DD.log`, used by the Tauri shell
+//!     `<data_dir>/logs/eversilver-YYYY-MM-DD.log`, used by the Tauri shell
 //!     where stderr is invisible in packaged builds. Both shell `log::*`
 //!     calls and core `tracing::*` calls funnel into the same file via
 //!     [`tracing_log::LogTracer`].
@@ -43,7 +43,7 @@ static LOG_DIR: OnceLock<PathBuf> = OnceLock::new();
 pub enum CliLogDefault {
     /// Typical server/CLI logging (`info`, or `debug` when `verbose`).
     Global,
-    /// Silence other modules; only `eversilver_core::openhuman::autocomplete::*` emits logs.
+    /// Silence other modules; only `eversilver_core::eversilver::autocomplete::*` emits logs.
     AutocompleteOnly,
 }
 
@@ -203,7 +203,7 @@ pub fn init_for_cli_run(verbose: bool, default_scope: CliLogDefault) {
 ///   * a stderr layer (for `tauri dev` / terminal launches), with ANSI when
 ///     attached to a TTY,
 ///   * a non-blocking, daily-rotated file appender at
-///     `<data_dir>/logs/openhuman-YYYY-MM-DD.log` so packaged GUI builds —
+///     `<data_dir>/logs/eversilver-YYYY-MM-DD.log` so packaged GUI builds —
 ///     where stderr is invisible — still produce a log users can share for
 ///     support,
 ///   * the Sentry breadcrumb/event layer,
@@ -233,7 +233,7 @@ pub fn init_for_embedded(data_dir: &Path, verbose: bool) {
             match std::fs::create_dir_all(&logs_dir) {
                 Ok(()) => match tracing_appender::rolling::Builder::new()
                     .rotation(tracing_appender::rolling::Rotation::DAILY)
-                    .filename_prefix("openhuman")
+                    .filename_prefix("eversilver")
                     .filename_suffix("log")
                     .max_log_files(7)
                     .build(&logs_dir)
@@ -329,7 +329,7 @@ fn seed_rust_log(verbose: bool, default_scope: CliLogDefault) {
         }
         CliLogDefault::AutocompleteOnly => {
             let level = if verbose { "trace" } else { "debug" };
-            format!("off,eversilver_core::openhuman::autocomplete={level}")
+            format!("off,eversilver_core::eversilver::autocomplete={level}")
         }
     };
     std::env::set_var("RUST_LOG", default);
@@ -343,7 +343,7 @@ fn build_env_filter(verbose: bool, default_scope: CliLogDefault) -> tracing_subs
         CliLogDefault::AutocompleteOnly => {
             let level = if verbose { "trace" } else { "debug" };
             tracing_subscriber::EnvFilter::new(format!(
-                "off,eversilver_core::openhuman::autocomplete={level}"
+                "off,eversilver_core::eversilver::autocomplete={level}"
             ))
         }
     })
@@ -428,14 +428,14 @@ mod tests {
             seed_rust_log(false, CliLogDefault::AutocompleteOnly);
             assert_eq!(
                 std::env::var("RUST_LOG").unwrap(),
-                "off,eversilver_core::openhuman::autocomplete=debug"
+                "off,eversilver_core::eversilver::autocomplete=debug"
             );
         });
         with_clean_rust_log(|| {
             seed_rust_log(true, CliLogDefault::AutocompleteOnly);
             assert_eq!(
                 std::env::var("RUST_LOG").unwrap(),
-                "off,eversilver_core::openhuman::autocomplete=trace"
+                "off,eversilver_core::eversilver::autocomplete=trace"
             );
         });
     }

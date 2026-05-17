@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { resetApp } from '../helpers/reset-app';
 import { clearRequestLog, getRequestLog, startMockServer, stopMockServer } from '../mock-server';
 
@@ -79,12 +79,12 @@ describe('System tools — Browser (open URL + automation registry)', () => {
     // The registry path that resolves `browser_open` lives behind
     // `agent_list_definitions`; failure to find tools_agent means the
     // browser-tool surface is unreachable from JSON-RPC.
-    const status = await callOpenhumanRpc<ServerStatus>('eversilver.agent_server_status', {});
+    const status = await callEversilverRpc<ServerStatus>('eversilver.agent_server_status', {});
     stepLog('agent_server_status response', status);
     expect(status.ok).toBe(true);
     expect(status.result?.running).toBe(true);
 
-    const list = await callOpenhumanRpc<ListDefinitionsResult>(
+    const list = await callEversilverRpc<ListDefinitionsResult>(
       'eversilver.agent_list_definitions',
       {}
     );
@@ -138,7 +138,7 @@ describe('System tools — Browser (open URL + automation registry)', () => {
     // wildcard scope is present means the LLM-facing tool surface that
     // would expose this schema to a model is intact. The schema content
     // itself is unit-tested in `browser_tests.rs::browser_tool_schema_*`.
-    const list = await callOpenhumanRpc<ListDefinitionsResult>(
+    const list = await callEversilverRpc<ListDefinitionsResult>(
       'eversilver.agent_list_definitions',
       {}
     );

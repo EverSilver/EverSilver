@@ -125,7 +125,7 @@ function MeetingBotsModal({ onClose, onToast }: ModalProps) {
   const selected = PLATFORMS.find(p => p.platform === platform) ?? PLATFORMS[0];
   const isComingSoon = !!selected.comingSoon;
 
-  // Esc closes the modal — matches the OpenhumanLinkModal pattern.
+  // Esc closes the modal — matches the EversilverLinkModal pattern.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn stable_hash_is_deterministic() {
-        assert_eq!(stable_hash("openhuman"), stable_hash("openhuman"));
+        assert_eq!(stable_hash("eversilver"), stable_hash("eversilver"));
         assert_ne!(stable_hash("a"), stable_hash("b"));
     }
 }

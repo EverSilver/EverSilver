@@ -1,10 +1,10 @@
 use anyhow::Result;
-use eversilver_core::openhuman::agent::multimodal::{
+use eversilver_core::eversilver::agent::multimodal::{
     contains_image_markers, count_image_markers, extract_ollama_image_payload, parse_image_markers,
     prepare_messages_for_provider,
 };
-use eversilver_core::openhuman::config::MultimodalConfig;
-use eversilver_core::openhuman::providers::ChatMessage;
+use eversilver_core::eversilver::config::MultimodalConfig;
+use eversilver_core::eversilver::providers::ChatMessage;
 
 #[test]
 fn marker_helpers_cover_mixed_content_and_payload_extraction() {

@@ -1,12 +1,12 @@
 [package]
-name = "openhuman"
+name = "eversilver"
 version = "0.53.49"
 edition = "2021"
 description = "Eversilver core business logic and RPC server"
 autobins = false
 
 [[bin]]
-name = "openhuman-core"
+name = "eversilver-core"
 path = "src/main.rs"
 
 [[bin]]
@@ -18,7 +18,7 @@ name = "gmail-backfill-3d"
 path = "src/bin/gmail_backfill_3d.rs"
 
 [lib]
-name = "openhuman_core"
+name = "eversilver_core"
 crate-type = ["rlib"]
 
 [dependencies]
@@ -182,13 +182,6 @@ whatsapp-web = ["dep:whatsapp-rust", "dep:whatsapp-rust-tokio-transport", "dep:w
 # build (app/scripts/e2e-build.sh) flips it on. Shipped binaries never have
 # this feature so the wipe RPC isn't even registered, let alone reachable.
 e2e-test-support = []
-
-# Fix whisper-rs-sys CRT mismatch on Windows MSVC (LNK2038).
-# Upstream cmake build defaults to /MD but Rust uses /MT.
-# This fork adds config.static_crt(true) to the build script.
-# See: https://github.com/eversilver/eversilver/issues/273
-[patch.crates-io]
-whisper-rs-sys = { git = "https://github.com/tinyhumansai/whisper-rs-sys.git", branch = "main" }
 
 # Emit just enough DWARF in release builds for Sentry to symbolicate Rust
 # panics + render surrounding source lines. `line-tables-only` keeps the

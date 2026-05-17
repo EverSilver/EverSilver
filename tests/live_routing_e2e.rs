@@ -79,17 +79,17 @@ encrypt = false
     );
 
     fn write_config_file(config_dir: &Path, cfg: &str) {
-        std::fs::create_dir_all(config_dir).expect("mkdir openhuman");
+        std::fs::create_dir_all(config_dir).expect("mkdir eversilver");
         let path = config_dir.join("config.toml");
         std::fs::write(&path, cfg).expect("write config");
     }
 
     write_config_file(eversilver_dir, &cfg);
     // Match runtime config resolution order used during pre-login auth flows.
-    // If we seed ~/.openhuman, also seed ~/.openhuman/users/local.
+    // If we seed ~/.eversilver, also seed ~/.eversilver/users/local.
     if eversilver_dir
         .file_name()
-        .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
+        .is_some_and(|name| name == std::ffi::OsStr::new(".eversilver"))
     {
         write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
@@ -191,7 +191,7 @@ fn ensure_test_rpc_auth() {
         // multi-threaded contexts; the OnceLock guard limits the mutation to a
         // single call at init time, before any concurrent env reads occur.
         unsafe { std::env::set_var(CORE_TOKEN_ENV_VAR, TEST_RPC_TOKEN) };
-        let token_dir = std::env::temp_dir().join("openhuman-live-routing-e2e-auth");
+        let token_dir = std::env::temp_dir().join("eversilver-live-routing-e2e-auth");
         init_rpc_token(&token_dir).expect("init rpc auth token for live_routing_e2e");
     });
 }
@@ -207,7 +207,7 @@ async fn live_channel_web_chat_routing_cases_trigger_real_backend() {
 
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
 
     write_live_config(&eversilver_home, &api_url);
@@ -220,7 +220,7 @@ async fn live_channel_web_chat_routing_cases_trigger_real_backend() {
     let store = post_json_rpc(
         &rpc_base,
         1,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({
             "token": token,
             "user_id": user_id
@@ -247,7 +247,7 @@ async fn live_channel_web_chat_routing_cases_trigger_real_backend() {
         let web_chat = post_json_rpc(
             &rpc_base,
             10 + idx as i64,
-            "openhuman.channel_web_chat",
+            "eversilver.channel_web_chat",
             json!({
                 "client_id": client_id,
                 "thread_id": thread_id,

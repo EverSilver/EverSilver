@@ -8,7 +8,7 @@
 //!
 //! # Prerequisites
 //!
-//! - A working openhuman install (same workspace dir the desktop app
+//! - A working eversilver install (same workspace dir the desktop app
 //!   uses) with a signed-in session JWT.
 //! - A Slack connection created via Composio's OAuth flow (e.g. from
 //!   the desktop app's Integrations screen). No self-hosted Slack App
@@ -27,7 +27,7 @@
 //! export EVERSILVER_MEMORY_EXTRACT_MODEL=qwen2.5:0.5b
 //! export EVERSILVER_MEMORY_SUMMARISE_ENDPOINT=http://localhost:11434
 //! export EVERSILVER_MEMORY_SUMMARISE_MODEL=llama3.1:8b
-//! export RUST_LOG=info,eversilver_core::openhuman::composio::providers::slack=debug,eversilver_core::openhuman::memory=debug
+//! export RUST_LOG=info,eversilver_core::eversilver::composio::providers::slack=debug,eversilver_core::eversilver::memory=debug
 //!
 //! cargo run --bin slack-backfill                              # all active slack connections
 //! cargo run --bin slack-backfill -- --connection conn_abc     # one specific connection
@@ -39,19 +39,19 @@ use std::time::Instant;
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 
-use eversilver_core::openhuman::composio::client::{
+use eversilver_core::eversilver::composio::client::{
     create_composio_client, direct_execute, direct_list_connections, ComposioClientKind,
 };
-use eversilver_core::openhuman::composio::providers::registry::{
+use eversilver_core::eversilver::composio::providers::registry::{
     get_provider, init_default_providers,
 };
-use eversilver_core::openhuman::composio::providers::slack::run_backfill_via_search;
-use eversilver_core::openhuman::composio::providers::{ProviderContext, SyncReason};
-use eversilver_core::openhuman::composio::types::{
+use eversilver_core::eversilver::composio::providers::slack::run_backfill_via_search;
+use eversilver_core::eversilver::composio::providers::{ProviderContext, SyncReason};
+use eversilver_core::eversilver::composio::types::{
     ComposioConnectionsResponse, ComposioExecuteResponse,
 };
-use eversilver_core::openhuman::config::Config;
-use eversilver_core::openhuman::memory;
+use eversilver_core::eversilver::config::Config;
+use eversilver_core::eversilver::memory;
 
 /// Dispatch a Composio action through the live `ComposioClientKind`.
 /// Centralises the backend-vs-direct branch so the per-call sites in
@@ -211,8 +211,8 @@ async fn main() -> Result<()> {
 
     if cli.seal_probe {
         use chrono::{Duration, Utc};
-        use eversilver_core::openhuman::memory::tree::canonicalize::chat::{ChatBatch, ChatMessage};
-        use eversilver_core::openhuman::memory::tree::ingest::ingest_chat;
+        use eversilver_core::eversilver::memory::tree::canonicalize::chat::{ChatBatch, ChatMessage};
+        use eversilver_core::eversilver::memory::tree::ingest::ingest_chat;
 
         let connection_id = cli.connection_id.clone().ok_or_else(|| {
             anyhow::anyhow!(

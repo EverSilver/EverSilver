@@ -18,10 +18,10 @@
 //! real engine pipeline without requiring macOS permissions or a running Ollama server.
 //!
 //! ### macOS E2E checklist (manual, requires Screen Recording permission)
-//! 1. Grant Screen Recording to the `openhuman-core` binary in System Settings › Privacy & Security.
+//! 1. Grant Screen Recording to the `eversilver-core` binary in System Settings › Privacy & Security.
 //! 2. Run: `cargo test --test screen_intelligence_vision_e2e -- --nocapture`
 //! 3. Ensure Ollama is running with a vision-capable model (e.g. `ollama run minicpm-v`).
-//! 4. Call `openhuman.screen_intelligence_capture_test` via `cargo test --test json_rpc_e2e json_rpc_screen_intelligence`.
+//! 4. Call `eversilver.screen_intelligence_capture_test` via `cargo test --test json_rpc_e2e json_rpc_screen_intelligence`.
 //! 5. Run ignored real-capture test:
 //!    `cargo test --test screen_intelligence_vision_e2e macos_real_capture_cycle_persists_summary -- --ignored --nocapture`
 
@@ -35,11 +35,11 @@ use image::imageops::FilterType;
 use image::{ImageBuffer, Rgb, RgbImage};
 use tempfile::tempdir;
 
-use eversilver_core::openhuman::embeddings::NoopEmbedding;
-use eversilver_core::openhuman::memory::store::types::NamespaceDocumentInput;
-use eversilver_core::openhuman::memory::store::UnifiedMemory;
-use eversilver_core::openhuman::screen_intelligence::CaptureFrame;
-use eversilver_core::openhuman::screen_intelligence::{
+use eversilver_core::eversilver::embeddings::NoopEmbedding;
+use eversilver_core::eversilver::memory::store::types::NamespaceDocumentInput;
+use eversilver_core::eversilver::memory::store::UnifiedMemory;
+use eversilver_core::eversilver::screen_intelligence::CaptureFrame;
+use eversilver_core::eversilver::screen_intelligence::{
     global_engine, AccessibilityEngine, VisionSummary,
 };
 
@@ -118,7 +118,7 @@ fn make_capture_frame(image_ref: Option<String>) -> CaptureFrame {
 
 /// Open a UnifiedMemory backed by NoopEmbedding in a temp dir.
 fn open_test_memory(dir: &Path) -> UnifiedMemory {
-    let embedder: Arc<dyn eversilver_core::openhuman::embeddings::EmbeddingProvider> =
+    let embedder: Arc<dyn eversilver_core::eversilver::embeddings::EmbeddingProvider> =
         Arc::new(NoopEmbedding);
     UnifiedMemory::new(dir, embedder, Some(5)).expect("UnifiedMemory::new")
 }
@@ -151,7 +151,7 @@ encrypt = false
     );
     std::fs::create_dir_all(root).expect("mkdir test root");
     std::fs::write(root.join("config.toml"), &cfg).expect("write config");
-    let _: eversilver_core::openhuman::config::Config =
+    let _: eversilver_core::eversilver::config::Config =
         toml::from_str(&cfg).expect("test config should deserialize");
 }
 
@@ -685,7 +685,7 @@ async fn engine_pipeline_with_mocked_local_vision_persists_to_memory() {
         .expect("mocked engine pipeline should succeed");
     assert_eq!(summary.ui_state, "browser with docs");
 
-    let config = eversilver_core::openhuman::config::Config::load_or_init()
+    let config = eversilver_core::eversilver::config::Config::load_or_init()
         .await
         .expect("load config");
     let mem = open_test_memory(&config.workspace_dir);
@@ -756,7 +756,7 @@ async fn macos_real_capture_cycle_persists_summary() {
         "summary should include actionable notes"
     );
 
-    let config = eversilver_core::openhuman::config::Config::load_or_init()
+    let config = eversilver_core::eversilver::config::Config::load_or_init()
         .await
         .expect("load config");
     let mem = open_test_memory(&config.workspace_dir);

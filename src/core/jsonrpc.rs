@@ -124,7 +124,7 @@ pub async fn rpc_handler(State(state): State<AppState>, Json(req): Json<RpcReque
                 // includes tokens. `sanitize_api_error` runs the same scrub
                 // used in the SessionExpired publish path below.
                 let redacted =
-                    crate::openhuman::providers::ops::sanitize_api_error(&display_message);
+                    crate::eversilver::providers::ops::sanitize_api_error(&display_message);
                 tracing::warn!(
                     method = %method,
                     elapsed_ms = ms as u64,
@@ -189,7 +189,7 @@ pub async fn invoke_method(state: AppState, method: &str, params: Value) -> Resu
             crate::core::event_bus::publish_global(
                 crate::core::event_bus::DomainEvent::SessionExpired {
                     source: format!("jsonrpc.invoke_method:{method}"),
-                    reason: crate::openhuman::providers::ops::sanitize_api_error(msg),
+                    reason: crate::eversilver::providers::ops::sanitize_api_error(msg),
                 },
             );
         }
@@ -444,7 +444,7 @@ async fn telegram_auth_handler(Query(query): Query<TelegramAuthQuery>) -> impl I
 
     log::info!("[auth:telegram] Received registration callback with token");
 
-    let config = match crate::openhuman::config::Config::load_or_init().await {
+    let config = match crate::eversilver::config::Config::load_or_init().await {
         Ok(c) => c,
         Err(e) => {
             log::error!("[auth:telegram] Failed to load config: {e}");
@@ -501,7 +501,7 @@ async fn telegram_auth_handler(Query(query): Query<TelegramAuthQuery>) -> impl I
     };
 
     // Store the resulting session token in the local configuration.
-    match crate::openhuman::credentials::ops::store_session(&config, &jwt_token, None, None).await {
+    match crate::eversilver::credentials::ops::store_session(&config, &jwt_token, None, None).await {
         Ok(outcome) => {
             for msg in &outcome.logs {
                 log::info!("[auth:telegram] {msg}");
@@ -524,14 +524,14 @@ async fn telegram_auth_handler(Query(query): Query<TelegramAuthQuery>) -> impl I
 async fn dictation_ws_handler(ws: WebSocketUpgrade) -> Response {
     log::info!("[ws] dictation WebSocket upgrade requested");
     ws.on_upgrade(|socket| async move {
-        let config = match crate::openhuman::config::rpc::load_config_with_timeout().await {
+        let config = match crate::eversilver::config::rpc::load_config_with_timeout().await {
             Ok(c) => Arc::new(c),
             Err(e) => {
                 log::error!("[ws] failed to load config for dictation: {e}");
                 return;
             }
         };
-        crate::openhuman::voice::streaming::handle_dictation_ws(socket, config).await;
+        crate::eversilver::voice::streaming::handle_dictation_ws(socket, config).await;
     })
 }
 
@@ -655,7 +655,7 @@ async fn events_handler(
     Query(query): Query<EventsQuery>,
 ) -> Sse<impl tokio_stream::Stream<Item = Result<Event, std::convert::Infallible>>> {
     let client_id = query.client_id;
-    let rx = crate::openhuman::channels::providers::web::subscribe_web_channel_events();
+    let rx = crate::eversilver::channels::providers::web::subscribe_web_channel_events();
     let stream = tokio_stream::wrappers::BroadcastStream::new(rx).filter_map(move |item| {
         let event = match item {
             Ok(ev) => ev,
@@ -688,7 +688,7 @@ async fn webhook_events_handler() -> Response {
 
 /// Handler for the root endpoint, returning server information and available endpoints.
 async fn root_handler() -> impl IntoResponse {
-    let api_server = match crate::openhuman::config::Config::load_or_init().await {
+    let api_server = match crate::eversilver::config::Config::load_or_init().await {
         Ok(cfg) => crate::api::config::effective_backend_api_url(&cfg.api_url),
         Err(_) => crate::api::config::effective_backend_api_url(&None),
     };
@@ -696,7 +696,7 @@ async fn root_handler() -> impl IntoResponse {
     (
         StatusCode::OK,
         Json(json!({
-            "name": "openhuman",
+            "name": "eversilver",
             "ok": true,
             "api_server": api_server,
             "endpoints": {
@@ -779,10 +779,10 @@ async fn run_server_inner(
 
     // Initialize the per-process RPC bearer token.
     // Written to {workspace_dir}/core.token so the Tauri shell can read it.
-    let token_dir = crate::openhuman::config::default_root_eversilver_dir().unwrap_or_else(|_| {
+    let token_dir = crate::eversilver::config::default_root_eversilver_dir().unwrap_or_else(|_| {
         dirs::home_dir()
             .unwrap_or_else(|| std::path::PathBuf::from("."))
-            .join(".openhuman")
+            .join(".eversilver")
     });
     crate::core::auth::init_rpc_token(&token_dir)?;
 
@@ -800,7 +800,7 @@ async fn run_server_inner(
         // bleed-over. We log loud, then proceed with default so the
         // server still comes up; the operator sees the error in stderr
         // and can fix their config.
-        let cfg = match crate::openhuman::config::Config::load_or_init().await {
+        let cfg = match crate::eversilver::config::Config::load_or_init().await {
             Ok(c) => c,
             Err(e) => {
                 log::error!(
@@ -811,7 +811,7 @@ async fn run_server_inner(
                 Default::default()
             }
         };
-        match crate::openhuman::memory::global::init(cfg.workspace_dir.clone()) {
+        match crate::eversilver::memory::global::init(cfg.workspace_dir.clone()) {
             Ok(_) => log::info!(
                 "[boot] memory::global initialized (workspace={})",
                 cfg.workspace_dir.display()
@@ -820,7 +820,7 @@ async fn run_server_inner(
         }
         // Initialize the WhatsApp data store so scanner ingest calls
         // can write data without requiring a lazy-init fallback.
-        match crate::openhuman::whatsapp_data::global::init(cfg.workspace_dir.clone()) {
+        match crate::eversilver::whatsapp_data::global::init(cfg.workspace_dir.clone()) {
             Ok(_) => log::info!(
                 "[boot] whatsapp_data::global initialized (workspace={})",
                 cfg.workspace_dir.display()
@@ -893,7 +893,7 @@ async fn run_server_inner(
     // on disk, startup is deferred until the login handler in
     // `credentials::ops::store_session()` triggers it.
     tokio::spawn(async move {
-        match crate::openhuman::config::Config::load_or_init().await {
+        match crate::eversilver::config::Config::load_or_init().await {
             Ok(config) => {
                 if embedded_core {
                     log::debug!("[core] embedded core startup");
@@ -906,7 +906,7 @@ async fn run_server_inner(
                 // This is unconditional — the hook should fire regardless of
                 // whether the user is currently logged in.
                 crate::core::shutdown::register(|| async {
-                    let engine = crate::openhuman::autocomplete::global_engine();
+                    let engine = crate::eversilver::autocomplete::global_engine();
                     let status = engine.status().await;
                     if status.running {
                         log::info!(
@@ -919,21 +919,21 @@ async fn run_server_inner(
                 });
 
                 // Check if a user is already logged in from a previous session.
-                let already_logged_in = crate::openhuman::config::default_root_eversilver_dir()
+                let already_logged_in = crate::eversilver::config::default_root_eversilver_dir()
                     .ok()
-                    .and_then(|root| crate::openhuman::config::read_active_user_id(&root))
+                    .and_then(|root| crate::eversilver::config::read_active_user_id(&root))
                     .is_some();
 
                 if already_logged_in {
                     // User has an active session — start all services now.
                     log::info!("[services] existing session found, starting services");
-                    crate::openhuman::credentials::ops::start_login_gated_services(&config).await;
+                    crate::eversilver::credentials::ops::start_login_gated_services(&config).await;
 
                     // Subconscious engine + heartbeat.
                     if !config.heartbeat.enabled {
                         log::info!("[subconscious] disabled by config (heartbeat.enabled = false)");
                     } else {
-                        match crate::openhuman::subconscious::global::bootstrap_after_login().await
+                        match crate::eversilver::subconscious::global::bootstrap_after_login().await
                         {
                             Ok(()) => log::info!(
                                 "[subconscious] bootstrapped on startup (existing session)"
@@ -955,9 +955,9 @@ async fn run_server_inner(
 
     // Periodic self-update checker (default: every 1 hour).
     tokio::spawn(async {
-        match crate::openhuman::config::Config::load_or_init().await {
+        match crate::eversilver::config::Config::load_or_init().await {
             Ok(config) => {
-                crate::openhuman::update::scheduler::run(config.update).await;
+                crate::eversilver::update::scheduler::run(config.update).await;
             }
             Err(err) => {
                 log::warn!("[core] config load failed, skipping update scheduler: {err}");
@@ -967,14 +967,14 @@ async fn run_server_inner(
 
     // Cron scheduler — polls due_jobs() every ~5s and executes them automatically.
     tokio::spawn(async {
-        match crate::openhuman::config::Config::load_or_init().await {
+        match crate::eversilver::config::Config::load_or_init().await {
             Ok(config) => {
                 if !config.cron.enabled {
                     log::info!("[cron] scheduler disabled via config; skipping");
                     return;
                 }
                 log::info!("[cron] spawning scheduler polling loop");
-                if let Err(e) = crate::openhuman::cron::scheduler::run(config).await {
+                if let Err(e) = crate::eversilver::cron::scheduler::run(config).await {
                     log::error!("[cron] scheduler loop ended with error: {e}");
                 }
             }
@@ -985,7 +985,7 @@ async fn run_server_inner(
     });
 
     // Realtime channel listeners (Telegram getUpdates, Discord gateway, etc.) live in
-    // `start_channels`. Without this task, `openhuman run` would only expose RPC while
+    // `start_channels`. Without this task, `eversilver run` would only expose RPC while
     // inbound bot messages are never polled.
     if std::env::var("EVERSILVER_DISABLE_CHANNEL_LISTENERS")
         .ok()
@@ -993,7 +993,7 @@ async fn run_server_inner(
         .is_none()
     {
         tokio::spawn(async move {
-            let config = match crate::openhuman::config::Config::load_or_init().await {
+            let config = match crate::eversilver::config::Config::load_or_init().await {
                 Ok(c) => c,
                 Err(e) => {
                     log::warn!("[channels] could not load config for listeners: {e}");
@@ -1007,7 +1007,7 @@ async fn run_server_inner(
                 return;
             }
             log::info!("[channels] spawning in-process realtime listeners (Telegram, Discord, …)");
-            if let Err(e) = crate::openhuman::channels::start_channels(config).await {
+            if let Err(e) = crate::eversilver::channels::start_channels(config).await {
                 log::error!("[channels] start_channels ended with error: {e}");
             }
         });
@@ -1029,15 +1029,15 @@ async fn run_server_inner(
     }
 
     // Server has stopped accepting and in-flight requests drained.
-    // Kill any `ollama serve` openhuman itself spawned (no-op when the
+    // Kill any `ollama serve` eversilver itself spawned (no-op when the
     // daemon was externally managed) and clear the spawn marker so the
     // next launch doesn't try to reclaim a daemon that's already dead.
     // Bounded so a wedged Ollama can't hold up app shutdown.
-    if let Some(svc) = crate::openhuman::local_ai::try_global() {
-        let cfg = crate::openhuman::config::Config::load_or_init()
+    if let Some(svc) = crate::eversilver::local_ai::try_global() {
+        let cfg = crate::eversilver::config::Config::load_or_init()
             .await
             .unwrap_or_default();
-        log::info!("[core] shutdown: cleaning up openhuman-owned ollama if any");
+        log::info!("[core] shutdown: cleaning up eversilver-owned ollama if any");
         let shutdown_fut = svc.shutdown_owned_ollama(&cfg);
         if tokio::time::timeout(std::time::Duration::from_secs(2), shutdown_fut)
             .await
@@ -1056,7 +1056,7 @@ async fn run_server_inner(
 /// are safe and idempotent.
 fn register_domain_subscribers(
     workspace_dir: std::path::PathBuf,
-    config: crate::openhuman::config::Config,
+    config: crate::eversilver::config::Config,
     embedded_core: bool,
 ) {
     use std::sync::{Arc, Once};
@@ -1066,7 +1066,7 @@ fn register_domain_subscribers(
         // Leak the SubscriptionHandle so the background tasks live for the
         // entire process — SubscriptionHandle::drop aborts the task.
         if let Some(handle) = crate::core::event_bus::subscribe_global(Arc::new(
-            crate::openhuman::webhooks::bus::WebhookRequestSubscriber::new(),
+            crate::eversilver::webhooks::bus::WebhookRequestSubscriber::new(),
         )) {
             std::mem::forget(handle);
         } else {
@@ -1074,30 +1074,30 @@ fn register_domain_subscribers(
         }
 
         if let Some(handle) = crate::core::event_bus::subscribe_global(Arc::new(
-            crate::openhuman::channels::bus::ChannelInboundSubscriber::new(),
+            crate::eversilver::channels::bus::ChannelInboundSubscriber::new(),
         )) {
             std::mem::forget(handle);
         } else {
             log::warn!("[event_bus] failed to register channel subscriber — bus not initialized");
         }
 
-        crate::openhuman::health::bus::register_health_subscriber();
-        crate::openhuman::notifications::register_notification_bridge_subscriber();
-        crate::openhuman::memory::conversations::register_conversation_persistence_subscriber(
+        crate::eversilver::health::bus::register_health_subscriber();
+        crate::eversilver::notifications::register_notification_bridge_subscriber();
+        crate::eversilver::memory::conversations::register_conversation_persistence_subscriber(
             workspace_dir.clone(),
         );
-        if let Err(error) = crate::openhuman::composio::init_composio_trigger_history(
+        if let Err(error) = crate::eversilver::composio::init_composio_trigger_history(
             workspace_dir.clone(),
         ) {
             log::warn!("[composio][history] failed to initialize trigger archive: {error}");
         }
-        crate::openhuman::composio::register_composio_trigger_subscriber();
-        crate::openhuman::composio::start_periodic_sync();
+        crate::eversilver::composio::register_composio_trigger_subscriber();
+        crate::eversilver::composio::start_periodic_sync();
         // Initialise the scheduler gate before any background AI workers
         // start so they observe a real policy on their first iteration
         // (otherwise they fall back to `Policy::Normal` and miss the
         // initial throttle decision on battery-powered hosts).
-        crate::openhuman::scheduler_gate::init_global(&config);
+        crate::eversilver::scheduler_gate::init_global(&config);
 
         // Seed the scheduler-gate signed-out override from the on-disk
         // session. Without this, a sidecar that boots with no stored JWT
@@ -1105,19 +1105,19 @@ fn register_domain_subscribers(
         // that all 401 immediately.
         match crate::api::jwt::get_session_token(&config) {
             Ok(Some(_)) => {
-                crate::openhuman::scheduler_gate::set_signed_out(false);
+                crate::eversilver::scheduler_gate::set_signed_out(false);
             }
             Ok(None) => {
                 log::info!(
                     "[auth] no session token at startup — scheduler gate set to signed_out"
                 );
-                crate::openhuman::scheduler_gate::set_signed_out(true);
+                crate::eversilver::scheduler_gate::set_signed_out(true);
             }
             Err(err) => {
                 log::warn!(
                     "[auth] failed to read session token at startup ({err}) — assuming signed_out"
                 );
-                crate::openhuman::scheduler_gate::set_signed_out(true);
+                crate::eversilver::scheduler_gate::set_signed_out(true);
             }
         }
 
@@ -1125,7 +1125,7 @@ fn register_domain_subscribers(
         // might publish 401-derived events, so the very first 401 is
         // routed through `clear_session` + the scheduler-gate override.
         if let Some(handle) = crate::core::event_bus::subscribe_global(Arc::new(
-            crate::openhuman::credentials::bus::SessionExpiredSubscriber::new(),
+            crate::eversilver::credentials::bus::SessionExpiredSubscriber::new(),
         )) {
             std::mem::forget(handle);
         } else {
@@ -1134,11 +1134,11 @@ fn register_domain_subscribers(
             );
         }
 
-        crate::openhuman::memory::tree::jobs::start(config.clone());
+        crate::eversilver::memory::tree::jobs::start(config.clone());
 
         // Restart requests go through a subscriber so every trigger path shares
         // the same respawn logic.
-        crate::openhuman::service::bus::register_restart_subscriber();
+        crate::eversilver::service::bus::register_restart_subscriber();
         if embedded_core {
             log::info!(
                 "[event_bus] embedded core: service shutdown subscriber not registered; Tauri cancellation token owns shutdown"
@@ -1146,18 +1146,18 @@ fn register_domain_subscribers(
         } else {
             // Shutdown requests use the same pattern; the standalone CLI
             // subscriber exits the current process after a short grace period.
-            crate::openhuman::service::bus::register_shutdown_subscriber();
+            crate::eversilver::service::bus::register_shutdown_subscriber();
         }
 
         // Proactive message subscriber (web-only in the desktop runtime —
         // no external channel instances are registered here). Uses a
         // Once-guarded registrar so domain-level startup can't duplicate it.
-        crate::openhuman::channels::proactive::register_web_only_proactive_subscriber();
+        crate::eversilver::channels::proactive::register_web_only_proactive_subscriber();
 
         // Native request handlers — typed in-process request/response.
         // The agent `agent.run_turn` handler is what channel dispatch
         // calls instead of importing `run_tool_call_loop` directly.
-        crate::openhuman::agent::bus::register_agent_handlers();
+        crate::eversilver::agent::bus::register_agent_handlers();
 
         log::info!(
             "[event_bus] domain subscribers registered (webhook, channel, health, conversation, composio, restart, proactive, agent, session_expired)"
@@ -1167,9 +1167,9 @@ fn register_domain_subscribers(
 
 /// Initializes long-lived socket/event-bus infrastructure.
 pub async fn bootstrap_skill_runtime(embedded_core: bool) {
-    use crate::openhuman::socket::{set_global_socket_manager, SocketManager};
+    use crate::eversilver::socket::{set_global_socket_manager, SocketManager};
     use std::sync::Arc;
-    let cfg = match crate::openhuman::config::Config::load_or_init().await {
+    let cfg = match crate::eversilver::config::Config::load_or_init().await {
         Ok(cfg) => cfg,
         Err(e) => {
             log::error!("[runtime] Failed to load config for socket manager: {e}");
@@ -1193,7 +1193,7 @@ pub async fn bootstrap_skill_runtime(embedded_core: bool) {
     // confusing a stale `Streaming` lifecycle for an in-flight turn.
     {
         let now = chrono::Utc::now().to_rfc3339();
-        match crate::openhuman::threads::turn_state::store::mark_all_interrupted(
+        match crate::eversilver::threads::turn_state::store::mark_all_interrupted(
             workspace_dir.clone(),
             &now,
         ) {
@@ -1212,7 +1212,7 @@ pub async fn bootstrap_skill_runtime(embedded_core: bool) {
     // under `<workspace>/agents/*.toml`. Idempotent — safe to call
     // multiple times. Uses the per-user scoped workspace_dir.
     if let Err(err) =
-        crate::openhuman::agent::harness::AgentDefinitionRegistry::init_global(&workspace_dir)
+        crate::eversilver::agent::harness::AgentDefinitionRegistry::init_global(&workspace_dir)
     {
         log::warn!(
             "[runtime] AgentDefinitionRegistry::init_global failed: {err} — \
@@ -1226,7 +1226,7 @@ pub async fn bootstrap_skill_runtime(embedded_core: bool) {
     // for the human-readable `sessions/` companions. Idempotent via a
     // marker file at `state/migrations/session_layout_v1.done`, so this
     // costs one stat() on every subsequent boot.
-    match crate::openhuman::agent::harness::session::migrate_session_layout_if_needed(
+    match crate::eversilver::agent::harness::session::migrate_session_layout_if_needed(
         &workspace_dir,
     ) {
         Ok(outcome) if outcome.already_done => {
@@ -1264,7 +1264,7 @@ pub async fn bootstrap_skill_runtime(embedded_core: bool) {
     // This runs in the background so it doesn't block server startup.
     tokio::spawn(async move {
         log::info!("[socket] Checking for stored session to auto-connect...");
-        let config = match crate::openhuman::config::Config::load_or_init().await {
+        let config = match crate::eversilver::config::Config::load_or_init().await {
             Ok(c) => c,
             Err(e) => {
                 log::debug!("[socket] Config not available for auto-connect: {e}");

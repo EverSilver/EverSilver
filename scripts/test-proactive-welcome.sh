@@ -150,7 +150,7 @@ log "POST /rpc eversilver.config_set_onboarding_completed {value:true}"
 RPC_RESP=$(curl -s -X POST "http://127.0.0.1:$PORT/rpc" \
     -H 'content-type: application/json' \
     -H "Authorization: Bearer $RPC_TOKEN" \
-    -d '{"jsonrpc":"2.0","id":1,"method":"openhuman.config_set_onboarding_completed","params":{"value":true}}')
+    -d '{"jsonrpc":"2.0","id":1,"method":"eversilver.config_set_onboarding_completed","params":{"value":true}}')
 echo "[test][rpc-response] $RPC_RESP"
 echo "$RPC_RESP" | grep -q '"result"' || fail "RPC did not return a result"
 

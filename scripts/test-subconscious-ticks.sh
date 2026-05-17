@@ -32,7 +32,7 @@ trap cleanup EXIT
 
 for i in $(seq 1 15); do
   if curl -s "$RPC_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $RPC_TOKEN" \
-    -d '{"jsonrpc":"2.0","id":0,"method":"openhuman.health_snapshot","params":{}}' 2>/dev/null | grep -q "result"; then
+    -d '{"jsonrpc":"2.0","id":0,"method":"eversilver.health_snapshot","params":{}}' 2>/dev/null | grep -q "result"; then
     echo "[setup] Server ready."
     break
   fi
@@ -74,7 +74,7 @@ echo "Notion tick1 ingested: $(echo "$RESULT" | python3 -c "import sys,json;d=js
 # Check what's in memory
 echo ""
 echo "Namespaces after tick1 ingest:"
-rpc '{"jsonrpc":"2.0","id":3,"method":"openhuman.memory_list_namespaces","params":{}}' | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('result',{}).get('data',{}).get('namespaces',[]))" 2>/dev/null
+rpc '{"jsonrpc":"2.0","id":3,"method":"eversilver.memory_list_namespaces","params":{}}' | python3 -c "import sys,json;d=json.load(sys.stdin);print(d.get('result',{}).get('data',{}).get('namespaces',[]))" 2>/dev/null
 
 echo ""
 echo "========================================="
@@ -82,7 +82,7 @@ echo "  PHASE 2: Subconscious Tick 1"
 echo "========================================="
 echo "(Calling local AI via Ollama — may take 30-60s)"
 
-TICK1=$(rpc '{"jsonrpc":"2.0","id":10,"method":"openhuman.subconscious_trigger","params":{}}')
+TICK1=$(rpc '{"jsonrpc":"2.0","id":10,"method":"eversilver.subconscious_trigger","params":{}}')
 echo "Tick 1 result:"
 echo "$TICK1" | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin), indent=2))" 2>/dev/null || echo "$TICK1" | head -c 500
 
@@ -109,7 +109,7 @@ echo "  PHASE 4: Subconscious Tick 2"
 echo "========================================="
 echo "(Calling local AI via Ollama — may take 30-60s)"
 
-TICK2=$(rpc '{"jsonrpc":"2.0","id":11,"method":"openhuman.subconscious_trigger","params":{}}')
+TICK2=$(rpc '{"jsonrpc":"2.0","id":11,"method":"eversilver.subconscious_trigger","params":{}}')
 echo "Tick 2 result:"
 echo "$TICK2" | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin), indent=2))" 2>/dev/null || echo "$TICK2" | head -c 500
 
@@ -118,7 +118,7 @@ echo "========================================="
 echo "  PHASE 5: Status check"
 echo "========================================="
 
-STATUS=$(rpc '{"jsonrpc":"2.0","id":12,"method":"openhuman.subconscious_status","params":{}}')
+STATUS=$(rpc '{"jsonrpc":"2.0","id":12,"method":"eversilver.subconscious_status","params":{}}')
 echo "Subconscious status:"
 echo "$STATUS" | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin), indent=2))" 2>/dev/null || echo "$STATUS" | head -c 500
 

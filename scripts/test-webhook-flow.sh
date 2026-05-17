@@ -131,7 +131,7 @@ echo "Core RPC: $CORE_RPC_URL"
 curl -fsS "${CORE_RPC_URL%/rpc}/health" >/dev/null
 
 SESSION_TOKEN="$(
-  rpc_call "openhuman.auth_get_session_token" \
+  rpc_call "eversilver.auth_get_session_token" \
   | jq -r '.result.result.token // empty'
 )"
 
@@ -141,7 +141,7 @@ if [[ -z "$SESSION_TOKEN" ]]; then
 fi
 
 BACKEND_URL="$(
-  rpc_call "openhuman.config_resolve_api_url" \
+  rpc_call "eversilver.config_resolve_api_url" \
   | jq -r '.result.api_url // empty'
 )"
 
@@ -178,7 +178,7 @@ cleanup() {
   fi
 
   echo "Cleaning up local echo registration..."
-  rpc_call "openhuman.webhooks_unregister_echo" \
+  rpc_call "eversilver.webhooks_unregister_echo" \
     "$(jq -n --arg tunnel_uuid "$TUNNEL_UUID" '{tunnel_uuid: $tunnel_uuid}')" >/dev/null || true
 
   echo "Deleting backend tunnel..."
@@ -197,7 +197,7 @@ REGISTER_PARAMS="$(
     --arg backend_tunnel_id "$TUNNEL_ID" \
     '{tunnel_uuid: $tunnel_uuid, tunnel_name: $tunnel_name, backend_tunnel_id: $backend_tunnel_id}'
 )"
-rpc_call "openhuman.webhooks_register_echo" "$REGISTER_PARAMS" >/dev/null
+rpc_call "eversilver.webhooks_register_echo" "$REGISTER_PARAMS" >/dev/null
 
 WEBHOOK_URL="${BACKEND_URL%/}/webhooks/ingress/${TUNNEL_UUID}${HOOK_PATH}"
 echo "Triggering: ${HOOK_METHOD} ${WEBHOOK_URL}"
@@ -232,11 +232,11 @@ rm -f "$RESPONSE_BODY_FILE"
 sleep 1
 
 echo "Latest captured log:"
-rpc_call "openhuman.webhooks_list_logs" '{"limit":1}' \
+rpc_call "eversilver.webhooks_list_logs" '{"limit":1}' \
   | jq '.result.result.logs[0]'
 
 echo "Latest registrations:"
-rpc_call "openhuman.webhooks_list_registrations" \
+rpc_call "eversilver.webhooks_list_registrations" \
   | jq '.result.result.registrations'
 
 echo "Done."

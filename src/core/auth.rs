@@ -62,7 +62,7 @@ const PUBLIC_PATHS: &[&str] = &[
 /// The environment variable the Tauri shell sets before spawning the core.
 ///
 /// When this variable is present the core uses its value as the RPC token
-/// (no file I/O needed).  When absent (standalone `openhuman core run`) the
+/// (no file I/O needed).  When absent (standalone `eversilver core run`) the
 /// core generates a token and writes it to `{workspace_dir}/core.token` so
 /// CLI clients can authenticate.
 pub const CORE_TOKEN_ENV_VAR: &str = "EVERSILVER_CORE_TOKEN";

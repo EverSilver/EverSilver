@@ -27,7 +27,7 @@
  *     agrees, but the *test* drove everything via the buttons.
  */
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { clickButton, textExists, waitForText } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 import { navigateToSettings, navigateViaHash } from '../helpers/shared-flows';
@@ -190,7 +190,7 @@ describe('Cron jobs settings panel (real UI flow)', () => {
     expect(await textExists('No core cron jobs found.')).toBe(true);
 
     // Single oracle RPC: confirm the sidecar agrees with the UI.
-    const list = await callOpenhumanRpc('eversilver.cron_list', {});
+    const list = await callEversilverRpc('eversilver.cron_list', {});
     expect(list.ok).toBe(true);
     const inner = (list.result as { result?: unknown } | undefined)?.result ?? list.result;
     const jobs = Array.isArray(inner) ? inner : [];

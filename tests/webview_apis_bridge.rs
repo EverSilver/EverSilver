@@ -12,7 +12,7 @@
 //!
 //! Tests are serial because they all mutate the `EVERSILVER_WEBVIEW_APIS_PORT`
 //! env var and share the lazy global `CLIENT` inside
-//! `eversilver_core::openhuman::webview_apis::client`.
+//! `eversilver_core::eversilver::webview_apis::client`.
 
 use std::net::SocketAddr;
 
@@ -22,7 +22,7 @@ use tokio::net::TcpListener;
 use tokio::sync::Mutex;
 use tokio_tungstenite::tungstenite::Message;
 
-use eversilver_core::openhuman::webview_apis::{client, types::GmailLabel};
+use eversilver_core::eversilver::webview_apis::{client, types::GmailLabel};
 
 /// The webview_apis client caches its WebSocket connection (and the
 /// reader/writer tasks that service it) in a process-global `OnceLock`.

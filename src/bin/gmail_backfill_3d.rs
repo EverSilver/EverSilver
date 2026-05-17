@@ -12,7 +12,7 @@
 //!
 //! # Prerequisites
 //!
-//! - Signed-in openhuman session JWT in the same workspace the desktop app
+//! - Signed-in eversilver session JWT in the same workspace the desktop app
 //!   uses (stored at `<workspace>/auth-profiles.json`).
 //! - Active Gmail connection on Composio for that user.
 //!
@@ -33,19 +33,19 @@ use anyhow::{Context, Result};
 use clap::Parser;
 use serde_json::{json, Value};
 
-use eversilver_core::openhuman::composio::client::{
+use eversilver_core::eversilver::composio::client::{
     create_composio_client, direct_execute, ComposioClientKind,
 };
-use eversilver_core::openhuman::composio::providers::gmail::ingest::ingest_page_into_memory_tree;
-use eversilver_core::openhuman::composio::providers::registry::{
+use eversilver_core::eversilver::composio::providers::gmail::ingest::ingest_page_into_memory_tree;
+use eversilver_core::eversilver::composio::providers::registry::{
     get_provider, init_default_providers,
 };
-use eversilver_core::openhuman::config::Config;
-use eversilver_core::openhuman::memory::tree::content_store::read::{
+use eversilver_core::eversilver::config::Config;
+use eversilver_core::eversilver::memory::tree::content_store::read::{
     verify_chunk_file, verify_summary_file, VerifyResult,
 };
-use eversilver_core::openhuman::memory::tree::jobs::drain_until_idle;
-use eversilver_core::openhuman::memory::tree::store::{
+use eversilver_core::eversilver::memory::tree::jobs::drain_until_idle;
+use eversilver_core::eversilver::memory::tree::store::{
     get_chunk_content_pointers, list_chunks, list_summaries_with_content_path, ListChunksQuery,
 };
 

@@ -83,7 +83,7 @@ pub struct RpcRequest {
     /// Unique identifier for the request. MUST be a String, Number, or Null.
     /// The server will return this same ID in the response.
     pub id: serde_json::Value,
-    /// The name of the method to be invoked (e.g., `openhuman.memory_doc_put`).
+    /// The name of the method to be invoked (e.g., `eversilver.memory_doc_put`).
     pub method: String,
     /// Parameters for the method call. MUST be a structured value (Object or Array).
     /// Defaults to null if not provided.

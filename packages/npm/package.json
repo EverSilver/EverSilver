@@ -1,5 +1,5 @@
 {
-  "name": "openhuman",
+  "name": "eversilver",
   "version": "0.0.0",
   "description": "AI-powered assistant for communities — Eversilver CLI",
   "keywords": [
@@ -20,7 +20,7 @@
   },
   "license": "MIT",
   "bin": {
-    "openhuman": "./bin/openhuman.js"
+    "eversilver": "./bin/eversilver.js"
   },
   "scripts": {
     "postinstall": "node install.js"

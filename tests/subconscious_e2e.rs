@@ -8,18 +8,18 @@ use std::sync::Arc;
 use serde_json::json;
 
 /// Test config for the heuristic-only ingestion pipeline.
-fn ci_safe_ingestion_config() -> eversilver_core::openhuman::memory::MemoryIngestionConfig {
-    eversilver_core::openhuman::memory::MemoryIngestionConfig::default()
+fn ci_safe_ingestion_config() -> eversilver_core::eversilver::memory::MemoryIngestionConfig {
+    eversilver_core::eversilver::memory::MemoryIngestionConfig::default()
 }
 
 async fn ingest_doc(
-    memory: &eversilver_core::openhuman::memory::UnifiedMemory,
+    memory: &eversilver_core::eversilver::memory::UnifiedMemory,
     namespace: &str,
     key: &str,
     title: &str,
     content: &str,
 ) -> String {
-    use eversilver_core::openhuman::memory::{MemoryIngestionRequest, NamespaceDocumentInput};
+    use eversilver_core::eversilver::memory::{MemoryIngestionRequest, NamespaceDocumentInput};
     let result = memory
         .ingest_document(MemoryIngestionRequest {
             document: NamespaceDocumentInput {
@@ -59,9 +59,9 @@ async fn ingest_doc(
 #[tokio::test]
 #[ignore] // requires running Ollama
 async fn two_tick_e2e_with_real_ollama() {
-    use eversilver_core::openhuman::embeddings::NoopEmbedding;
-    use eversilver_core::openhuman::memory::{MemoryClient, UnifiedMemory};
-    use eversilver_core::openhuman::subconscious::store;
+    use eversilver_core::eversilver::embeddings::NoopEmbedding;
+    use eversilver_core::eversilver::memory::{MemoryClient, UnifiedMemory};
+    use eversilver_core::eversilver::subconscious::store;
 
     // ── Setup workspace ──────────────────────────────────────────────
     let tmp = tempfile::tempdir().expect("tempdir");
@@ -132,7 +132,7 @@ Project: Q1 Budget Report
     .await;
 
     // Build engine with real config
-    let mut config = eversilver_core::openhuman::config::Config::default();
+    let mut config = eversilver_core::eversilver::config::Config::default();
     config.workspace_dir = workspace.to_path_buf();
     config.heartbeat.enabled = true;
     config.heartbeat.inference_enabled = true;
@@ -141,7 +141,7 @@ Project: Q1 Budget Report
     config.local_ai.runtime_enabled = true;
     config.local_ai.usage.subconscious = true;
 
-    let engine = eversilver_core::openhuman::subconscious::SubconsciousEngine::new(
+    let engine = eversilver_core::eversilver::subconscious::SubconsciousEngine::new(
         &config,
         Some(Arc::new(memory_client)),
     );

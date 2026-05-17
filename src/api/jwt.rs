@@ -1,7 +1,7 @@
 //! Session JWT load and `Authorization` helpers for the Eversilver API.
 
-pub use crate::openhuman::credentials::session_support::get_session_token;
-pub use crate::openhuman::credentials::{APP_SESSION_PROVIDER, DEFAULT_AUTH_PROFILE_NAME};
+pub use crate::eversilver::credentials::session_support::get_session_token;
+pub use crate::eversilver::credentials::{APP_SESSION_PROVIDER, DEFAULT_AUTH_PROFILE_NAME};
 
 /// Value for `Authorization: Bearer …` (matches backend expectations).
 pub fn bearer_authorization_value(token: &str) -> String {

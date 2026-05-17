@@ -5,8 +5,8 @@
 //! Watch your cursor — it should curve, not teleport. Keep your hand
 //! off the mouse during the run.
 
-use eversilver_core::openhuman::security::SecurityPolicy;
-use eversilver_core::openhuman::tools::{MouseTool, Tool};
+use eversilver_core::eversilver::security::SecurityPolicy;
+use eversilver_core::eversilver::tools::{MouseTool, Tool};
 use serde_json::json;
 use std::sync::Arc;
 use std::time::Instant;

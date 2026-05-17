@@ -17,7 +17,7 @@ use tempfile::tempdir;
 
 use eversilver_core::core::auth::{init_rpc_token, CORE_TOKEN_ENV_VAR};
 use eversilver_core::core::jsonrpc::build_core_http_router;
-use eversilver_core::openhuman::memory::all_memory_tree_registered_controllers;
+use eversilver_core::eversilver::memory::all_memory_tree_registered_controllers;
 
 const TEST_RPC_TOKEN: &str = "json-rpc-e2e-local-token";
 static JSON_RPC_AUTH_INIT: OnceLock<()> = OnceLock::new();
@@ -623,7 +623,7 @@ encrypt = false
 "#
     );
     fn write_config_file(config_dir: &Path, cfg: &str) {
-        std::fs::create_dir_all(config_dir).expect("mkdir openhuman");
+        std::fs::create_dir_all(config_dir).expect("mkdir eversilver");
         let path = config_dir.join("config.toml");
         std::fs::write(&path, cfg).expect("write config");
     }
@@ -631,16 +631,16 @@ encrypt = false
     write_config_file(eversilver_dir, &cfg);
 
     // Runtime config resolution is user-scoped before login, so tests that seed
-    // the root `~/.openhuman` directory also need the equivalent pre-login
-    // config under `~/.openhuman/users/local`.
+    // the root `~/.eversilver` directory also need the equivalent pre-login
+    // config under `~/.eversilver/users/local`.
     if eversilver_dir
         .file_name()
-        .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
+        .is_some_and(|name| name == std::ffi::OsStr::new(".eversilver"))
     {
         write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
 
-    let _: eversilver_core::openhuman::config::Config =
+    let _: eversilver_core::eversilver::config::Config =
         toml::from_str(&cfg).expect("config toml must match Config schema");
 }
 
@@ -659,7 +659,7 @@ enabled = false
 "#
     );
     fn write_config_file(config_dir: &Path, cfg: &str) {
-        std::fs::create_dir_all(config_dir).expect("mkdir openhuman");
+        std::fs::create_dir_all(config_dir).expect("mkdir eversilver");
         let path = config_dir.join("config.toml");
         std::fs::write(&path, cfg).expect("write config");
     }
@@ -668,12 +668,12 @@ enabled = false
 
     if eversilver_dir
         .file_name()
-        .is_some_and(|name| name == std::ffi::OsStr::new(".openhuman"))
+        .is_some_and(|name| name == std::ffi::OsStr::new(".eversilver"))
     {
         write_config_file(&eversilver_dir.join("users").join("local"), &cfg);
     }
 
-    let _: eversilver_core::openhuman::config::Config =
+    let _: eversilver_core::eversilver::config::Config =
         toml::from_str(&cfg).expect("config toml must match Config schema");
 }
 
@@ -684,7 +684,7 @@ fn ensure_test_rpc_auth() {
         // multi-threaded contexts; the OnceLock guard limits the mutation to a
         // single call at init time, before any concurrent env reads occur.
         unsafe { std::env::set_var(CORE_TOKEN_ENV_VAR, TEST_RPC_TOKEN) };
-        let token_dir = std::env::temp_dir().join("openhuman-json-rpc-e2e-auth");
+        let token_dir = std::env::temp_dir().join("eversilver-json-rpc-e2e-auth");
         init_rpc_token(&token_dir).expect("init rpc auth token for json_rpc_e2e");
     });
 }
@@ -694,7 +694,7 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -733,7 +733,7 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     );
 
     // --- auth: session state (no JWT yet) ---
-    let state_before = post_json_rpc(&rpc_base, 3, "openhuman.auth_get_state", json!({})).await;
+    let state_before = post_json_rpc(&rpc_base, 3, "eversilver.auth_get_state", json!({})).await;
     let state_outer = assert_no_jsonrpc_error(&state_before, "get_state");
     let state_body = state_outer.get("result").unwrap_or(state_outer);
     assert!(
@@ -745,7 +745,7 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let store = post_json_rpc(
         &rpc_base,
         4,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({
             "token": "e2e-test-jwt",
             "user_id": "e2e-user"
@@ -758,7 +758,7 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let chat = post_json_rpc(
         &rpc_base,
         5,
-        "openhuman.local_ai_agent_chat",
+        "eversilver.local_ai_agent_chat",
         json!({
             "message": "Hello",
         }),
@@ -781,7 +781,7 @@ async fn json_rpc_protocol_auth_and_agent_hello() {
     let web_chat = post_json_rpc(
         &rpc_base,
         6,
-        "openhuman.channel_web_chat",
+        "eversilver.channel_web_chat",
         json!({
             "client_id": client_id,
             "thread_id": thread_id,
@@ -826,7 +826,7 @@ async fn json_rpc_prompt_injection_is_rejected_before_model_call() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -846,7 +846,7 @@ async fn json_rpc_prompt_injection_is_rejected_before_model_call() {
     let store = post_json_rpc(
         &rpc_base,
         4001,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({
             "token": "e2e-test-jwt",
             "user_id": "e2e-user"
@@ -861,7 +861,7 @@ async fn json_rpc_prompt_injection_is_rejected_before_model_call() {
     let blocked_web = post_json_rpc(
         &rpc_base,
         4002,
-        "openhuman.channel_web_chat",
+        "eversilver.channel_web_chat",
         json!({
             "client_id": "pi-client",
             "thread_id": "pi-thread",
@@ -885,7 +885,7 @@ async fn json_rpc_prompt_injection_is_rejected_before_model_call() {
     let blocked_agent = post_json_rpc(
         &rpc_base,
         4003,
-        "openhuman.local_ai_agent_chat",
+        "eversilver.local_ai_agent_chat",
         json!({
             "message": payload,
             "model_override": "e2e-mock-model",
@@ -919,7 +919,7 @@ async fn json_rpc_thread_labels_create_and_update() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -938,7 +938,7 @@ async fn json_rpc_thread_labels_create_and_update() {
     let create = post_json_rpc(
         &rpc_base,
         9001,
-        "openhuman.threads_create_new",
+        "eversilver.threads_create_new",
         json!({ "labels": ["custom"] }),
     )
     .await;
@@ -967,7 +967,7 @@ async fn json_rpc_thread_labels_create_and_update() {
     let update = post_json_rpc(
         &rpc_base,
         9002,
-        "openhuman.threads_update_labels",
+        "eversilver.threads_update_labels",
         json!({ "thread_id": thread_id, "labels": ["work", "briefing"] }),
     )
     .await;
@@ -989,7 +989,7 @@ async fn json_rpc_thread_labels_create_and_update() {
     );
 
     // 3. Verify the updated labels are reflected in threads_list.
-    let list = post_json_rpc(&rpc_base, 9003, "openhuman.threads_list", json!({})).await;
+    let list = post_json_rpc(&rpc_base, 9003, "eversilver.threads_list", json!({})).await;
     let list_outer = assert_no_jsonrpc_error(&list, "threads_list after label update");
     let list_result = list_outer
         .get("data")
@@ -1024,7 +1024,7 @@ async fn json_rpc_thread_not_found_errors_are_structured() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1043,7 +1043,7 @@ async fn json_rpc_thread_not_found_errors_are_structured() {
     let append = post_json_rpc(
         &rpc_base,
         9011,
-        "openhuman.threads_message_append",
+        "eversilver.threads_message_append",
         json!({
             "thread_id": thread_id,
             "message": {
@@ -1073,7 +1073,7 @@ async fn json_rpc_thread_not_found_errors_are_structured() {
     let title = post_json_rpc(
         &rpc_base,
         9012,
-        "openhuman.threads_generate_title",
+        "eversilver.threads_generate_title",
         json!({ "thread_id": thread_id }),
     )
     .await;
@@ -1091,7 +1091,7 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1110,7 +1110,7 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let empty_list = post_json_rpc(
         &rpc_base,
         9101,
-        "openhuman.threads_turn_state_list",
+        "eversilver.threads_turn_state_list",
         json!({}),
     )
     .await;
@@ -1126,28 +1126,28 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     // Drop a snapshot directly through the store — this is exactly what
     // the web-channel progress mirror does mid-turn.
     let workspace_dir = {
-        let cfg = eversilver_core::openhuman::config::Config::load_or_init()
+        let cfg = eversilver_core::eversilver::config::Config::load_or_init()
             .await
             .expect("load config");
         cfg.workspace_dir
     };
-    let mut state = eversilver_core::openhuman::threads::turn_state::TurnState::started(
+    let mut state = eversilver_core::eversilver::threads::turn_state::TurnState::started(
         "thread-turn-1",
         "req-turn-1",
         25,
         chrono::Utc::now().to_rfc3339(),
     );
-    state.lifecycle = eversilver_core::openhuman::threads::turn_state::TurnLifecycle::Streaming;
+    state.lifecycle = eversilver_core::eversilver::threads::turn_state::TurnLifecycle::Streaming;
     state.iteration = 2;
     state.streaming_text = "partial".into();
-    eversilver_core::openhuman::threads::turn_state::store::put(workspace_dir.clone(), &state)
+    eversilver_core::eversilver::threads::turn_state::store::put(workspace_dir.clone(), &state)
         .expect("seed snapshot");
 
     // get → present
     let got = post_json_rpc(
         &rpc_base,
         9102,
-        "openhuman.threads_turn_state_get",
+        "eversilver.threads_turn_state_get",
         json!({ "thread_id": "thread-turn-1" }),
     )
     .await;
@@ -1173,7 +1173,7 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let list = post_json_rpc(
         &rpc_base,
         9103,
-        "openhuman.threads_turn_state_list",
+        "eversilver.threads_turn_state_list",
         json!({}),
     )
     .await;
@@ -1190,7 +1190,7 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let cleared = post_json_rpc(
         &rpc_base,
         9104,
-        "openhuman.threads_turn_state_clear",
+        "eversilver.threads_turn_state_clear",
         json!({ "thread_id": "thread-turn-1" }),
     )
     .await;
@@ -1207,7 +1207,7 @@ async fn json_rpc_thread_turn_state_lifecycle() {
     let got_again = post_json_rpc(
         &rpc_base,
         9105,
-        "openhuman.threads_turn_state_get",
+        "eversilver.threads_turn_state_get",
         json!({ "thread_id": "thread-turn-1" }),
     )
     .await;
@@ -1227,7 +1227,7 @@ async fn json_rpc_memory_sync_and_learn() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1247,7 +1247,7 @@ async fn json_rpc_memory_sync_and_learn() {
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     // ── memory_sync_all: returns requested:true ──────────────────────────────
-    let sync_all = post_json_rpc(&rpc_base, 7001, "openhuman.memory_sync_all", json!({})).await;
+    let sync_all = post_json_rpc(&rpc_base, 7001, "eversilver.memory_sync_all", json!({})).await;
     let sync_all_result = assert_no_jsonrpc_error(&sync_all, "memory_sync_all");
     assert_eq!(
         sync_all_result.get("requested"),
@@ -1259,7 +1259,7 @@ async fn json_rpc_memory_sync_and_learn() {
     let sync_ch = post_json_rpc(
         &rpc_base,
         7002,
-        "openhuman.memory_sync_channel",
+        "eversilver.memory_sync_channel",
         json!({ "channel_id": "test-channel-abc" }),
     )
     .await;
@@ -1276,18 +1276,18 @@ async fn json_rpc_memory_sync_and_learn() {
     );
 
     // ── memory_sync_channel: missing channel_id returns a JSON-RPC error ────
-    let sync_bad = post_json_rpc(&rpc_base, 7003, "openhuman.memory_sync_channel", json!({})).await;
+    let sync_bad = post_json_rpc(&rpc_base, 7003, "eversilver.memory_sync_channel", json!({})).await;
     assert!(
         sync_bad.get("error").is_some(),
         "missing channel_id must return an error, got: {sync_bad}"
     );
 
     // ── memory.init: explicit one-shot bootstrap (no auto-init fallback) ────
-    let init_resp = post_json_rpc(&rpc_base, 7003, "openhuman.memory_init", json!({})).await;
+    let init_resp = post_json_rpc(&rpc_base, 7003, "eversilver.memory_init", json!({})).await;
     assert_no_jsonrpc_error(&init_resp, "memory_init");
 
     // ── memory_learn_all: no namespaces → zero processed (empty store) ──────
-    let learn_all = post_json_rpc(&rpc_base, 7004, "openhuman.memory_learn_all", json!({})).await;
+    let learn_all = post_json_rpc(&rpc_base, 7004, "eversilver.memory_learn_all", json!({})).await;
     let learn_result = assert_no_jsonrpc_error(&learn_all, "memory_learn_all");
     let processed = learn_result
         .get("namespaces_processed")
@@ -1307,7 +1307,7 @@ async fn json_rpc_memory_sync_and_learn() {
     let learn_constrained = post_json_rpc(
         &rpc_base,
         7005,
-        "openhuman.memory_learn_all",
+        "eversilver.memory_learn_all",
         json!({ "namespaces": ["does-not-exist"] }),
     )
     .await;
@@ -1325,7 +1325,7 @@ async fn json_rpc_memory_sync_and_learn() {
     let ing_status = post_json_rpc(
         &rpc_base,
         7006,
-        "openhuman.memory_ingestion_status",
+        "eversilver.memory_ingestion_status",
         json!({}),
     )
     .await;
@@ -1350,7 +1350,7 @@ async fn json_rpc_memory_tree_end_to_end() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1377,10 +1377,10 @@ async fn json_rpc_memory_tree_end_to_end() {
     // and adding a new RPC shouldn't break this smoke test. We just
     // assert the four sampled methods exercised below are registered.
     let expected_methods = vec![
-        "openhuman.memory_tree_ingest".to_string(),
-        "openhuman.memory_tree_list_chunks".to_string(),
-        "openhuman.memory_tree_get_chunk".to_string(),
-        "openhuman.memory_tree_trigger_digest".to_string(),
+        "eversilver.memory_tree_ingest".to_string(),
+        "eversilver.memory_tree_list_chunks".to_string(),
+        "eversilver.memory_tree_get_chunk".to_string(),
+        "eversilver.memory_tree_trigger_digest".to_string(),
     ];
     assert!(
         controllers.len() >= expected_methods.len(),
@@ -1532,7 +1532,7 @@ async fn json_rpc_web_chat_routing_cases_use_expected_backend_models() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1553,7 +1553,7 @@ async fn json_rpc_web_chat_routing_cases_use_expected_backend_models() {
     let store = post_json_rpc(
         &rpc_base,
         1,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({
             "token": "e2e-test-jwt",
             "user_id": "e2e-user"
@@ -1584,7 +1584,7 @@ async fn json_rpc_web_chat_routing_cases_use_expected_backend_models() {
         let web_chat = post_json_rpc(
             &rpc_base,
             100 + idx as i64,
-            "openhuman.channel_web_chat",
+            "eversilver.channel_web_chat",
             json!({
                 "client_id": client_id,
                 "thread_id": thread_id,
@@ -1644,7 +1644,7 @@ async fn json_rpc_rejects_non_object_params_with_clear_error() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1662,7 +1662,7 @@ async fn json_rpc_rejects_non_object_params_with_clear_error() {
     let invalid = post_json_rpc(
         &rpc_base,
         1001,
-        "openhuman.auth_get_state",
+        "eversilver.auth_get_state",
         json!(["invalid", "params"]),
     )
     .await;
@@ -1685,7 +1685,7 @@ async fn json_rpc_screen_intelligence_capture_test_returns_stable_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1703,7 +1703,7 @@ async fn json_rpc_screen_intelligence_capture_test_returns_stable_shape() {
     let capture = post_json_rpc(
         &rpc_base,
         1002,
-        "openhuman.screen_intelligence_capture_test",
+        "eversilver.screen_intelligence_capture_test",
         json!({}),
     )
     .await;
@@ -1767,7 +1767,7 @@ async fn json_rpc_screen_intelligence_status_returns_stable_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1785,7 +1785,7 @@ async fn json_rpc_screen_intelligence_status_returns_stable_shape() {
     let status = post_json_rpc(
         &rpc_base,
         1003,
-        "openhuman.screen_intelligence_status",
+        "eversilver.screen_intelligence_status",
         json!({}),
     )
     .await;
@@ -1861,7 +1861,7 @@ async fn json_rpc_app_state_snapshot_returns_runtime_shape() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1876,7 +1876,7 @@ async fn json_rpc_app_state_snapshot_returns_runtime_shape() {
     let rpc_base = format!("http://{}", rpc_addr);
     tokio::time::sleep(Duration::from_millis(100)).await;
 
-    let snapshot = post_json_rpc(&rpc_base, 1004, "openhuman.app_state_snapshot", json!({})).await;
+    let snapshot = post_json_rpc(&rpc_base, 1004, "eversilver.app_state_snapshot", json!({})).await;
     let result = assert_no_jsonrpc_error(&snapshot, "app_state_snapshot");
     let body = result.get("result").unwrap_or(result);
 
@@ -1946,7 +1946,7 @@ async fn json_rpc_wallet_setup_round_trips_status() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -1961,7 +1961,7 @@ async fn json_rpc_wallet_setup_round_trips_status() {
     let rpc_base = format!("http://{}", rpc_addr);
     tokio::time::sleep(Duration::from_millis(100)).await;
 
-    let initial_status = post_json_rpc(&rpc_base, 1005, "openhuman.wallet_status", json!({})).await;
+    let initial_status = post_json_rpc(&rpc_base, 1005, "eversilver.wallet_status", json!({})).await;
     let initial_body = assert_no_jsonrpc_error(&initial_status, "wallet_status_initial");
     let initial_result = initial_body.get("result").unwrap_or(initial_body);
     assert_eq!(
@@ -1973,7 +1973,7 @@ async fn json_rpc_wallet_setup_round_trips_status() {
     let setup = post_json_rpc(
         &rpc_base,
         1006,
-        "openhuman.wallet_setup",
+        "eversilver.wallet_setup",
         json!({
             "consentGranted": true,
             "source": "generated",
@@ -2004,7 +2004,7 @@ async fn json_rpc_wallet_setup_round_trips_status() {
     );
 
     let persisted_status =
-        post_json_rpc(&rpc_base, 1007, "openhuman.wallet_status", json!({})).await;
+        post_json_rpc(&rpc_base, 1007, "eversilver.wallet_status", json!({})).await;
     let persisted_body = assert_no_jsonrpc_error(&persisted_status, "wallet_status_persisted");
     let persisted_result = persisted_body.get("result").unwrap_or(persisted_body);
     assert_eq!(
@@ -2051,7 +2051,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2074,7 +2074,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let setup = post_json_rpc(
         &rpc_base,
         2001,
-        "openhuman.wallet_setup",
+        "eversilver.wallet_setup",
         json!({
             "consentGranted": true,
             "source": "imported",
@@ -2094,7 +2094,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let assets = post_json_rpc(
         &rpc_base,
         2002,
-        "openhuman.wallet_supported_assets",
+        "eversilver.wallet_supported_assets",
         json!({}),
     )
     .await;
@@ -2104,7 +2104,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     assert_eq!(list.len(), 4, "expected four native assets: {result}");
 
     // chain_status: every chain configured but providers unconfigured.
-    let cs = post_json_rpc(&rpc_base, 2003, "openhuman.wallet_chain_status", json!({})).await;
+    let cs = post_json_rpc(&rpc_base, 2003, "eversilver.wallet_chain_status", json!({})).await;
     let body = assert_no_jsonrpc_error(&cs, "wallet_chain_status");
     let result = body.get("result").unwrap_or(&body);
     let rows = result.as_array().expect("chain_status array");
@@ -2116,7 +2116,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     );
 
     // balances: zero placeholders for each derived account.
-    let balances = post_json_rpc(&rpc_base, 2004, "openhuman.wallet_balances", json!({})).await;
+    let balances = post_json_rpc(&rpc_base, 2004, "eversilver.wallet_balances", json!({})).await;
     let body = assert_no_jsonrpc_error(&balances, "wallet_balances");
     let result = body.get("result").unwrap_or(&body);
     let rows = result.as_array().expect("balances array");
@@ -2129,7 +2129,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let prep = post_json_rpc(
         &rpc_base,
         2005,
-        "openhuman.wallet_prepare_transfer",
+        "eversilver.wallet_prepare_transfer",
         json!({
             "chain": "evm",
             "toAddress": "0x000000000000000000000000000000000000dEaD",
@@ -2157,7 +2157,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let bad = post_json_rpc(
         &rpc_base,
         2006,
-        "openhuman.wallet_execute_prepared",
+        "eversilver.wallet_execute_prepared",
         json!({ "quoteId": quote_id, "confirmed": false }),
     )
     .await;
@@ -2170,7 +2170,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let exec = post_json_rpc(
         &rpc_base,
         2007,
-        "openhuman.wallet_execute_prepared",
+        "eversilver.wallet_execute_prepared",
         json!({ "quoteId": quote_id, "confirmed": true }),
     )
     .await;
@@ -2192,7 +2192,7 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
     let dup = post_json_rpc(
         &rpc_base,
         2008,
-        "openhuman.wallet_execute_prepared",
+        "eversilver.wallet_execute_prepared",
         json!({ "quoteId": quote_id, "confirmed": true }),
     )
     .await;
@@ -2206,14 +2206,14 @@ async fn json_rpc_wallet_execution_surface_round_trips() {
 }
 
 /// #883 — when `chat_onboarding_completed` is unset in config.toml (fresh
-/// user), the `openhuman.app_state_snapshot` RPC must surface the flag as
+/// user), the `eversilver.app_state_snapshot` RPC must surface the flag as
 /// `false` so the React welcome-lockdown kicks in.
 #[tokio::test]
 async fn json_rpc_app_state_snapshot_chat_onboarding_defaults_false() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2235,7 +2235,7 @@ default_temperature = 0.7
 encrypt = false
 "#
     );
-    std::fs::create_dir_all(&eversilver_home).expect("mkdir openhuman");
+    std::fs::create_dir_all(&eversilver_home).expect("mkdir eversilver");
     std::fs::write(eversilver_home.join("config.toml"), &cfg).expect("write config");
     std::fs::create_dir_all(eversilver_home.join("users").join("local")).expect("mkdir users/local");
     std::fs::write(
@@ -2251,7 +2251,7 @@ encrypt = false
     let rpc_base = format!("http://{}", rpc_addr);
     tokio::time::sleep(Duration::from_millis(100)).await;
 
-    let snapshot = post_json_rpc(&rpc_base, 1005, "openhuman.app_state_snapshot", json!({})).await;
+    let snapshot = post_json_rpc(&rpc_base, 1005, "eversilver.app_state_snapshot", json!({})).await;
     let result = assert_no_jsonrpc_error(&snapshot, "app_state_snapshot");
     let body = result.get("result").unwrap_or(result);
 
@@ -2270,7 +2270,7 @@ async fn json_rpc_screen_intelligence_vision_recent_returns_empty_without_sessio
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2288,7 +2288,7 @@ async fn json_rpc_screen_intelligence_vision_recent_returns_empty_without_sessio
     let recent = post_json_rpc(
         &rpc_base,
         1004,
-        "openhuman.screen_intelligence_vision_recent",
+        "eversilver.screen_intelligence_vision_recent",
         json!({ "limit": 10 }),
     )
     .await;
@@ -2315,7 +2315,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2333,7 +2333,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let set_style = post_json_rpc(
         &rpc_base,
         2001,
-        "openhuman.autocomplete_set_style",
+        "eversilver.autocomplete_set_style",
         json!({
             "enabled": true,
             "debounce_ms": 180,
@@ -2376,7 +2376,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
         "expected structured set_style log line: {set_style_outer}"
     );
 
-    let cfg = post_json_rpc(&rpc_base, 2002, "openhuman.config_get", json!({})).await;
+    let cfg = post_json_rpc(&rpc_base, 2002, "eversilver.config_get", json!({})).await;
     let cfg_outer = assert_no_jsonrpc_error(&cfg, "get_config");
     let cfg_payload = cfg_outer.get("result").unwrap_or(cfg_outer);
     let cfg_autocomplete = cfg_payload
@@ -2401,7 +2401,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let start = post_json_rpc(
         &rpc_base,
         2003,
-        "openhuman.autocomplete_start",
+        "eversilver.autocomplete_start",
         json!({ "debounce_ms": 180 }),
     )
     .await;
@@ -2422,7 +2422,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     );
 
     let status_running =
-        post_json_rpc(&rpc_base, 2004, "openhuman.autocomplete_status", json!({})).await;
+        post_json_rpc(&rpc_base, 2004, "eversilver.autocomplete_status", json!({})).await;
     let status_running_outer = assert_no_jsonrpc_error(&status_running, "autocomplete_status");
     let status_running_payload = status_running_outer
         .get("result")
@@ -2449,7 +2449,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let current = post_json_rpc(
         &rpc_base,
         2005,
-        "openhuman.autocomplete_current",
+        "eversilver.autocomplete_current",
         json!({ "context": "Please review this changeset and" }),
     )
     .await;
@@ -2477,7 +2477,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let accept = post_json_rpc(
         &rpc_base,
         2006,
-        "openhuman.autocomplete_accept",
+        "eversilver.autocomplete_accept",
         json!({
             "suggestion": " share your thoughts.",
             "skip_apply": true
@@ -2512,7 +2512,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     let stop = post_json_rpc(
         &rpc_base,
         2007,
-        "openhuman.autocomplete_stop",
+        "eversilver.autocomplete_stop",
         json!({ "reason": "json_rpc_e2e" }),
     )
     .await;
@@ -2524,7 +2524,7 @@ async fn json_rpc_autocomplete_runtime_settings_and_logs_flow() {
     );
 
     let status_stopped =
-        post_json_rpc(&rpc_base, 2008, "openhuman.autocomplete_status", json!({})).await;
+        post_json_rpc(&rpc_base, 2008, "eversilver.autocomplete_status", json!({})).await;
     let status_stopped_outer = assert_no_jsonrpc_error(&status_stopped, "autocomplete_status");
     let status_stopped_payload = status_stopped_outer
         .get("result")
@@ -2549,7 +2549,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2569,7 +2569,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     let profile = post_json_rpc(
         &rpc_base,
         30,
-        "openhuman.local_ai_device_profile",
+        "eversilver.local_ai_device_profile",
         json!({}),
     )
     .await;
@@ -2592,7 +2592,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     );
 
     // --- presets ---
-    let presets = post_json_rpc(&rpc_base, 31, "openhuman.local_ai_presets", json!({})).await;
+    let presets = post_json_rpc(&rpc_base, 31, "eversilver.local_ai_presets", json!({})).await;
     let presets_result = assert_no_jsonrpc_error(&presets, "presets");
     let presets_arr = presets_result
         .get("presets")
@@ -2632,7 +2632,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     let apply = post_json_rpc(
         &rpc_base,
         32,
-        "openhuman.local_ai_apply_preset",
+        "eversilver.local_ai_apply_preset",
         json!({"tier": "ram_2_4gb"}),
     )
     .await;
@@ -2651,7 +2651,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     );
 
     // --- verify presets reflects the change ---
-    let presets_after = post_json_rpc(&rpc_base, 33, "openhuman.local_ai_presets", json!({})).await;
+    let presets_after = post_json_rpc(&rpc_base, 33, "eversilver.local_ai_presets", json!({})).await;
     let presets_after_result = assert_no_jsonrpc_error(&presets_after, "presets_after");
     assert_eq!(
         presets_after_result
@@ -2665,7 +2665,7 @@ async fn json_rpc_local_ai_device_profile_and_presets() {
     let bad_apply = post_json_rpc(
         &rpc_base,
         34,
-        "openhuman.local_ai_apply_preset",
+        "eversilver.local_ai_apply_preset",
         json!({"tier": "ultra"}),
     )
     .await;
@@ -2683,7 +2683,7 @@ async fn json_rpc_local_ai_lm_studio_config_diagnostics_and_prompt() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2756,7 +2756,7 @@ async fn json_rpc_local_ai_lm_studio_config_diagnostics_and_prompt() {
     let update = post_json_rpc(
         &rpc_base,
         36,
-        "openhuman.config_update_local_ai_settings",
+        "eversilver.config_update_local_ai_settings",
         json!({
             "runtime_enabled": true,
             "opt_in_confirmed": true,
@@ -2788,7 +2788,7 @@ async fn json_rpc_local_ai_lm_studio_config_diagnostics_and_prompt() {
     );
 
     let diagnostics =
-        post_json_rpc(&rpc_base, 37, "openhuman.local_ai_diagnostics", json!({})).await;
+        post_json_rpc(&rpc_base, 37, "eversilver.local_ai_diagnostics", json!({})).await;
     let diagnostics_result = assert_no_jsonrpc_error(&diagnostics, "lm_studio_diagnostics");
     assert_eq!(
         diagnostics_result.get("provider").and_then(Value::as_str),
@@ -2811,7 +2811,7 @@ async fn json_rpc_local_ai_lm_studio_config_diagnostics_and_prompt() {
     let prompt = post_json_rpc(
         &rpc_base,
         38,
-        "openhuman.local_ai_prompt",
+        "eversilver.local_ai_prompt",
         json!({
             "prompt": "hello",
             "max_tokens": 16,
@@ -2842,7 +2842,7 @@ async fn billing_rpc_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -2866,7 +2866,7 @@ async fn billing_rpc_e2e() {
     let store = post_json_rpc(
         &rpc_base,
         1,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({ "token": "e2e-billing-jwt", "user_id": "e2e-user" }),
     )
     .await;
@@ -2885,7 +2885,7 @@ async fn billing_rpc_e2e() {
     let plan = post_json_rpc(
         &rpc_base,
         2,
-        "openhuman.billing_get_current_plan",
+        "eversilver.billing_get_current_plan",
         json!({}),
     )
     .await;
@@ -2908,7 +2908,7 @@ async fn billing_rpc_e2e() {
     let purchase = post_json_rpc(
         &rpc_base,
         3,
-        "openhuman.billing_purchase_plan",
+        "eversilver.billing_purchase_plan",
         json!({ "plan": "pro" }),
     )
     .await;
@@ -2926,7 +2926,7 @@ async fn billing_rpc_e2e() {
     let portal = post_json_rpc(
         &rpc_base,
         4,
-        "openhuman.billing_create_portal_session",
+        "eversilver.billing_create_portal_session",
         json!({}),
     )
     .await;
@@ -2944,7 +2944,7 @@ async fn billing_rpc_e2e() {
     let top_up = post_json_rpc(
         &rpc_base,
         5,
-        "openhuman.billing_top_up",
+        "eversilver.billing_top_up",
         json!({ "amountUsd": 10.0, "gateway": "stripe" }),
     )
     .await;
@@ -2960,7 +2960,7 @@ async fn billing_rpc_e2e() {
     let charge = post_json_rpc(
         &rpc_base,
         6,
-        "openhuman.billing_create_coinbase_charge",
+        "eversilver.billing_create_coinbase_charge",
         json!({ "plan": "pro" }),
     )
     .await;
@@ -2992,7 +2992,7 @@ async fn team_rpc_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3016,7 +3016,7 @@ async fn team_rpc_e2e() {
     let store = post_json_rpc(
         &rpc_base,
         1,
-        "openhuman.auth_store_session",
+        "eversilver.auth_store_session",
         json!({ "token": "e2e-team-jwt", "user_id": "e2e-user" }),
     )
     .await;
@@ -3036,7 +3036,7 @@ async fn team_rpc_e2e() {
     let members = post_json_rpc(
         &rpc_base,
         2,
-        "openhuman.team_list_members",
+        "eversilver.team_list_members",
         json!({ "teamId": team_id }),
     )
     .await;
@@ -3055,7 +3055,7 @@ async fn team_rpc_e2e() {
     let invite = post_json_rpc(
         &rpc_base,
         3,
-        "openhuman.team_create_invite",
+        "eversilver.team_create_invite",
         json!({ "teamId": team_id, "maxUses": 3, "expiresInDays": 7 }),
     )
     .await;
@@ -3070,7 +3070,7 @@ async fn team_rpc_e2e() {
     let invites = post_json_rpc(
         &rpc_base,
         4,
-        "openhuman.team_list_invites",
+        "eversilver.team_list_invites",
         json!({ "teamId": team_id }),
     )
     .await;
@@ -3088,7 +3088,7 @@ async fn team_rpc_e2e() {
     let revoke = post_json_rpc(
         &rpc_base,
         5,
-        "openhuman.team_revoke_invite",
+        "eversilver.team_revoke_invite",
         json!({ "teamId": team_id, "inviteId": "inv-1" }),
     )
     .await;
@@ -3098,7 +3098,7 @@ async fn team_rpc_e2e() {
     let remove = post_json_rpc(
         &rpc_base,
         6,
-        "openhuman.team_remove_member",
+        "eversilver.team_remove_member",
         json!({ "teamId": team_id, "userId": "user-2" }),
     )
     .await;
@@ -3108,7 +3108,7 @@ async fn team_rpc_e2e() {
     let role_change = post_json_rpc(
         &rpc_base,
         7,
-        "openhuman.team_change_member_role",
+        "eversilver.team_change_member_role",
         json!({ "teamId": team_id, "userId": "user-1", "role": "MEMBER" }),
     )
     .await;
@@ -3123,7 +3123,7 @@ async fn about_app_rpc_list_lookup_and_search() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3146,7 +3146,7 @@ async fn about_app_rpc_list_lookup_and_search() {
             .unwrap_or_else(|| outer.clone())
     }
 
-    let list = post_json_rpc(&rpc_base, 200, "openhuman.about_app_list", json!({})).await;
+    let list = post_json_rpc(&rpc_base, 200, "eversilver.about_app_list", json!({})).await;
     let list_outer = assert_no_jsonrpc_error(&list, "about_app_list");
     let list_result = inner(list_outer);
     let capabilities = list_result
@@ -3163,7 +3163,7 @@ async fn about_app_rpc_list_lookup_and_search() {
     let filtered = post_json_rpc(
         &rpc_base,
         201,
-        "openhuman.about_app_list",
+        "eversilver.about_app_list",
         json!({ "category": "local_ai" }),
     )
     .await;
@@ -3183,7 +3183,7 @@ async fn about_app_rpc_list_lookup_and_search() {
     let lookup = post_json_rpc(
         &rpc_base,
         202,
-        "openhuman.about_app_lookup",
+        "eversilver.about_app_lookup",
         json!({ "id": "team.generate_invite_codes" }),
     )
     .await;
@@ -3201,7 +3201,7 @@ async fn about_app_rpc_list_lookup_and_search() {
     let search = post_json_rpc(
         &rpc_base,
         203,
-        "openhuman.about_app_search",
+        "eversilver.about_app_search",
         json!({ "query": "invite" }),
     )
     .await;
@@ -3232,7 +3232,7 @@ async fn voice_status_returns_availability() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3251,7 +3251,7 @@ async fn voice_status_returns_availability() {
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     // voice_status does not require auth — it only checks filesystem availability
-    let status = post_json_rpc(&rpc_base, 1, "openhuman.voice_status", json!({})).await;
+    let status = post_json_rpc(&rpc_base, 1, "eversilver.voice_status", json!({})).await;
     let result = assert_no_jsonrpc_error(&status, "voice_status");
 
     // Without whisper/piper installed in the test env, both should be unavailable
@@ -3293,7 +3293,7 @@ async fn notification_settings_roundtrip_and_disabled_ingest_skip() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3311,7 +3311,7 @@ async fn notification_settings_roundtrip_and_disabled_ingest_skip() {
     let set = post_json_rpc(
         &rpc_base,
         4001,
-        "openhuman.notification_settings_set",
+        "eversilver.notification_settings_set",
         json!({
             "provider": "gmail",
             "enabled": false,
@@ -3326,7 +3326,7 @@ async fn notification_settings_roundtrip_and_disabled_ingest_skip() {
     let get = post_json_rpc(
         &rpc_base,
         4002,
-        "openhuman.notification_settings_get",
+        "eversilver.notification_settings_get",
         json!({ "provider": "gmail" }),
     )
     .await;
@@ -3354,7 +3354,7 @@ async fn notification_settings_roundtrip_and_disabled_ingest_skip() {
     let ingest = post_json_rpc(
         &rpc_base,
         4003,
-        "openhuman.notification_ingest",
+        "eversilver.notification_ingest",
         json!({
             "provider": "gmail",
             "account_id": "acct-1",
@@ -3384,7 +3384,7 @@ async fn credentials_crud_roundtrip() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3405,7 +3405,7 @@ async fn credentials_crud_roundtrip() {
     let store = post_json_rpc(
         &rpc_base,
         5001,
-        "openhuman.auth_store_provider_credentials",
+        "eversilver.auth_store_provider_credentials",
         json!({
             "provider": "openai",
             "profile": "default",
@@ -3438,7 +3438,7 @@ async fn credentials_crud_roundtrip() {
     let list_all = post_json_rpc(
         &rpc_base,
         5002,
-        "openhuman.auth_list_provider_credentials",
+        "eversilver.auth_list_provider_credentials",
         json!({}),
     )
     .await;
@@ -3457,7 +3457,7 @@ async fn credentials_crud_roundtrip() {
     let list_filtered = post_json_rpc(
         &rpc_base,
         5003,
-        "openhuman.auth_list_provider_credentials",
+        "eversilver.auth_list_provider_credentials",
         json!({ "provider": "openai" }),
     )
     .await;
@@ -3477,7 +3477,7 @@ async fn credentials_crud_roundtrip() {
     let remove = post_json_rpc(
         &rpc_base,
         5004,
-        "openhuman.auth_remove_provider_credentials",
+        "eversilver.auth_remove_provider_credentials",
         json!({
             "provider": "openai",
             "profile": "default"
@@ -3496,7 +3496,7 @@ async fn credentials_crud_roundtrip() {
     let list_after = post_json_rpc(
         &rpc_base,
         5005,
-        "openhuman.auth_list_provider_credentials",
+        "eversilver.auth_list_provider_credentials",
         json!({}),
     )
     .await;
@@ -3515,11 +3515,11 @@ async fn credentials_crud_roundtrip() {
     rpc_join.abort();
 }
 
-/// End-to-end coverage for `openhuman.skills_uninstall`.
+/// End-to-end coverage for `eversilver.skills_uninstall`.
 ///
 /// Validates that the RPC method is registered, wire-decodes
 /// `UninstallSkillParams`, resolves the slug against
-/// `~/.openhuman/skills/<slug>/`, removes the directory on success, and
+/// `~/.eversilver/skills/<slug>/`, removes the directory on success, and
 /// forwards the core error message verbatim for the two documented
 /// failure modes (missing SKILL.md and path traversal). Previously only
 /// the `uninstall_skill(...)` helper was tested — the wire layer
@@ -3533,7 +3533,7 @@ async fn skills_uninstall_rpc_e2e() {
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
 
-    let skills_root = home.join(".openhuman").join("skills");
+    let skills_root = home.join(".eversilver").join("skills");
     std::fs::create_dir_all(&skills_root).expect("mkdir skills root");
 
     // Seed a skill whose on-disk slug differs from its frontmatter name —
@@ -3555,7 +3555,7 @@ async fn skills_uninstall_rpc_e2e() {
     let ok = post_json_rpc(
         &rpc_base,
         6001,
-        "openhuman.skills_uninstall",
+        "eversilver.skills_uninstall",
         json!({ "name": slug }),
     )
     .await;
@@ -3588,7 +3588,7 @@ async fn skills_uninstall_rpc_e2e() {
     let missing = post_json_rpc(
         &rpc_base,
         6002,
-        "openhuman.skills_uninstall",
+        "eversilver.skills_uninstall",
         json!({ "name": "does-not-exist" }),
     )
     .await;
@@ -3609,7 +3609,7 @@ async fn skills_uninstall_rpc_e2e() {
     let traversal = post_json_rpc(
         &rpc_base,
         6003,
-        "openhuman.skills_uninstall",
+        "eversilver.skills_uninstall",
         json!({ "name": "../etc" }),
     )
     .await;
@@ -3775,10 +3775,10 @@ async fn rpc_update_apply_can_be_disabled_by_config_policy() {
     let tmp = tempdir().expect("tempdir");
     let _workspace_guard = EnvVarGuard::set_to_path("EVERSILVER_WORKSPACE", tmp.path());
 
-    let mut config = eversilver_core::openhuman::config::Config {
+    let mut config = eversilver_core::eversilver::config::Config {
         workspace_dir: tmp.path().join("workspace"),
         config_path: tmp.path().join("config.toml"),
-        ..eversilver_core::openhuman::config::Config::default()
+        ..eversilver_core::eversilver::config::Config::default()
     };
     config.update.rpc_mutations_enabled = false;
     config
@@ -3796,10 +3796,10 @@ async fn rpc_update_apply_can_be_disabled_by_config_policy() {
         .json(&json!({
             "jsonrpc": "2.0",
             "id": 1,
-            "method": "openhuman.update_apply",
+            "method": "eversilver.update_apply",
             "params": {
                 "download_url": "https://github.com/owner/repo/releases/download/v1/x",
-                "asset_name": "openhuman-core-x86_64-unknown-linux-gnu"
+                "asset_name": "eversilver-core-x86_64-unknown-linux-gnu"
             }
         }))
         .send()
@@ -3824,7 +3824,7 @@ async fn rpc_update_apply_can_be_disabled_by_config_policy() {
 
 /// End-to-end coverage for issue #1149: storing a managed-DM channel
 /// credential under `channel:<slug>:<mode>` and immediately observing
-/// `connected:true` from `openhuman.channels_status`.
+/// `connected:true` from `eversilver.channels_status`.
 ///
 /// Before the fix, `channels_status` always returned `connected:false`
 /// because the underlying `list_provider_credentials` call used an
@@ -3842,7 +3842,7 @@ async fn channels_status_reflects_managed_dm_credential_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3861,7 +3861,7 @@ async fn channels_status_reflects_managed_dm_credential_e2e() {
     let baseline = post_json_rpc(
         &rpc_base,
         7001,
-        "openhuman.channels_status",
+        "eversilver.channels_status",
         json!({ "channel": "telegram" }),
     )
     .await;
@@ -3885,7 +3885,7 @@ async fn channels_status_reflects_managed_dm_credential_e2e() {
     let store = post_json_rpc(
         &rpc_base,
         7002,
-        "openhuman.auth_store_provider_credentials",
+        "eversilver.auth_store_provider_credentials",
         json!({
             "provider": "channel:telegram:managed_dm",
             "profile": "default",
@@ -3901,7 +3901,7 @@ async fn channels_status_reflects_managed_dm_credential_e2e() {
     let after = post_json_rpc(
         &rpc_base,
         7003,
-        "openhuman.channels_status",
+        "eversilver.channels_status",
         json!({ "channel": "telegram" }),
     )
     .await;
@@ -3942,7 +3942,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -3956,8 +3956,8 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     // Init the whatsapp_data global before the router handles any requests.
     // Reset first so we attach to *this* test's tempdir even if a sibling
     // test left a stale handle pointing at an already-dropped tempdir.
-    eversilver_core::openhuman::whatsapp_data::global::reset_for_tests();
-    eversilver_core::openhuman::whatsapp_data::global::init(eversilver_home.clone())
+    eversilver_core::eversilver::whatsapp_data::global::reset_for_tests();
+    eversilver_core::eversilver::whatsapp_data::global::init(eversilver_home.clone())
         .expect("whatsapp_data global init");
 
     let (rpc_addr, rpc_join) = serve_on_ephemeral(build_core_http_router(false)).await;
@@ -3970,7 +3970,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let ingest = post_json_rpc(
         &rpc_base,
         9001,
-        "openhuman.whatsapp_data_ingest",
+        "eversilver.whatsapp_data_ingest",
         json!({
             "account_id": "e2e-acct@c.us",
             "chats": {
@@ -4054,7 +4054,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let list_chats = post_json_rpc(
         &rpc_base,
         9002,
-        "openhuman.whatsapp_data_list_chats",
+        "eversilver.whatsapp_data_list_chats",
         json!({ "account_id": "e2e-acct@c.us" }),
     )
     .await;
@@ -4084,7 +4084,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let list_msgs = post_json_rpc(
         &rpc_base,
         9003,
-        "openhuman.whatsapp_data_list_messages",
+        "eversilver.whatsapp_data_list_messages",
         json!({
             "chat_id": "alice@c.us",
             "account_id": "e2e-acct@c.us"
@@ -4116,7 +4116,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let search = post_json_rpc(
         &rpc_base,
         9004,
-        "openhuman.whatsapp_data_search_messages",
+        "eversilver.whatsapp_data_search_messages",
         json!({ "query": "umbrella" }),
     )
     .await;
@@ -4146,7 +4146,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let second_ingest = post_json_rpc(
         &rpc_base,
         9005,
-        "openhuman.whatsapp_data_ingest",
+        "eversilver.whatsapp_data_ingest",
         json!({
             "account_id": "other-acct@c.us",
             "chats": {
@@ -4175,7 +4175,7 @@ async fn whatsapp_data_ingest_and_query_e2e() {
     let scoped_search = post_json_rpc(
         &rpc_base,
         9006,
-        "openhuman.whatsapp_data_search_messages",
+        "eversilver.whatsapp_data_search_messages",
         json!({
             "query": "umbrella",
             "account_id": "e2e-acct@c.us"
@@ -4212,7 +4212,7 @@ async fn whatsapp_memory_doc_ingest_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -4238,7 +4238,7 @@ async fn whatsapp_memory_doc_ingest_e2e() {
     let ingest = post_json_rpc(
         &rpc_base,
         9101,
-        "openhuman.memory_doc_ingest",
+        "eversilver.memory_doc_ingest",
         json!({
             "namespace": "whatsapp-web:test-acct@c.us",
             "key": "alice@c.us:2026-05-07",
@@ -4259,7 +4259,7 @@ async fn whatsapp_memory_doc_ingest_e2e() {
     let doc_list = post_json_rpc(
         &rpc_base,
         9102,
-        "openhuman.memory_doc_list",
+        "eversilver.memory_doc_list",
         json!({ "namespace": "whatsapp-web:test-acct@c.us" }),
     )
     .await;
@@ -4310,16 +4310,16 @@ async fn whatsapp_memory_doc_ingest_e2e() {
     rpc_join.abort();
 }
 
-/// Regression guard for issue #1289: `openhuman.voice_cloud_transcribe`
+/// Regression guard for issue #1289: `eversilver.voice_cloud_transcribe`
 /// must stay registered in the controller registry and reachable via
 /// JSON-RPC dispatch.
 ///
 /// The user-visible symptom was "Voice transcription failed: unknown
-/// method: openhuman.voice_cloud_transcribe" — the frontend (mascot
+/// method: eversilver.voice_cloud_transcribe" — the frontend (mascot
 /// mic-only composer) was calling a method that wasn't reachable.
 /// This test pins both ends:
 ///
-/// 1. `/schema` exposes `openhuman.voice_cloud_transcribe` so the
+/// 1. `/schema` exposes `eversilver.voice_cloud_transcribe` so the
 ///    discovery surface stays in sync with the live registry.
 /// 2. Calling the method over RPC does NOT hit the dispatcher's
 ///    unknown-method branch (`Err("unknown method: …")`). The call may
@@ -4331,7 +4331,7 @@ async fn voice_cloud_transcribe_registered_e2e() {
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
     let home = tmp.path();
-    let eversilver_home = home.join(".openhuman");
+    let eversilver_home = home.join(".eversilver");
 
     let _home_guard = EnvVarGuard::set_to_path("HOME", home);
     let _workspace_guard = EnvVarGuard::unset("EVERSILVER_WORKSPACE");
@@ -4346,7 +4346,7 @@ async fn voice_cloud_transcribe_registered_e2e() {
     let rpc_base = format!("http://{}", rpc_addr);
     tokio::time::sleep(Duration::from_millis(100)).await;
 
-    // ── 1. /schema must list openhuman.voice_cloud_transcribe ───────────────
+    // ── 1. /schema must list eversilver.voice_cloud_transcribe ───────────────
     let schema = reqwest::get(format!("{rpc_base}/schema"))
         .await
         .expect("GET /schema")
@@ -4361,7 +4361,7 @@ async fn voice_cloud_transcribe_registered_e2e() {
         .filter_map(|m| m.get("method").and_then(Value::as_str))
         .collect();
     assert!(
-        names.contains(&"openhuman.voice_cloud_transcribe"),
+        names.contains(&"eversilver.voice_cloud_transcribe"),
         "voice_cloud_transcribe must appear in /schema dump (got {} methods)",
         names.len()
     );
@@ -4373,7 +4373,7 @@ async fn voice_cloud_transcribe_registered_e2e() {
     let resp = post_json_rpc(
         &rpc_base,
         9101,
-        "openhuman.voice_cloud_transcribe",
+        "eversilver.voice_cloud_transcribe",
         json!({ "audio_base64": "" }),
     )
     .await;
@@ -4414,7 +4414,7 @@ async fn json_rpc_meet_join_call_validates_and_returns_request_id() {
     let ok = post_json_rpc(
         &rpc_base,
         9001,
-        "openhuman.meet_join_call",
+        "eversilver.meet_join_call",
         json!({
             "meet_url": "https://meet.google.com/abc-defg-hij",
             "display_name": "  Agent Alice  "
@@ -4444,7 +4444,7 @@ async fn json_rpc_meet_join_call_validates_and_returns_request_id() {
     let bad_host = post_json_rpc(
         &rpc_base,
         9002,
-        "openhuman.meet_join_call",
+        "eversilver.meet_join_call",
         json!({
             "meet_url": "https://example.com/abc-defg-hij",
             "display_name": "Agent"
@@ -4457,7 +4457,7 @@ async fn json_rpc_meet_join_call_validates_and_returns_request_id() {
     let bad_name = post_json_rpc(
         &rpc_base,
         9003,
-        "openhuman.meet_join_call",
+        "eversilver.meet_join_call",
         json!({
             "meet_url": "https://meet.google.com/abc-defg-hij",
             "display_name": "   "
@@ -4504,7 +4504,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
     let start = post_json_rpc(
         &rpc_base,
         9101,
-        "openhuman.meet_agent_start_session",
+        "eversilver.meet_agent_start_session",
         json!({ "request_id": request_id, "sample_rate_hz": 16_000 }),
     )
     .await;
@@ -4529,7 +4529,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
         let r = post_json_rpc(
             &rpc_base,
             9110 + i,
-            "openhuman.meet_agent_push_listen_pcm",
+            "eversilver.meet_agent_push_listen_pcm",
             json!({ "request_id": request_id, "pcm_base64": loud_b64 }),
         )
         .await;
@@ -4555,7 +4555,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
         let r = post_json_rpc(
             &rpc_base,
             9130 + i,
-            "openhuman.meet_agent_push_listen_pcm",
+            "eversilver.meet_agent_push_listen_pcm",
             json!({ "request_id": request_id, "pcm_base64": silent_b64 }),
         )
         .await;
@@ -4577,7 +4577,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
         let r = post_json_rpc(
             &rpc_base,
             9150,
-            "openhuman.meet_agent_poll_speech",
+            "eversilver.meet_agent_poll_speech",
             json!({ "request_id": request_id }),
         )
         .await;
@@ -4603,7 +4603,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
     let stop = post_json_rpc(
         &rpc_base,
         9160,
-        "openhuman.meet_agent_stop_session",
+        "eversilver.meet_agent_stop_session",
         json!({ "request_id": request_id }),
     )
     .await;
@@ -4625,7 +4625,7 @@ async fn json_rpc_meet_agent_session_lifecycle() {
     let bogus = post_json_rpc(
         &rpc_base,
         9161,
-        "openhuman.meet_agent_stop_session",
+        "eversilver.meet_agent_stop_session",
         json!({ "request_id": "never-started" }),
     )
     .await;
@@ -4648,19 +4648,19 @@ async fn json_rpc_meet_agent_session_lifecycle() {
 ///    the read-only boundary the issue requires.
 #[tokio::test(flavor = "multi_thread")]
 async fn whatsapp_data_agent_tools_e2e_1341() {
-    use eversilver_core::openhuman::tools::traits::Tool;
-    use eversilver_core::openhuman::tools::{
+    use eversilver_core::eversilver::tools::traits::Tool;
+    use eversilver_core::eversilver::tools::{
         WhatsAppDataListChatsTool, WhatsAppDataListMessagesTool, WhatsAppDataSearchMessagesTool,
     };
-    use eversilver_core::openhuman::whatsapp_data::{
+    use eversilver_core::eversilver::whatsapp_data::{
         all_whatsapp_data_controller_schemas, global as wa_global, ops as wa_ops,
         types::{ChatMeta, IngestMessage, IngestRequest},
     };
 
     let _env_lock = json_rpc_e2e_env_lock();
     let tmp = tempdir().expect("tempdir");
-    let eversilver_home = tmp.path().join(".openhuman");
-    std::fs::create_dir_all(&eversilver_home).expect("create openhuman home");
+    let eversilver_home = tmp.path().join(".eversilver");
+    std::fs::create_dir_all(&eversilver_home).expect("create eversilver home");
 
     // The whatsapp_data global store is process-wide. Reset before init so
     // we attach to *this* test's tempdir even if a sibling test already
@@ -4730,7 +4730,7 @@ async fn whatsapp_data_agent_tools_e2e_1341() {
     .expect("ingest");
 
     // Helper: parse a successful Tool response back into JSON.
-    fn parse_tool_output(result: eversilver_core::openhuman::skills::types::ToolResult) -> Value {
+    fn parse_tool_output(result: eversilver_core::eversilver::skills::types::ToolResult) -> Value {
         assert!(!result.is_error, "tool returned error: {result:?}");
         serde_json::from_str(&result.output()).expect("tool output is valid JSON")
     }

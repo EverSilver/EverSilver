@@ -1,7 +1,7 @@
 //! Tauri shell side of file-based logging.
 //!
 //! Resolves the Eversilver data directory the same way the core does
-//! (`~/.openhuman` or `EVERSILVER_WORKSPACE` override) and hands it to
+//! (`~/.eversilver` or `EVERSILVER_WORKSPACE` override) and hands it to
 //! [`eversilver_core::core::logging::init_for_embedded`], which installs a
 //! daily-rotated file appender so packaged GUI builds — where stderr is
 //! invisible — still produce a log users can share for support.
@@ -32,8 +32,8 @@ pub fn init() {
 /// `users/` tree, and the CEF caches a support engineer would also need.
 ///
 /// If `default_root_eversilver_dir` fails (very unusual — it requires
-/// `dirs::home_dir` to return `None`), falls back to `<temp>/openhuman`
-/// rather than a relative `.openhuman` whose final location depends on the
+/// `dirs::home_dir` to return `None`), falls back to `<temp>/eversilver`
+/// rather than a relative `.eversilver` whose final location depends on the
 /// shell's CWD at launch time.
 pub(crate) fn resolve_data_dir() -> PathBuf {
     if let Ok(workspace) = std::env::var("EVERSILVER_WORKSPACE") {
@@ -41,11 +41,11 @@ pub(crate) fn resolve_data_dir() -> PathBuf {
             return PathBuf::from(workspace);
         }
     }
-    eversilver_core::openhuman::config::default_root_eversilver_dir().unwrap_or_else(|err| {
+    eversilver_core::eversilver::config::default_root_eversilver_dir().unwrap_or_else(|err| {
         eprintln!(
             "[file_logging] default_root_eversilver_dir failed ({err}); falling back to temp dir"
         );
-        std::env::temp_dir().join("openhuman")
+        std::env::temp_dir().join("eversilver")
     })
 }
 
@@ -62,9 +62,9 @@ mod tests {
     fn resolve_data_dir_honors_workspace_override() {
         let _guard = ENV_LOCK.lock().unwrap();
         let prior = std::env::var("EVERSILVER_WORKSPACE").ok();
-        std::env::set_var("EVERSILVER_WORKSPACE", "/tmp/openhuman-test-override");
+        std::env::set_var("EVERSILVER_WORKSPACE", "/tmp/eversilver-test-override");
         let dir = resolve_data_dir();
-        assert_eq!(dir, PathBuf::from("/tmp/openhuman-test-override"));
+        assert_eq!(dir, PathBuf::from("/tmp/eversilver-test-override"));
         match prior {
             Some(v) => std::env::set_var("EVERSILVER_WORKSPACE", v),
             None => std::env::remove_var("EVERSILVER_WORKSPACE"),
@@ -77,7 +77,7 @@ mod tests {
         let prior = std::env::var("EVERSILVER_WORKSPACE").ok();
         std::env::set_var("EVERSILVER_WORKSPACE", "");
         // Empty string must NOT short-circuit — fall through to the
-        // default resolver so the user's real `~/.openhuman` is used.
+        // default resolver so the user's real `~/.eversilver` is used.
         let dir = resolve_data_dir();
         assert_ne!(dir, PathBuf::from(""));
         assert!(dir.is_absolute(), "expected absolute fallback, got {dir:?}");

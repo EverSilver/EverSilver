@@ -1,6 +1,6 @@
 //! Tauri command surface for the "Join a Google Meet call" feature.
 //!
-//! The core (`src/openhuman/meet/`) validates the meet URL + display name
+//! The core (`src/eversilver/meet/`) validates the meet URL + display name
 //! and mints a `request_id`. The frontend then invokes
 //! [`meet_call_open_window`] to actually pop a top-level CEF webview that
 //! navigates to the Meet URL with a fresh data directory so the join is

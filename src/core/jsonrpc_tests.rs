@@ -17,7 +17,7 @@ struct EnvVarGuard {
 
 impl EnvVarGuard {
     fn set_many(vars: Vec<(&'static str, OsString)>) -> Self {
-        let lock = crate::openhuman::config::TEST_ENV_LOCK
+        let lock = crate::eversilver::config::TEST_ENV_LOCK
             .lock()
             .expect("test env lock poisoned");
         let mut old_values = Vec::with_capacity(vars.len());
@@ -97,12 +97,12 @@ async fn wait_until_port_released(port: u16) {
 /// dedicated `tests/` binary where global pollution doesn't affect
 /// siblings — tracked as a follow-up.
 ///
-/// To run manually: `cargo test --lib -p openhuman -- --ignored
+/// To run manually: `cargo test --lib -p eversilver -- --ignored
 /// shutdown_token`.
 #[tokio::test]
 #[ignore = "calls full server bootstrap; leaks process-global state into sibling tests (#1552). Re-cover via integration test."]
 async fn shutdown_token_stops_axum_listener_within_timeout() {
-    let _signed_out_restore = crate::openhuman::scheduler_gate::SignedOutTestGuard::set(false);
+    let _signed_out_restore = crate::eversilver::scheduler_gate::SignedOutTestGuard::set(false);
 
     let workspace = tempfile::tempdir().expect("workspace tempdir");
 
@@ -149,7 +149,7 @@ async fn shutdown_token_stops_axum_listener_within_timeout() {
 
 #[tokio::test]
 async fn invoke_health_snapshot_via_registry() {
-    let result = invoke_method(default_state(), "openhuman.health_snapshot", json!({}))
+    let result = invoke_method(default_state(), "eversilver.health_snapshot", json!({}))
         .await
         .expect("health snapshot should succeed");
     assert!(result.get("result").is_some());
@@ -157,7 +157,7 @@ async fn invoke_health_snapshot_via_registry() {
 
 #[tokio::test]
 async fn invoke_encrypt_secret_missing_required_param_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.encrypt_secret", json!({}))
+    let err = invoke_method(default_state(), "eversilver.encrypt_secret", json!({}))
         .await
         .expect_err("missing plaintext should fail");
     assert!(err.contains("missing required param 'plaintext'"));
@@ -167,7 +167,7 @@ async fn invoke_encrypt_secret_missing_required_param_fails_validation() {
 async fn invoke_doctor_models_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.doctor_models",
+        "eversilver.doctor_models",
         json!({ "invalid": true }),
     )
     .await
@@ -179,7 +179,7 @@ async fn invoke_doctor_models_rejects_unknown_param() {
 async fn invoke_config_get_runtime_flags_via_registry() {
     let result = invoke_method(
         default_state(),
-        "openhuman.config_get_runtime_flags",
+        "eversilver.config_get_runtime_flags",
         json!({}),
     )
     .await
@@ -191,7 +191,7 @@ async fn invoke_config_get_runtime_flags_via_registry() {
 async fn invoke_autocomplete_status_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.autocomplete_status",
+        "eversilver.autocomplete_status",
         json!({ "extra": true }),
     )
     .await
@@ -201,7 +201,7 @@ async fn invoke_autocomplete_status_rejects_unknown_param() {
 
 #[tokio::test]
 async fn invoke_auth_store_session_missing_token_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.auth_store_session", json!({}))
+    let err = invoke_method(default_state(), "eversilver.auth_store_session", json!({}))
         .await
         .expect_err("missing token should fail");
     assert!(err.contains("missing required param 'token'"));
@@ -211,7 +211,7 @@ async fn invoke_auth_store_session_missing_token_fails_validation() {
 async fn invoke_service_status_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.service_status",
+        "eversilver.service_status",
         json!({ "x": 1 }),
     )
     .await
@@ -224,7 +224,7 @@ async fn invoke_memory_init_accepts_empty_params() {
     // jwt_token is optional (accepted for backward compat but ignored).
     // The call may still fail for workspace reasons in test, but must NOT
     // fail with a missing-param error for jwt_token.
-    let result = invoke_method(default_state(), "openhuman.memory_init", json!({})).await;
+    let result = invoke_method(default_state(), "eversilver.memory_init", json!({})).await;
     if let Err(ref e) = result {
         assert!(
             !e.contains("missing required param") || !e.contains("jwt_token"),
@@ -237,7 +237,7 @@ async fn invoke_memory_init_accepts_empty_params() {
 async fn invoke_memory_list_namespaces_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.memory_list_namespaces",
+        "eversilver.memory_list_namespaces",
         json!({ "extra": true }),
     )
     .await
@@ -249,7 +249,7 @@ async fn invoke_memory_list_namespaces_rejects_unknown_param() {
 async fn invoke_memory_query_namespace_missing_namespace_fails() {
     let err = invoke_method(
         default_state(),
-        "openhuman.memory_query_namespace",
+        "eversilver.memory_query_namespace",
         json!({ "query": "who owns atlas" }),
     )
     .await
@@ -261,7 +261,7 @@ async fn invoke_memory_query_namespace_missing_namespace_fails() {
 async fn invoke_memory_recall_memories_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.memory_recall_memories",
+        "eversilver.memory_recall_memories",
         json!({ "namespace": "team", "extra": true }),
     )
     .await
@@ -273,7 +273,7 @@ async fn invoke_memory_recall_memories_rejects_unknown_param() {
 async fn invoke_migrate_openclaw_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.migrate_openclaw",
+        "eversilver.migrate_openclaw",
         json!({ "x": 1 }),
     )
     .await
@@ -285,7 +285,7 @@ async fn invoke_migrate_openclaw_rejects_unknown_param() {
 async fn invoke_local_ai_download_asset_missing_required_param_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.local_ai_download_asset",
+        "eversilver.local_ai_download_asset",
         json!({}),
     )
     .await
@@ -307,21 +307,21 @@ fn http_schema_dump_includes_eversilver_and_core_methods() {
     assert!(
         methods
             .iter()
-            .any(|m| m.method == "openhuman.health_snapshot"),
-        "schema dump should include migrated openhuman methods"
+            .any(|m| m.method == "eversilver.health_snapshot"),
+        "schema dump should include migrated eversilver methods"
     );
 
     assert!(
         methods
             .iter()
-            .any(|m| m.method == "openhuman.billing_get_current_plan"),
+            .any(|m| m.method == "eversilver.billing_get_current_plan"),
         "schema dump should include billing methods"
     );
 
     assert!(
         methods
             .iter()
-            .any(|m| m.method == "openhuman.team_list_members"),
+            .any(|m| m.method == "eversilver.team_list_members"),
         "schema dump should include team methods"
     );
 }
@@ -330,7 +330,7 @@ fn http_schema_dump_includes_eversilver_and_core_methods() {
 async fn billing_get_current_plan_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_get_current_plan",
+        "eversilver.billing_get_current_plan",
         json!({ "extra": true }),
     )
     .await
@@ -342,7 +342,7 @@ async fn billing_get_current_plan_rejects_unknown_param() {
 async fn billing_purchase_plan_missing_plan_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_purchase_plan",
+        "eversilver.billing_purchase_plan",
         json!({}),
     )
     .await
@@ -352,7 +352,7 @@ async fn billing_purchase_plan_missing_plan_fails_validation() {
 
 #[tokio::test]
 async fn billing_top_up_missing_amount_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.billing_top_up", json!({}))
+    let err = invoke_method(default_state(), "eversilver.billing_top_up", json!({}))
         .await
         .expect_err("missing amountUsd should fail");
     assert!(err.contains("missing required param 'amountUsd'"));
@@ -362,7 +362,7 @@ async fn billing_top_up_missing_amount_fails_validation() {
 async fn billing_top_up_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_top_up",
+        "eversilver.billing_top_up",
         json!({ "amountUsd": 10.0, "unknownField": true }),
     )
     .await
@@ -374,7 +374,7 @@ async fn billing_top_up_rejects_unknown_param() {
 async fn billing_create_portal_session_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_create_portal_session",
+        "eversilver.billing_create_portal_session",
         json!({ "x": 1 }),
     )
     .await
@@ -384,7 +384,7 @@ async fn billing_create_portal_session_rejects_unknown_param() {
 
 #[tokio::test]
 async fn team_list_members_missing_team_id_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.team_list_members", json!({}))
+    let err = invoke_method(default_state(), "eversilver.team_list_members", json!({}))
         .await
         .expect_err("missing teamId should fail");
     assert!(err.contains("missing required param 'teamId'"));
@@ -394,7 +394,7 @@ async fn team_list_members_missing_team_id_fails_validation() {
 async fn team_list_members_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.team_list_members",
+        "eversilver.team_list_members",
         json!({ "teamId": "t1", "extra": true }),
     )
     .await
@@ -404,7 +404,7 @@ async fn team_list_members_rejects_unknown_param() {
 
 #[tokio::test]
 async fn team_create_invite_missing_team_id_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.team_create_invite", json!({}))
+    let err = invoke_method(default_state(), "eversilver.team_create_invite", json!({}))
         .await
         .expect_err("missing teamId should fail");
     assert!(err.contains("missing required param 'teamId'"));
@@ -414,7 +414,7 @@ async fn team_create_invite_missing_team_id_fails_validation() {
 async fn team_remove_member_missing_required_params_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.team_remove_member",
+        "eversilver.team_remove_member",
         json!({ "teamId": "t1" }),
     )
     .await
@@ -426,7 +426,7 @@ async fn team_remove_member_missing_required_params_fails_validation() {
 async fn team_change_member_role_missing_role_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.team_change_member_role",
+        "eversilver.team_change_member_role",
         json!({ "teamId": "t1", "userId": "u1" }),
     )
     .await
@@ -438,7 +438,7 @@ async fn team_change_member_role_missing_role_fails_validation() {
 async fn billing_create_coinbase_charge_missing_plan_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_create_coinbase_charge",
+        "eversilver.billing_create_coinbase_charge",
         json!({}),
     )
     .await
@@ -450,7 +450,7 @@ async fn billing_create_coinbase_charge_missing_plan_fails_validation() {
 async fn billing_create_coinbase_charge_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.billing_create_coinbase_charge",
+        "eversilver.billing_create_coinbase_charge",
         json!({ "plan": "pro", "extra": true }),
     )
     .await
@@ -460,7 +460,7 @@ async fn billing_create_coinbase_charge_rejects_unknown_param() {
 
 #[tokio::test]
 async fn team_list_invites_missing_team_id_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.team_list_invites", json!({}))
+    let err = invoke_method(default_state(), "eversilver.team_list_invites", json!({}))
         .await
         .expect_err("missing teamId should fail");
     assert!(err.contains("missing required param 'teamId'"));
@@ -470,7 +470,7 @@ async fn team_list_invites_missing_team_id_fails_validation() {
 async fn team_list_invites_rejects_unknown_param() {
     let err = invoke_method(
         default_state(),
-        "openhuman.team_list_invites",
+        "eversilver.team_list_invites",
         json!({ "teamId": "t1", "extra": true }),
     )
     .await
@@ -480,7 +480,7 @@ async fn team_list_invites_rejects_unknown_param() {
 
 #[tokio::test]
 async fn team_revoke_invite_missing_team_id_fails_validation() {
-    let err = invoke_method(default_state(), "openhuman.team_revoke_invite", json!({}))
+    let err = invoke_method(default_state(), "eversilver.team_revoke_invite", json!({}))
         .await
         .expect_err("missing teamId should fail");
     assert!(err.contains("missing required param 'teamId'"));
@@ -490,7 +490,7 @@ async fn team_revoke_invite_missing_team_id_fails_validation() {
 async fn team_revoke_invite_missing_invite_id_fails_validation() {
     let err = invoke_method(
         default_state(),
-        "openhuman.team_revoke_invite",
+        "eversilver.team_revoke_invite",
         json!({ "teamId": "t1" }),
     )
     .await
@@ -503,17 +503,17 @@ async fn schema_dump_includes_new_billing_and_team_methods() {
     let dump = build_http_schema_dump();
     let methods: Vec<&str> = dump.methods.iter().map(|m| m.method.as_str()).collect();
     for expected in &[
-        "openhuman.billing_get_current_plan",
-        "openhuman.billing_purchase_plan",
-        "openhuman.billing_create_portal_session",
-        "openhuman.billing_top_up",
-        "openhuman.billing_create_coinbase_charge",
-        "openhuman.team_list_members",
-        "openhuman.team_create_invite",
-        "openhuman.team_list_invites",
-        "openhuman.team_revoke_invite",
-        "openhuman.team_remove_member",
-        "openhuman.team_change_member_role",
+        "eversilver.billing_get_current_plan",
+        "eversilver.billing_purchase_plan",
+        "eversilver.billing_create_portal_session",
+        "eversilver.billing_top_up",
+        "eversilver.billing_create_coinbase_charge",
+        "eversilver.team_list_members",
+        "eversilver.team_create_invite",
+        "eversilver.team_list_invites",
+        "eversilver.team_revoke_invite",
+        "eversilver.team_remove_member",
+        "eversilver.team_change_member_role",
     ] {
         assert!(
             methods.contains(expected),
@@ -687,7 +687,7 @@ async fn structured_rpc_error_envelope_passes_through_generic_dispatch() {
     let stale_thread_request = crate::core::types::RpcRequest {
         jsonrpc: "2.0".to_string(),
         id: json!(7),
-        method: "openhuman.threads_generate_title".to_string(),
+        method: "eversilver.threads_generate_title".to_string(),
         params: json!({ "thread_id": "thread-ghost" }),
     };
     let response = rpc_handler(State(default_state()), Json(stale_thread_request)).await;
@@ -755,7 +755,7 @@ async fn thread_not_found_rpc_error_does_not_report_to_sentry() {
     let stale_thread_request = crate::core::types::RpcRequest {
         jsonrpc: "2.0".to_string(),
         id: json!(1),
-        method: "openhuman.threads_message_append".to_string(),
+        method: "eversilver.threads_message_append".to_string(),
         params: json!({
             "thread_id": "thread-missing",
             "message": {
@@ -861,7 +861,7 @@ async fn invoke_method_rejects_array_params_for_registered_method() {
     // instead of silently calling the handler with no args.
     let err = invoke_method(
         default_state(),
-        "openhuman.health_snapshot",
+        "eversilver.health_snapshot",
         json!([1, 2, 3]),
     )
     .await
@@ -872,7 +872,7 @@ async fn invoke_method_rejects_array_params_for_registered_method() {
 
 #[tokio::test]
 async fn invoke_method_rejects_string_params_for_registered_method() {
-    let err = invoke_method(default_state(), "openhuman.health_snapshot", json!("oops"))
+    let err = invoke_method(default_state(), "eversilver.health_snapshot", json!("oops"))
         .await
         .expect_err("string params should be rejected");
     assert!(err.contains("invalid params"));
@@ -882,7 +882,7 @@ async fn invoke_method_rejects_string_params_for_registered_method() {
 #[tokio::test]
 async fn invoke_method_accepts_null_params_for_registered_method() {
     // JSON-RPC 2.0 allows omitting params; null must be treated like {}.
-    let result = invoke_method(default_state(), "openhuman.health_snapshot", json!(null)).await;
+    let result = invoke_method(default_state(), "eversilver.health_snapshot", json!(null)).await;
     // Call should succeed or fail for domain reasons — but must NOT
     // fail with the "invalid params" shape error.
     if let Err(e) = result {
@@ -895,7 +895,7 @@ async fn invoke_method_accepts_null_params_for_registered_method() {
 
 #[tokio::test]
 async fn invoke_method_unknown_method_returns_unknown_error() {
-    let err = invoke_method(default_state(), "openhuman.totally_made_up_xyz", json!({}))
+    let err = invoke_method(default_state(), "eversilver.totally_made_up_xyz", json!({}))
         .await
         .expect_err("unknown methods must error");
     assert!(err.contains("unknown method"));

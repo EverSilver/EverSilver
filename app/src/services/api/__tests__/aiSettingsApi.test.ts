@@ -22,9 +22,9 @@ import {
 
 // ─── Mock declarations (must be hoisted before imports) ───────────────────────
 
-const mockOpenhumanGetClientConfig = vi.fn();
+const mockEversilverGetClientConfig = vi.fn();
 const mockAuthListProviderCredentials = vi.fn();
-const mockOpenhumanUpdateModelSettings = vi.fn();
+const mockEversilverUpdateModelSettings = vi.fn();
 const mockAuthStoreProviderCredentials = vi.fn();
 const mockAuthRemoveProviderCredentials = vi.fn();
 const mockCallCoreRpc = vi.fn();
@@ -44,8 +44,8 @@ vi.mock('../../../utils/tauriCommands/auth', () => ({
 }));
 
 vi.mock('../../../utils/tauriCommands/config', () => ({
-  eversilverGetClientConfig: () => mockOpenhumanGetClientConfig(),
-  eversilverUpdateModelSettings: (a: unknown) => mockOpenhumanUpdateModelSettings(a),
+  eversilverGetClientConfig: () => mockEversilverGetClientConfig(),
+  eversilverUpdateModelSettings: (a: unknown) => mockEversilverUpdateModelSettings(a),
   eversilverUpdateLocalAiSettings: vi.fn().mockResolvedValue({ result: {} }),
 }));
 
@@ -172,12 +172,12 @@ describe('serializeProviderRef', () => {
 
 describe('loadAISettings', () => {
   beforeEach(() => {
-    mockOpenhumanGetClientConfig.mockReset();
+    mockEversilverGetClientConfig.mockReset();
     mockAuthListProviderCredentials.mockReset();
   });
 
   it('returns cloudProviders with has_api_key=false when no profiles stored', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [
           {
@@ -201,7 +201,7 @@ describe('loadAISettings', () => {
   });
 
   it('sets has_api_key=true when a matching provider:<slug> profile is stored', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [
           {
@@ -227,7 +227,7 @@ describe('loadAISettings', () => {
   });
 
   it('also accepts legacy bare-slug auth profiles', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [
           {
@@ -250,7 +250,7 @@ describe('loadAISettings', () => {
   });
 
   it('parses non-default per-workload routing strings correctly', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [],
         reasoning_provider: 'openai:gpt-4o',
@@ -282,7 +282,7 @@ describe('loadAISettings', () => {
   });
 
   it('degrades gracefully when authListProviderCredentials throws', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [
           {
@@ -304,7 +304,7 @@ describe('loadAISettings', () => {
   });
 
   it('includes two cloud providers with correct labels and endpoints', async () => {
-    mockOpenhumanGetClientConfig.mockResolvedValue(
+    mockEversilverGetClientConfig.mockResolvedValue(
       makeClientConfigResult({
         cloud_providers: [
           {
@@ -366,8 +366,8 @@ describe('loadAISettings', () => {
 
 describe('saveAISettings', () => {
   beforeEach(() => {
-    mockOpenhumanUpdateModelSettings.mockReset();
-    mockOpenhumanUpdateModelSettings.mockResolvedValue({ result: {} });
+    mockEversilverUpdateModelSettings.mockReset();
+    mockEversilverUpdateModelSettings.mockResolvedValue({ result: {} });
   });
 
   function makeSettings(overrides: Partial<AISettings> = {}): AISettings {
@@ -399,7 +399,7 @@ describe('saveAISettings', () => {
   it('issues no RPC call when nothing changed', async () => {
     const settings = makeSettings();
     await saveAISettings(settings, settings);
-    expect(mockOpenhumanUpdateModelSettings).not.toHaveBeenCalled();
+    expect(mockEversilverUpdateModelSettings).not.toHaveBeenCalled();
   });
 
   it('sends only changed routing fields when providers are unchanged', async () => {
@@ -408,8 +408,8 @@ describe('saveAISettings', () => {
 
     await saveAISettings(prev, next);
 
-    expect(mockOpenhumanUpdateModelSettings).toHaveBeenCalledOnce();
-    const patch = mockOpenhumanUpdateModelSettings.mock.calls[0][0];
+    expect(mockEversilverUpdateModelSettings).toHaveBeenCalledOnce();
+    const patch = mockEversilverUpdateModelSettings.mock.calls[0][0];
     expect(patch.reasoning_provider).toBe('eversilver');
     // Other workloads unchanged — should not appear in patch.
     expect(patch.agentic_provider).toBeUndefined();
@@ -422,7 +422,7 @@ describe('saveAISettings', () => {
 
     await saveAISettings(prev, next);
 
-    const patch = mockOpenhumanUpdateModelSettings.mock.calls[0][0];
+    const patch = mockEversilverUpdateModelSettings.mock.calls[0][0];
     expect(patch.cloud_providers).toHaveLength(1);
     expect(patch.cloud_providers![0].slug).toBe('openai');
     // has_api_key must NOT be present in the wire payload — it's not part of
@@ -456,7 +456,7 @@ describe('saveAISettings', () => {
 
     await saveAISettings(prev, next);
 
-    const patch = mockOpenhumanUpdateModelSettings.mock.calls[0][0];
+    const patch = mockEversilverUpdateModelSettings.mock.calls[0][0];
     expect(patch.cloud_providers![0].auth_style).toBe('anthropic');
   });
 
@@ -471,7 +471,7 @@ describe('saveAISettings', () => {
 
     await saveAISettings(prev, next);
 
-    const patch = mockOpenhumanUpdateModelSettings.mock.calls[0][0];
+    const patch = mockEversilverUpdateModelSettings.mock.calls[0][0];
     expect(patch.cloud_providers).toBeDefined();
     expect(patch.coding_provider).toBe('openai:gpt-4o-mini');
   });

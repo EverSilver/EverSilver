@@ -615,7 +615,7 @@ async fn post_provider_surfaces_event(args: &RecipeEventArgs) -> Result<(), Stri
     let body = json!({
         "jsonrpc": "2.0",
         "id": 1,
-        "method": "openhuman.provider_surfaces_ingest_event",
+        "method": "eversilver.provider_surfaces_ingest_event",
         "params": params,
     });
 
@@ -1076,13 +1076,13 @@ fn enqueue_linux_notification(job: Box<dyn FnOnce() + Send>) {
     let tx = LINUX_NOTIFY_TX.get_or_init(|| {
         let (tx, rx) = sync_channel::<Box<dyn FnOnce() + Send>>(LINUX_NOTIFY_QUEUE_CAP);
         std::thread::Builder::new()
-            .name("openhuman-linux-notify".to_string())
+            .name("eversilver-linux-notify".to_string())
             .spawn(move || {
                 while let Ok(j) = rx.recv() {
                     j();
                 }
             })
-            .expect("spawn openhuman-linux-notify");
+            .expect("spawn eversilver-linux-notify");
         tx
     });
     if let Err(e) = tx.try_send(job) {
@@ -2272,7 +2272,7 @@ pub async fn webview_account_open<R: Runtime>(
 
     // Wire the native page-load signal and forward only *usable* load
     // completions to `emit_load_finished`:
-    //   - skip placeholder `about:blank#openhuman-acct-*` commits (otherwise
+    //   - skip placeholder `about:blank#eversilver-acct-*` commits (otherwise
     //     we reveal a blank viewport before real content arrives),
     //   - treat Chromium network error pages (`chrome-error://…`) as timeout
     //     signals so frontend shows retry/help UI instead of the dino page.
@@ -2431,7 +2431,7 @@ pub async fn webview_account_open<R: Runtime>(
     // for the lifetime of the webview so `Emulation.setUserAgentOverride`
     // (which reverts on detach) keeps applying, and drives the initial
     // Page.navigate from our placeholder URL to the real provider URL.
-    // Also installs the `#openhuman-account-{id}` fragment the scanners
+    // Also installs the `#eversilver-account-{id}` fragment the scanners
     // match on for multi-account disambiguation.
     // Spawn the per-account CDP session opener, replacing any prior
     // handle for this account (the old one would still be trying to
@@ -2538,7 +2538,7 @@ pub async fn webview_account_open<R: Runtime>(
         // Browser Notification interception, native CEF path. The renderer
         // subprocess (cef-helper) has already replaced `window.Notification`
         // and `ServiceWorkerRegistration.prototype.showNotification` with
-        // V8 native bindings that send a `"openhuman.notify"` ProcessMessage
+        // V8 native bindings that send a `"eversilver.notify"` ProcessMessage
         // to the browser process. `tauri-runtime-cef::notification::register`
         // installs a per-browser callback that the runtime invokes when that
         // IPC arrives. We need the CEF browser id to key the registration —
@@ -4069,7 +4069,7 @@ mod tests {
 
     #[tokio::test]
     async fn purge_data_dir_with_retry_noop_when_missing() {
-        let dir = std::env::temp_dir().join(format!("openhuman-purge-noop-{}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("eversilver-purge-noop-{}", std::process::id()));
         // Sanity: dir must NOT exist
         let _ = std::fs::remove_dir_all(&dir);
         assert!(!dir.exists());
@@ -4085,7 +4085,7 @@ mod tests {
     #[tokio::test]
     async fn purge_data_dir_with_retry_removes_existing_dir() {
         let dir = std::env::temp_dir().join(format!(
-            "openhuman-purge-existing-{}-{}",
+            "eversilver-purge-existing-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)

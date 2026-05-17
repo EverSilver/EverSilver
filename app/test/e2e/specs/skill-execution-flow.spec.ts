@@ -5,7 +5,7 @@
  * Mirrors the Rust integration test
  * `json_rpc_skills_runtime_start_tools_call_stop` in
  * `tests/json_rpc_e2e.rs` — but goes through the same HTTP path the
- * desktop UI uses (`callOpenhumanRpc` → `http://127.0.0.1:<port>/rpc`).
+ * desktop UI uses (`callEversilverRpc` → `http://127.0.0.1:<port>/rpc`).
  *
  * RPC result shapes:
  *   - skills_start              → SkillSnapshot ({ status, skill_id, … })
@@ -19,7 +19,7 @@
  * skill runtime + RPC + Skills shell deterministically.
  */
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { dumpAccessibilityTree, textExists } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 import { navigateToSkills } from '../helpers/shared-flows';
@@ -54,12 +54,12 @@ describe('Skill execution (UI + core RPC)', () => {
   });
 
   it('core.ping responds over the same JSON-RPC URL the UI uses', async () => {
-    const ping = await callOpenhumanRpc('core.ping', {});
+    const ping = await callEversilverRpc('core.ping', {});
     expect(ping.ok).toBe(true);
   });
 
   it('runs start → list_tools → call_tool → stop for the seeded echo skill', async () => {
-    const start = await callOpenhumanRpc('eversilver.skills_start', {
+    const start = await callEversilverRpc('eversilver.skills_start', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     if (!start.ok) {
@@ -71,14 +71,14 @@ describe('Skill execution (UI + core RPC)', () => {
 
     await browser.pause(800);
 
-    const tools = await callOpenhumanRpc('eversilver.skills_list_tools', {
+    const tools = await callEversilverRpc('eversilver.skills_list_tools', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     expect(tools.ok).toBe(true);
     const toolNames = (tools.result?.tools || []).map((t: { name?: string }) => t.name);
     expect(toolNames.includes('echo')).toBe(true);
 
-    const call = await callOpenhumanRpc('eversilver.skills_call_tool', {
+    const call = await callEversilverRpc('eversilver.skills_call_tool', {
       skill_id: E2E_RUNTIME_SKILL_ID,
       tool_name: 'echo',
       arguments: { message: 'hello from e2e skill execution' },
@@ -92,7 +92,7 @@ describe('Skill execution (UI + core RPC)', () => {
       )
     ).toBe(true);
 
-    const stop = await callOpenhumanRpc('eversilver.skills_stop', {
+    const stop = await callEversilverRpc('eversilver.skills_stop', {
       skill_id: E2E_RUNTIME_SKILL_ID,
     });
     expect(stop.ok).toBe(true);
@@ -101,19 +101,19 @@ describe('Skill execution (UI + core RPC)', () => {
 
   it('persists setup_complete via skills_set_setup_complete (OAuth path)', async () => {
     try {
-      const set = await callOpenhumanRpc('eversilver.skills_set_setup_complete', {
+      const set = await callEversilverRpc('eversilver.skills_set_setup_complete', {
         skill_id: E2E_RUNTIME_SKILL_ID,
         complete: true,
       });
       expect(set.ok).toBe(true);
 
-      const st = await callOpenhumanRpc('eversilver.skills_status', {
+      const st = await callEversilverRpc('eversilver.skills_status', {
         skill_id: E2E_RUNTIME_SKILL_ID,
       });
       expect(st.ok).toBe(true);
       expect(st.result?.setup_complete === true).toBe(true);
     } finally {
-      await callOpenhumanRpc('eversilver.skills_set_setup_complete', {
+      await callEversilverRpc('eversilver.skills_set_setup_complete', {
         skill_id: E2E_RUNTIME_SKILL_ID,
         complete: false,
       });

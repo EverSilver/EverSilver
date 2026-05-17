@@ -24,22 +24,22 @@ struct PendingCefPurgeState {
     paths: Vec<String>,
 }
 
-/// Resolves the on-disk Eversilver root dir name (`.openhuman` vs
-/// `.openhuman-staging`) for the Tauri shell. Delegates to
+/// Resolves the on-disk Eversilver root dir name (`.eversilver` vs
+/// `.eversilver-staging`) for the Tauri shell. Delegates to
 /// [`eversilver_core::api::config::app_env_from_env`] so the shell and the
 /// embedded core agree on the channel selection — including the
 /// `option_env!` compile-time fallback that staging CI bakes into the
 /// build. Without that fallback the packaged staging `.app` launched from
-/// Finder has no shell env, picks up `.openhuman` (production), and
+/// Finder has no shell env, picks up `.eversilver` (production), and
 /// collides with any older production install's CEF profile, producing
 /// the startup crash loop reported in #1490.
 fn default_root_dir_name() -> &'static str {
     if eversilver_core::api::config::is_staging_app_env(
         eversilver_core::api::config::app_env_from_env().as_deref(),
     ) {
-        ".openhuman-staging"
+        ".eversilver-staging"
     } else {
-        ".openhuman"
+        ".eversilver"
     }
 }
 
@@ -285,7 +285,7 @@ pub fn prepare_process_cache_path() -> Result<PathBuf, String> {
 
     // Honor a pre-set `EVERSILVER_CEF_CACHE_PATH` so harnesses (E2E in
     // particular) can locate the CEF cache outside the Eversilver workspace
-    // tree. The mega-flow spec calls `openhuman.config_reset_local_data`
+    // tree. The mega-flow spec calls `eversilver.config_reset_local_data`
     // between scenarios, which `remove_dir_all`'s the whole workspace —
     // if CEF's cache lives inside it the running renderer crashes mid-spec
     // and every subsequent WDIO command fails with "invalid session id".
@@ -458,8 +458,8 @@ mod tests {
     }
 
     /// Regression for #1490: with the staging env var set at runtime, the
-    /// Tauri shell must resolve the dedicated `.openhuman-staging` data
-    /// dir — never the production `.openhuman` dir. Prior to the fix
+    /// Tauri shell must resolve the dedicated `.eversilver-staging` data
+    /// dir — never the production `.eversilver` dir. Prior to the fix
     /// this function had its own runtime-only lookup and would diverge
     /// from `eversilver_core::api::config::app_env_from_env`, producing a
     /// split-brain datadir (CEF profile under prod, sidecar state under
@@ -468,7 +468,7 @@ mod tests {
     fn default_root_dir_name_resolves_staging_when_primary_env_set() {
         with_clean_app_env(|| {
             std::env::set_var("EVERSILVER_APP_ENV", "staging");
-            assert_eq!(default_root_dir_name(), ".openhuman-staging");
+            assert_eq!(default_root_dir_name(), ".eversilver-staging");
         });
     }
 
@@ -479,19 +479,19 @@ mod tests {
     fn default_root_dir_name_resolves_staging_when_vite_alias_set() {
         with_clean_app_env(|| {
             std::env::set_var("VITE_EVERSILVER_APP_ENV", "staging");
-            assert_eq!(default_root_dir_name(), ".openhuman-staging");
+            assert_eq!(default_root_dir_name(), ".eversilver-staging");
         });
     }
 
     /// With neither env var set the shell must default to the production
-    /// `.openhuman` dir. Production CI bakes `EVERSILVER_APP_ENV=production`
+    /// `.eversilver` dir. Production CI bakes `EVERSILVER_APP_ENV=production`
     /// via `option_env!` so packaged prod builds land here through the
     /// runtime-empty / compile-time-set path; a bare unit test only covers
     /// the runtime-empty branch.
     #[test]
     fn default_root_dir_name_defaults_to_production_when_unset() {
         with_clean_app_env(|| {
-            assert_eq!(default_root_dir_name(), ".openhuman");
+            assert_eq!(default_root_dir_name(), ".eversilver");
         });
     }
 
@@ -502,7 +502,7 @@ mod tests {
     fn default_root_dir_name_normalizes_staging_casing_and_whitespace() {
         with_clean_app_env(|| {
             std::env::set_var("EVERSILVER_APP_ENV", "  STAGING  ");
-            assert_eq!(default_root_dir_name(), ".openhuman-staging");
+            assert_eq!(default_root_dir_name(), ".eversilver-staging");
         });
     }
 
@@ -515,10 +515,10 @@ mod tests {
 
     #[test]
     fn cache_dir_for_user_nests_under_users_tree() {
-        let root = PathBuf::from("/tmp/openhuman");
+        let root = PathBuf::from("/tmp/eversilver");
         assert_eq!(
             cache_dir_for_user(&root, "u-123").unwrap(),
-            PathBuf::from("/tmp/openhuman/users/u-123/cef")
+            PathBuf::from("/tmp/eversilver/users/u-123/cef")
         );
     }
 

@@ -11,8 +11,8 @@ export interface RpcCallResult<T = unknown> {
   result?: T;
 }
 
-/** Linux tauri-driver only — Mac2 cannot run this (no WebView execute). Use `callOpenhumanRpc` from core-rpc.ts. */
-export async function callOpenhumanRpcWebView<T = unknown>(
+/** Linux tauri-driver only — Mac2 cannot run this (no WebView execute). Use `callEversilverRpc` from core-rpc.ts. */
+export async function callEversilverRpcWebView<T = unknown>(
   method: string,
   params: Record<string, unknown> = {}
 ): Promise<RpcCallResult<T>> {

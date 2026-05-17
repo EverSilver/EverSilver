@@ -116,7 +116,7 @@ export async function resolveCoreRpcUrl(): Promise<string> {
   );
 }
 
-export async function callOpenhumanRpcNode<T = unknown>(
+export async function callEversilverRpcNode<T = unknown>(
   method: string,
   params: Record<string, unknown> = {}
 ): Promise<RpcCallResult<T>> {

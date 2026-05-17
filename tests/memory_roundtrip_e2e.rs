@@ -15,10 +15,10 @@ use std::sync::{Mutex, OnceLock};
 
 use tempfile::tempdir;
 
-use eversilver_core::openhuman::memory::ops::{
+use eversilver_core::eversilver::memory::ops::{
     clear_namespace, doc_put, memory_recall_memories, ClearNamespaceParams, PutDocParams,
 };
-use eversilver_core::openhuman::memory::rpc_models::RecallMemoriesRequest;
+use eversilver_core::eversilver::memory::rpc_models::RecallMemoriesRequest;
 
 // ── Env isolation ────────────────────────────────────────────────────
 

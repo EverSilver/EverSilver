@@ -1,11 +1,11 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use eversilver_core::openhuman::agent::dispatcher::NativeToolDispatcher;
-use eversilver_core::openhuman::agent::Agent;
-use eversilver_core::openhuman::providers::{
+use eversilver_core::eversilver::agent::dispatcher::NativeToolDispatcher;
+use eversilver_core::eversilver::agent::Agent;
+use eversilver_core::eversilver::providers::{
     ChatMessage, ChatRequest, ChatResponse, Provider, ToolCall,
 };
-use eversilver_core::openhuman::tools::{PermissionLevel, Tool, ToolResult};
+use eversilver_core::eversilver::tools::{PermissionLevel, Tool, ToolResult};
 use parking_lot::Mutex;
 use serde_json::json;
 use std::sync::Arc;
@@ -136,9 +136,9 @@ async fn test_integrations_agent_has_current_date_context() -> Result<()> {
         iter_count: Arc::new(Mutex::new(0)),
     });
 
-    let _ = eversilver_core::openhuman::agent::harness::definition::AgentDefinitionRegistry::init_global_builtins();
+    let _ = eversilver_core::eversilver::agent::harness::definition::AgentDefinitionRegistry::init_global_builtins();
 
-    let parent = eversilver_core::openhuman::agent::harness::ParentExecutionContext {
+    let parent = eversilver_core::eversilver::agent::harness::ParentExecutionContext {
         provider: provider.clone(),
         all_tools: Arc::new(vec![Box::new(MockCalendarTool)]),
         all_tool_specs: Arc::new(vec![MockCalendarTool.spec()]),
@@ -146,20 +146,20 @@ async fn test_integrations_agent_has_current_date_context() -> Result<()> {
         temperature: 0.4,
         workspace_dir: std::env::temp_dir(),
         memory: Arc::new(StubMemory),
-        agent_config: eversilver_core::openhuman::config::AgentConfig::default(),
+        agent_config: eversilver_core::eversilver::config::AgentConfig::default(),
         skills: Arc::new(vec![]),
         memory_context: Arc::new(None),
         session_id: "test-session".into(),
         channel: "test".into(),
         connected_integrations: vec![],
-        tool_call_format: eversilver_core::openhuman::context::prompt::ToolCallFormat::PFormat,
+        tool_call_format: eversilver_core::eversilver::context::prompt::ToolCallFormat::PFormat,
         session_key: "0_test".into(),
         session_parent_prefix: None,
         on_progress: None,
     };
 
     let mut def =
-        eversilver_core::openhuman::agent::harness::definition::AgentDefinitionRegistry::global()
+        eversilver_core::eversilver::agent::harness::definition::AgentDefinitionRegistry::global()
             .unwrap()
             .get("integrations_agent")
             .unwrap()
@@ -174,13 +174,13 @@ async fn test_integrations_agent_has_current_date_context() -> Result<()> {
     // definition (prompt, tools, scope) while routing through the captured
     // mock provider. Provider *routing* for Hint sub-agents is covered by
     // `subagent_runner::ops::tests::resolve_subagent_provider_*`.
-    def.model = eversilver_core::openhuman::agent::harness::definition::ModelSpec::Inherit;
+    def.model = eversilver_core::eversilver::agent::harness::definition::ModelSpec::Inherit;
 
-    let _ = eversilver_core::openhuman::agent::harness::with_parent_context(parent, async {
-        eversilver_core::openhuman::agent::harness::run_subagent(
+    let _ = eversilver_core::eversilver::agent::harness::with_parent_context(parent, async {
+        eversilver_core::eversilver::agent::harness::run_subagent(
             &def,
             "list my calendar events for today",
-            eversilver_core::openhuman::agent::harness::SubagentRunOptions::default(),
+            eversilver_core::eversilver::agent::harness::SubagentRunOptions::default(),
         )
         .await
     })
@@ -207,13 +207,13 @@ async fn test_integrations_agent_has_current_date_context() -> Result<()> {
 struct StubMemory;
 
 #[async_trait]
-impl eversilver_core::openhuman::memory::Memory for StubMemory {
+impl eversilver_core::eversilver::memory::Memory for StubMemory {
     async fn store(
         &self,
         _: &str,
         _: &str,
         _: &str,
-        _: eversilver_core::openhuman::memory::MemoryCategory,
+        _: eversilver_core::eversilver::memory::MemoryCategory,
         _: Option<&str>,
     ) -> Result<()> {
         Ok(())
@@ -222,23 +222,23 @@ impl eversilver_core::openhuman::memory::Memory for StubMemory {
         &self,
         _: &str,
         _: usize,
-        _: eversilver_core::openhuman::memory::RecallOpts<'_>,
-    ) -> Result<Vec<eversilver_core::openhuman::memory::MemoryEntry>> {
+        _: eversilver_core::eversilver::memory::RecallOpts<'_>,
+    ) -> Result<Vec<eversilver_core::eversilver::memory::MemoryEntry>> {
         Ok(vec![])
     }
     async fn get(
         &self,
         _: &str,
         _: &str,
-    ) -> Result<Option<eversilver_core::openhuman::memory::MemoryEntry>> {
+    ) -> Result<Option<eversilver_core::eversilver::memory::MemoryEntry>> {
         Ok(None)
     }
     async fn list(
         &self,
         _: Option<&str>,
-        _: Option<&eversilver_core::openhuman::memory::MemoryCategory>,
+        _: Option<&eversilver_core::eversilver::memory::MemoryCategory>,
         _: Option<&str>,
-    ) -> Result<Vec<eversilver_core::openhuman::memory::MemoryEntry>> {
+    ) -> Result<Vec<eversilver_core::eversilver::memory::MemoryEntry>> {
         Ok(vec![])
     }
     async fn forget(&self, _: &str, _: &str) -> Result<bool> {
@@ -246,7 +246,7 @@ impl eversilver_core::openhuman::memory::Memory for StubMemory {
     }
     async fn namespace_summaries(
         &self,
-    ) -> Result<Vec<eversilver_core::openhuman::memory::NamespaceSummary>> {
+    ) -> Result<Vec<eversilver_core::eversilver::memory::NamespaceSummary>> {
         Ok(vec![])
     }
     async fn count(&self) -> Result<usize> {

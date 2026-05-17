@@ -7,10 +7,10 @@
 //! once and dropped, the load signal would never reach the frontend.
 //!
 //! Pairs with the placeholder URL the webview is created with — the opener
-//! finds the target by its unique `openhuman:{account_id}` marker in the
+//! finds the target by its unique `eversilver:{account_id}` marker in the
 //! initial URL, injects the notification-permission shim before the page's
 //! own JS runs, then navigates the target to the real provider URL with a
-//! `#openhuman-account-{id}` fragment appended so other scanners
+//! `#eversilver-account-{id}` fragment appended so other scanners
 //! (discord/telegram/slack/whatsapp) can disambiguate multi-account setups
 //! without title-marker injection.
 
@@ -72,13 +72,13 @@ const HARD_CEILING: Duration = Duration::from_secs(60);
 /// Returns the unique marker substring that the account's initial
 /// placeholder URL contains so `Target.getTargets` can identify it.
 pub fn placeholder_marker(account_id: &str) -> String {
-    format!("openhuman-acct-{account_id}")
+    format!("eversilver-acct-{account_id}")
 }
 
 /// Fragment appended to the real provider URL so scanners can match this
 /// account uniquely even when several accounts share an origin.
 pub fn target_url_fragment(account_id: &str) -> String {
-    format!("#openhuman-account-{account_id}")
+    format!("#eversilver-account-{account_id}")
 }
 
 /// Build the placeholder URL used as the webview's initial location.
@@ -693,7 +693,7 @@ mod tests {
     fn placeholder_url_uses_about_blank_fragment_marker() {
         assert_eq!(
             placeholder_url("acct-42"),
-            "about:blank#openhuman-acct-acct-42"
+            "about:blank#eversilver-acct-acct-42"
         );
     }
 
@@ -791,24 +791,24 @@ mod tests {
     #[test]
     fn target_match_accepts_placeholder_and_real_provider_fragments_only_for_same_account() {
         assert!(target_matches_account_url(
-            "about:blank#openhuman-acct-acct-42",
+            "about:blank#eversilver-acct-acct-42",
             "acct-42"
         ));
         assert!(target_matches_account_url(
-            "https://discord.com/channels/@me#openhuman-account-acct-42",
+            "https://discord.com/channels/@me#eversilver-account-acct-42",
             "acct-42"
         ));
 
         assert!(!target_matches_account_url(
-            "about:blank#openhuman-acct-acct-420",
+            "about:blank#eversilver-acct-acct-420",
             "acct-42"
         ));
         assert!(!target_matches_account_url(
-            "https://example.com/openhuman-acct-acct-42",
+            "https://example.com/eversilver-acct-acct-42",
             "acct-42"
         ));
         assert!(!target_matches_account_url(
-            "https://discord.com/channels/@me#openhuman-account-acct-420",
+            "https://discord.com/channels/@me#eversilver-account-acct-420",
             "acct-42"
         ));
     }

@@ -83,7 +83,7 @@ export function isAllowedExternalHref(rawHref: string): boolean {
  * Path is the hash route under HashRouter (e.g. `settings/notifications`
  * → `#/settings/notifications`). Leading/trailing slashes are tolerated.
  */
-export interface OpenhumanLinkSegment {
+export interface EversilverLinkSegment {
   kind: 'link';
   path: string;
   label: string;
@@ -94,7 +94,7 @@ export interface TextSegment {
   text: string;
 }
 
-export type BubbleSegment = TextSegment | OpenhumanLinkSegment;
+export type BubbleSegment = TextSegment | EversilverLinkSegment;
 
 const EVERSILVER_LINK_RE =
   /<eversilver-link\s+path=(?:"([^"]+)"|'([^']+)')\s*>([\s\S]*?)<\/eversilver-link>/gi;

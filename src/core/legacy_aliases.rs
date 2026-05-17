@@ -22,62 +22,62 @@
 /// key for easier diffing against the frontend table.
 const LEGACY_ALIASES: &[(&str, &str)] = &[
     (
-        "openhuman.get_analytics_settings",
-        "openhuman.config_get_analytics_settings",
+        "eversilver.get_analytics_settings",
+        "eversilver.config_get_analytics_settings",
     ),
     (
-        "openhuman.get_composio_trigger_settings",
-        "openhuman.config_get_composio_trigger_settings",
+        "eversilver.get_composio_trigger_settings",
+        "eversilver.config_get_composio_trigger_settings",
     ),
-    ("openhuman.get_config", "openhuman.config_get"),
+    ("eversilver.get_config", "eversilver.config_get"),
     (
-        "openhuman.get_runtime_flags",
-        "openhuman.config_get_runtime_flags",
+        "eversilver.get_runtime_flags",
+        "eversilver.config_get_runtime_flags",
     ),
-    ("openhuman.ping", "core.ping"),
+    ("eversilver.ping", "core.ping"),
     (
-        "openhuman.set_browser_allow_all",
-        "openhuman.config_set_browser_allow_all",
-    ),
-    (
-        "openhuman.update_analytics_settings",
-        "openhuman.config_update_analytics_settings",
+        "eversilver.set_browser_allow_all",
+        "eversilver.config_set_browser_allow_all",
     ),
     (
-        "openhuman.update_browser_settings",
-        "openhuman.config_update_browser_settings",
+        "eversilver.update_analytics_settings",
+        "eversilver.config_update_analytics_settings",
     ),
     (
-        "openhuman.update_composio_trigger_settings",
-        "openhuman.config_update_composio_trigger_settings",
+        "eversilver.update_browser_settings",
+        "eversilver.config_update_browser_settings",
     ),
     (
-        "openhuman.update_local_ai_settings",
-        "openhuman.config_update_local_ai_settings",
+        "eversilver.update_composio_trigger_settings",
+        "eversilver.config_update_composio_trigger_settings",
     ),
     (
-        "openhuman.update_memory_settings",
-        "openhuman.config_update_memory_settings",
+        "eversilver.update_local_ai_settings",
+        "eversilver.config_update_local_ai_settings",
     ),
     (
-        "openhuman.update_model_settings",
-        "openhuman.config_update_model_settings",
+        "eversilver.update_memory_settings",
+        "eversilver.config_update_memory_settings",
     ),
     (
-        "openhuman.update_runtime_settings",
-        "openhuman.config_update_runtime_settings",
+        "eversilver.update_model_settings",
+        "eversilver.config_update_model_settings",
     ),
     (
-        "openhuman.update_screen_intelligence_settings",
-        "openhuman.config_update_screen_intelligence_settings",
+        "eversilver.update_runtime_settings",
+        "eversilver.config_update_runtime_settings",
     ),
     (
-        "openhuman.workspace_onboarding_flag_exists",
-        "openhuman.config_workspace_onboarding_flag_exists",
+        "eversilver.update_screen_intelligence_settings",
+        "eversilver.config_update_screen_intelligence_settings",
     ),
     (
-        "openhuman.workspace_onboarding_flag_set",
-        "openhuman.config_workspace_onboarding_flag_set",
+        "eversilver.workspace_onboarding_flag_exists",
+        "eversilver.config_workspace_onboarding_flag_exists",
+    ),
+    (
+        "eversilver.workspace_onboarding_flag_set",
+        "eversilver.config_workspace_onboarding_flag_set",
     ),
 ];
 
@@ -264,15 +264,15 @@ mod tests {
 
     #[test]
     fn parse_core_rpc_methods_extracts_entries_and_skips_comments() {
-        let source = "export const CORE_RPC_METHODS = {\n  // a comment that should be skipped\n  alphaMethod: 'openhuman.alpha',\n  betaMethod: 'openhuman.beta',\n} as const;\n";
+        let source = "export const CORE_RPC_METHODS = {\n  // a comment that should be skipped\n  alphaMethod: 'eversilver.alpha',\n  betaMethod: 'eversilver.beta',\n} as const;\n";
         let methods = parse_core_rpc_methods(source);
         assert_eq!(
             methods.get("alphaMethod").map(String::as_str),
-            Some("openhuman.alpha")
+            Some("eversilver.alpha")
         );
         assert_eq!(
             methods.get("betaMethod").map(String::as_str),
-            Some("openhuman.beta")
+            Some("eversilver.beta")
         );
         assert_eq!(methods.len(), 2);
     }
@@ -281,29 +281,29 @@ mod tests {
     #[should_panic(expected = "malformed CORE_RPC_METHODS entry")]
     fn parse_core_rpc_methods_panics_on_non_colon_line() {
         let source =
-            "export const CORE_RPC_METHODS = {\n  alphaMethod 'openhuman.alpha',\n} as const;\n";
+            "export const CORE_RPC_METHODS = {\n  alphaMethod 'eversilver.alpha',\n} as const;\n";
         let _ = parse_core_rpc_methods(source);
     }
 
     #[test]
     fn parse_frontend_legacy_aliases_resolves_core_method_refs_and_literals() {
-        let source = "export const CORE_RPC_METHODS = {\n  alphaMethod: 'openhuman.alpha',\n} as const;\n\nexport const LEGACY_METHOD_ALIASES: Record<string, CoreRpcMethod> = {\n  'openhuman.legacy_alpha': CORE_RPC_METHODS.alphaMethod,\n  'openhuman.legacy_literal': 'openhuman.literal_target',\n};\n";
+        let source = "export const CORE_RPC_METHODS = {\n  alphaMethod: 'eversilver.alpha',\n} as const;\n\nexport const LEGACY_METHOD_ALIASES: Record<string, CoreRpcMethod> = {\n  'eversilver.legacy_alpha': CORE_RPC_METHODS.alphaMethod,\n  'eversilver.legacy_literal': 'eversilver.literal_target',\n};\n";
         let core_methods = parse_core_rpc_methods(source);
         let aliases = parse_frontend_legacy_aliases(source, &core_methods);
         assert_eq!(
-            aliases.get("openhuman.legacy_alpha").map(String::as_str),
-            Some("openhuman.alpha")
+            aliases.get("eversilver.legacy_alpha").map(String::as_str),
+            Some("eversilver.alpha")
         );
         assert_eq!(
-            aliases.get("openhuman.legacy_literal").map(String::as_str),
-            Some("openhuman.literal_target")
+            aliases.get("eversilver.legacy_literal").map(String::as_str),
+            Some("eversilver.literal_target")
         );
     }
 
     #[test]
     #[should_panic(expected = "legacy alias references unknown CORE_RPC_METHODS")]
     fn parse_frontend_legacy_aliases_panics_on_unknown_core_method_ref() {
-        let source = "export const CORE_RPC_METHODS = {\n  alphaMethod: 'openhuman.alpha',\n} as const;\n\nexport const LEGACY_METHOD_ALIASES: Record<string, CoreRpcMethod> = {\n  'openhuman.legacy_alpha': CORE_RPC_METHODS.doesNotExist,\n};\n";
+        let source = "export const CORE_RPC_METHODS = {\n  alphaMethod: 'eversilver.alpha',\n} as const;\n\nexport const LEGACY_METHOD_ALIASES: Record<string, CoreRpcMethod> = {\n  'eversilver.legacy_alpha': CORE_RPC_METHODS.doesNotExist,\n};\n";
         let core_methods = parse_core_rpc_methods(source);
         let _ = parse_frontend_legacy_aliases(source, &core_methods);
     }
@@ -322,19 +322,19 @@ mod tests {
     #[test]
     fn resolve_legacy_rewrites_composio_trigger_settings() {
         // The specific case observed in Sentry: older bundles called the
-        // bare `openhuman.update_composio_trigger_settings` against a core
+        // bare `eversilver.update_composio_trigger_settings` against a core
         // that only registers the namespaced form.
         assert_eq!(
-            resolve_legacy("openhuman.update_composio_trigger_settings"),
-            "openhuman.config_update_composio_trigger_settings",
+            resolve_legacy("eversilver.update_composio_trigger_settings"),
+            "eversilver.config_update_composio_trigger_settings",
         );
     }
 
     #[test]
     fn resolve_legacy_passes_through_unknown_methods() {
         assert_eq!(
-            resolve_legacy("openhuman.memory_list_namespaces"),
-            "openhuman.memory_list_namespaces"
+            resolve_legacy("eversilver.memory_list_namespaces"),
+            "eversilver.memory_list_namespaces"
         );
         assert_eq!(resolve_legacy("does.not.exist"), "does.not.exist");
         assert_eq!(resolve_legacy(""), "");
@@ -358,7 +358,7 @@ mod tests {
     fn resolve_legacy_returned_str_equals_table_value() {
         // Sanity check: the function returns the canonical str slice from
         // the table when it matches, not a copy of the input.
-        let out = resolve_legacy("openhuman.ping");
+        let out = resolve_legacy("eversilver.ping");
         assert_eq!(out, "core.ping");
     }
 

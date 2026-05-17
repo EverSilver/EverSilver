@@ -110,7 +110,7 @@ fn ensure_running_reuses_unknown_listener_when_override_set() {
 fn is_eversilver_root_body_matches_canonical_root_response() {
     // Mirrors the JSON shape produced by `core/jsonrpc.rs::root_handler`.
     let body = r#"{
-        "name": "openhuman",
+        "name": "eversilver",
         "ok": true,
         "endpoints": {"health": "/health", "rpc": "/rpc"}
     }"#;
@@ -140,7 +140,7 @@ fn expected_port_clash_classifier_matches_benign_probe_shapes() {
     ));
     assert!(is_expected_port_clash("probe GET / returned status 200 OK"));
     assert!(is_expected_port_clash(
-        "probe GET / body did not identify as openhuman (\"hello\")"
+        "probe GET / body did not identify as eversilver (\"hello\")"
     ));
 }
 

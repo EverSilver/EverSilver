@@ -35,7 +35,7 @@ import {
   hexEncodeThreadId,
   typeIntoComposer,
 } from '../helpers/chat-harness';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { textExists } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 import { navigateViaHash } from '../helpers/shared-flows';
@@ -105,7 +105,7 @@ describe('Chat harness — send + stream', () => {
     let sawInFlight = false;
     const inFlightDeadline = Date.now() + 8_000;
     while (Date.now() < inFlightDeadline) {
-      const snap = await callOpenhumanRpc<{ result: { entries: Array<{ key: string }> } }>(
+      const snap = await callEversilverRpc<{ result: { entries: Array<{ key: string }> } }>(
         'eversilver.test_support_in_flight_chats',
         {}
       );
@@ -137,7 +137,7 @@ describe('Chat harness — send + stream', () => {
     // e.g. a stray morning_briefing trigger from the seed cron job.
     const currentThreadId = await getSelectedThreadId();
     expect(typeof currentThreadId).toBe('string');
-    const after = await callOpenhumanRpc<{ result: { entries: Array<{ key: string }> } }>(
+    const after = await callEversilverRpc<{ result: { entries: Array<{ key: string }> } }>(
       'eversilver.test_support_in_flight_chats',
       {}
     );
@@ -171,7 +171,7 @@ describe('Chat harness — send + stream', () => {
     let content = '';
     const deadline = Date.now() + 10_000;
     while (Date.now() < deadline) {
-      const read = await callOpenhumanRpc<{ result: { content_utf8: string } }>(
+      const read = await callEversilverRpc<{ result: { content_utf8: string } }>(
         'eversilver.test_support_read_workspace_file',
         { rel_path: relPath, max_bytes: 65_536 }
       );
@@ -187,7 +187,7 @@ describe('Chat harness — send + stream', () => {
   });
 
   it('reads thread state from the workspace via list_workspace_files', async () => {
-    const list = await callOpenhumanRpc<{
+    const list = await callEversilverRpc<{
       result: { entries: Array<{ rel_path: string; size: number; is_dir: boolean }> };
     }>('eversilver.test_support_list_workspace_files', {
       rel_root: 'memory/conversations/threads',

@@ -10,7 +10,7 @@ use std::sync::{Mutex, OnceLock};
 
 use tempfile::tempdir;
 
-use eversilver_core::openhuman::autocomplete::history;
+use eversilver_core::eversilver::autocomplete::history;
 
 // ── Env isolation ────────────────────────────────────────────────────
 

@@ -53,7 +53,7 @@ fn main() {
             // still fires for genuine outages. Per-attempt reports flood
             // Sentry — see EVERSILVER-TAURI-2E (~1393 events), -84 (~1050),
             // -T (~871). The primary fix lives in
-            // `openhuman::providers::ops::should_report_provider_http_failure`
+            // `eversilver::providers::ops::should_report_provider_http_failure`
             // (transient codes excluded). This filter catches any future call
             // site that bypasses it.
             if eversilver_core::core::observability::is_transient_provider_http_failure(&event) {
@@ -86,7 +86,7 @@ fn main() {
             // Drop 401 "Session expired. Please log in again." bodies surfaced
             // by llm_provider / backend_api, plus pre-flight "no session token
             // stored" guards from the rpc dispatcher. Primary suppression
-            // lives at the call sites (`openhuman::providers::ops::api_error`
+            // lives at the call sites (`eversilver::providers::ops::api_error`
             // publishes a SessionExpired event_bus signal and short-circuits;
             // the rpc dispatcher's `is_session_expired_error` skip-path in
             // `src/core/jsonrpc.rs` redirects to a tracing::info). This
@@ -113,7 +113,7 @@ fn main() {
             // or IP — so this stays consistent with `send_default_pii: false`.
             // Empty/missing on early-startup events (cache populates after
             // the first `auth_get_me` RPC); that's expected.
-            event.user = eversilver_core::openhuman::app_state::peek_cached_current_user_identity()
+            event.user = eversilver_core::eversilver::app_state::peek_cached_current_user_identity()
                 .and_then(|identity| identity.id)
                 .map(|id| sentry::User {
                     id: Some(id),
@@ -145,7 +145,7 @@ fn main() {
 // Release / environment resolution for Sentry
 // ---------------------------------------------------------------------------
 
-/// Canonical release tag: `openhuman@<version>[+<short_sha>]`.
+/// Canonical release tag: `eversilver@<version>[+<short_sha>]`.
 ///
 /// Matches the string the frontend reports (`SENTRY_RELEASE` in
 /// `app/src/utils/config.ts`) so events from every surface group under
@@ -156,9 +156,9 @@ fn build_release_tag() -> String {
     let sha = option_env!("EVERSILVER_BUILD_SHA").unwrap_or("").trim();
     let sha_short: String = sha.chars().take(12).collect();
     if sha_short.is_empty() {
-        format!("openhuman@{version}")
+        format!("eversilver@{version}")
     } else {
-        format!("openhuman@{version}+{sha_short}")
+        format!("eversilver@{version}+{sha_short}")
     }
 }
 

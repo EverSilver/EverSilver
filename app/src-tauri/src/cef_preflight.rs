@@ -1,7 +1,7 @@
 //! CEF cache-lock preflight check (macOS).
 //!
 //! When another Eversilver instance is already running, it holds an exclusive
-//! lock on the CEF user-data-dir at `~/Library/Caches/com.openhuman.app/cef`.
+//! lock on the CEF user-data-dir at `~/Library/Caches/com.eversilver.app/cef`.
 //! The vendored `tauri-runtime-cef` crate calls `cef::initialize()` and
 //! asserts the result equals `1`; on lock collision it returns `0` and the
 //! assertion panics with a Rust backtrace and no actionable message
@@ -27,7 +27,7 @@ use nix::unistd::Pid;
 /// the vendored `tauri-runtime-cef` derives the cache directory as
 /// `dirs::cache_dir() / <identifier> / cef`. If `tauri.conf.json` ever changes
 /// the bundle identifier, update this constant too.
-pub const APP_IDENTIFIER: &str = "com.openhuman.app";
+pub const APP_IDENTIFIER: &str = "com.eversilver.app";
 
 /// Errors returned by the preflight check.
 #[derive(Debug)]
@@ -57,7 +57,7 @@ impl fmt::Display for CefLockError {
                  Quit the running instance and try again.\n\
                  Workaround:\n  \
                  pkill -f \"Eversilver.app/Contents\"\n  \
-                 pkill -f \"openhuman-core\"",
+                 pkill -f \"eversilver-core\"",
                 cache_path.display(),
                 host,
                 pid,

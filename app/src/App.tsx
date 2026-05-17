@@ -14,7 +14,7 @@ import ServiceBlockingGate from './components/daemon/ServiceBlockingGate';
 import DictationHotkeyManager from './components/DictationHotkeyManager';
 import ErrorFallbackScreen from './components/ErrorFallbackScreen';
 import LocalAIDownloadSnackbar from './components/LocalAIDownloadSnackbar';
-import OpenhumanLinkModal from './components/OpenhumanLinkModal';
+import EversilverLinkModal from './components/EversilverLinkModal';
 import PersistRehydrationScreen from './components/PersistRehydrationScreen';
 import GlobalUpsellBanner from './components/upsell/GlobalUpsellBanner';
 import AppWalkthrough from './components/walkthrough/AppWalkthrough';
@@ -193,7 +193,7 @@ function AppShell() {
         </div>
         {!onOnboardingRoute && <BottomTabBar />}
       </div>
-      <OpenhumanLinkModal />
+      <EversilverLinkModal />
       {/* Hidden Remotion-driven producer for the Meet camera. Mounts a
           640×480 JPEG frame stream to the Rust frame bus while a meet
           call is active; idle no-op otherwise. See

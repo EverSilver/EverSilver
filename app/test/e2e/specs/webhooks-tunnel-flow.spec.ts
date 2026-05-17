@@ -24,7 +24,7 @@
  *    unit tests and the core's ComposeIO handlers.
  */
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { dumpAccessibilityTree, textExists } from '../helpers/element-helpers';
 import { resetApp } from '../helpers/reset-app';
 import { navigateViaHash, waitForRequest } from '../helpers/shared-flows';
@@ -93,7 +93,7 @@ describe('Webhook tunnel CRUD (UI + core RPC + mock backend)', () => {
     // exercising tunnel RPCs (webhooks ops require a stored session token).
     await browser.waitUntil(
       async () => {
-        const probe = await callOpenhumanRpc('eversilver.webhooks_list_tunnels', {});
+        const probe = await callEversilverRpc('eversilver.webhooks_list_tunnels', {});
         return probe.ok;
       },
       {
@@ -106,7 +106,7 @@ describe('Webhook tunnel CRUD (UI + core RPC + mock backend)', () => {
     // --- create ---------------------------------------------------------------
     clearRequestLog();
     const tunnelName = `e2e-tunnel-${Date.now()}`;
-    const created = await callOpenhumanRpc('eversilver.webhooks_create_tunnel', {
+    const created = await callEversilverRpc('eversilver.webhooks_create_tunnel', {
       name: tunnelName,
       description: 'Created by webhooks-tunnel-flow E2E spec.',
     });
@@ -131,7 +131,7 @@ describe('Webhook tunnel CRUD (UI + core RPC + mock backend)', () => {
 
     // --- list -----------------------------------------------------------------
     clearRequestLog();
-    const listed = await callOpenhumanRpc('eversilver.webhooks_list_tunnels', {});
+    const listed = await callEversilverRpc('eversilver.webhooks_list_tunnels', {});
     if (!listed.ok) {
       stepLog('webhooks_list_tunnels failed', listed);
     }
@@ -147,7 +147,7 @@ describe('Webhook tunnel CRUD (UI + core RPC + mock backend)', () => {
 
     // --- delete ---------------------------------------------------------------
     clearRequestLog();
-    const deleted = await callOpenhumanRpc('eversilver.webhooks_delete_tunnel', { id: tunnelId });
+    const deleted = await callEversilverRpc('eversilver.webhooks_delete_tunnel', { id: tunnelId });
     if (!deleted.ok) {
       stepLog('webhooks_delete_tunnel failed', deleted);
     }
@@ -166,7 +166,7 @@ describe('Webhook tunnel CRUD (UI + core RPC + mock backend)', () => {
 
     // --- post-delete list confirms removal ------------------------------------
     clearRequestLog();
-    const relisted = await callOpenhumanRpc('eversilver.webhooks_list_tunnels', {});
+    const relisted = await callEversilverRpc('eversilver.webhooks_list_tunnels', {});
     expect(relisted.ok).toBe(true);
     const relistedValue = unwrapRpcValue<Array<{ id?: string }>>(relisted.result);
     const stillPresent = (Array.isArray(relistedValue) ? relistedValue : []).some(

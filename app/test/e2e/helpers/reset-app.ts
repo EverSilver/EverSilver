@@ -19,7 +19,7 @@
  * mock-backend identity so request logs aren't cross-contaminated.
  */
 import { waitForApp, waitForAppReady } from './app-helpers';
-import { callOpenhumanRpc } from './core-rpc';
+import { callEversilverRpc } from './core-rpc';
 import { triggerAuthDeepLinkBypass } from './deep-link-helpers';
 import { waitForWebView, waitForWindowVisible } from './element-helpers';
 import { supportsExecuteScript } from './platform';
@@ -62,7 +62,7 @@ export async function resetApp(userId: string, options: ResetAppOptions = {}): P
   // the wipe would have produced. Race the RPC call against a short budget
   // and treat the result as a flag: did we actually wipe anything?
   const reset = await Promise.race([
-    callOpenhumanRpc('eversilver.test_reset', {}),
+    callEversilverRpc('eversilver.test_reset', {}),
     new Promise<{ ok: false; error: string }>(resolve =>
       setTimeout(
         () =>

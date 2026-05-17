@@ -269,7 +269,7 @@ async fn start_core_process(
 /// Reset the user's local Eversilver data and bounce the embedded core.
 ///
 /// Replaces the prior two-step UI flow that called the core JSON-RPC
-/// `openhuman.config_reset_local_data` (in-process removal) followed by
+/// `eversilver.config_reset_local_data` (in-process removal) followed by
 /// `restart_core_process`. The in-process removal failed on Windows with
 /// `ERROR_SHARING_VIOLATION` (os error 32) because the running core held
 /// open handles to SQLite databases, log files, the Sentry session store,
@@ -343,9 +343,9 @@ async fn reset_local_data(
             "active workspace marker",
         )
         .await?;
-        remove_dir_if_exists(&paths.current_eversilver_dir, "current openhuman dir").await?;
+        remove_dir_if_exists(&paths.current_eversilver_dir, "current eversilver dir").await?;
         if paths.default_eversilver_dir != paths.current_eversilver_dir {
-            remove_dir_if_exists(&paths.default_eversilver_dir, "default openhuman dir").await?;
+            remove_dir_if_exists(&paths.default_eversilver_dir, "default eversilver dir").await?;
         } else {
             log::debug!(
                 "[core] reset_local_data: default dir == current dir; already removed above"
@@ -392,7 +392,7 @@ async fn fetch_data_paths() -> Result<ResolvedDataPaths, String> {
     let body = serde_json::json!({
         "jsonrpc": "2.0",
         "id": 1,
-        "method": "openhuman.config_get_data_paths",
+        "method": "eversilver.config_get_data_paths",
         "params": {}
     });
     let client = reqwest::Client::builder()
@@ -1080,7 +1080,7 @@ fn mascot_native_window_is_open() -> bool {
 /// runtime returns a `cef::Window` internal handle that `ShowWindow` rejects,
 /// so we walk the OS window list instead (#1607). Empirically there is one
 /// matching top-level frame; the single-instance lock window uses class
-/// `com.openhuman.app-sic` and is excluded.
+/// `com.eversilver.app-sic` and is excluded.
 ///
 /// `SW_HIDE` removes the frame from screen AND taskbar — full hide-to-tray as
 /// PR #1548 intended. On restore, the IsWindowVisible filter excludes hidden
@@ -1305,7 +1305,7 @@ fn setup_tray(app: &AppHandle<AppRuntime>) -> tauri::Result<()> {
         .cloned()
         .ok_or_else(|| tauri::Error::AssetNotFound("default window icon".to_string()))?;
 
-    TrayIconBuilder::with_id("openhuman-tray")
+    TrayIconBuilder::with_id("eversilver-tray")
         .icon(icon)
         .menu(&menu)
         .on_menu_event(|app, event| match event.id().as_ref() {
@@ -1757,7 +1757,7 @@ pub fn run() {
     // Install the unified tracing subscriber + daily-rotated file appender
     // before any other startup work so CEF preflight failures, sentry
     // smoke-test events, and the rest of `run()` are captured in
-    // `<data_dir>/logs/openhuman-YYYY-MM-DD.log`. The shell's `log::*` calls
+    // `<data_dir>/logs/eversilver-YYYY-MM-DD.log`. The shell's `log::*` calls
     // are bridged into the same subscriber via `tracing_log::LogTracer`,
     // replacing the previous stderr-only `env_logger`.
     file_logging::init();
@@ -1812,7 +1812,7 @@ pub fn run() {
 
         // Must match the bundle identifier in tauri.conf.json.
         // Changing the app identifier requires updating this string too.
-        let mutex_name: Vec<u16> = "com.openhuman.app-cef-init\0".encode_utf16().collect();
+        let mutex_name: Vec<u16> = "com.eversilver.app-cef-init\0".encode_utf16().collect();
 
         // SAFETY: mutex_name is null-terminated UTF-16; handle is checked below.
         let handle = unsafe { CreateMutexW(std::ptr::null(), 0, mutex_name.as_ptr()) };
@@ -1865,7 +1865,7 @@ pub fn run() {
 
     #[cfg(target_os = "macos")]
     if let Err(e) = cef_preflight::check_default_cache() {
-        eprintln!("\n[openhuman] {e}\n");
+        eprintln!("\n[eversilver] {e}\n");
         std::process::exit(1);
     }
 
@@ -1999,7 +1999,7 @@ pub fn run() {
         }
         // Always expose the CDP port, not just in debug. The webview-accounts
         // CDP session opener navigates each embedded provider webview from its
-        // `about:blank#openhuman-acct-...` placeholder to the real provider URL
+        // `about:blank#eversilver-acct-...` placeholder to the real provider URL
         // via `Page.navigate`. Without this port available in release builds,
         // the CDP client can't attach (`browser_ws_url()` 404s on /json/version),
         // the navigation never fires, and the embedded webview stays on
@@ -2175,7 +2175,7 @@ pub fn run() {
             //     i.e. a sibling worktree's stale binary, not us.
             #[cfg(target_os = "macos")]
             if cfg!(debug_assertions) && !daemon_mode {
-                const STALE_LABEL: &str = "com.openhuman.core";
+                const STALE_LABEL: &str = "com.eversilver.core";
 
                 if let Ok(home) = std::env::var("HOME") {
                     let plist = std::path::PathBuf::from(&home)
@@ -2189,8 +2189,8 @@ pub fn run() {
                             // ProgramArguments[0] is the first <string>...</string>
                             // after the <key>ProgramArguments</key> marker. The
                             // service installer always writes it as an absolute
-                            // path to the openhuman-core binary (see
-                            // src/openhuman/service/macos.rs).
+                            // path to the eversilver-core binary (see
+                            // src/eversilver/service/macos.rs).
                             let after_key = contents.split("<key>ProgramArguments</key>").nth(1)?;
                             let start = after_key.find("<string>")? + "<string>".len();
                             let rest = &after_key[start..];
@@ -2638,7 +2638,7 @@ pub fn run() {
             // auto-spawns a meet-call window at startup so the camera +
             // audio bridges + frame-bus + producer pipeline can be
             // exercised end-to-end without manual UI clicks. Pair with
-            // `tail -F ~/.openhuman/logs/openhuman.<date>.log` to see
+            // `tail -F ~/.eversilver/logs/eversilver.<date>.log` to see
             // the periodic [meet-camera] bridge stats logged by the
             // diagnostics poller in meet_video::inject.
             if let Ok(meet_url) = std::env::var("EVERSILVER_DEV_AUTO_MEET_CALL") {
@@ -2877,7 +2877,7 @@ pub fn run_core_from_args(args: &[String]) -> Result<(), String> {
 // Sentry release / environment resolution (Tauri shell)
 // ---------------------------------------------------------------------------
 
-/// Canonical release tag: `openhuman@<version>[+<short_sha>]`.
+/// Canonical release tag: `eversilver@<version>[+<short_sha>]`.
 ///
 /// Mirrors `build_release_tag` in the core sidecar's `src/main.rs` and the
 /// `SENTRY_RELEASE` value computed in `app/vite.config.ts` so events from
@@ -2939,9 +2939,9 @@ fn build_sentry_release_tag() -> String {
     let sha = option_env!("EVERSILVER_BUILD_SHA").unwrap_or("").trim();
     let sha_short: String = sha.chars().take(12).collect();
     if sha_short.is_empty() {
-        format!("openhuman@{version}")
+        format!("eversilver@{version}")
     } else {
-        format!("openhuman@{version}+{sha_short}")
+        format!("eversilver@{version}+{sha_short}")
     }
 }
 
@@ -3251,8 +3251,8 @@ mod tests {
     fn sentry_release_tag_starts_with_eversilver() {
         let tag = build_sentry_release_tag();
         assert!(
-            tag.starts_with("openhuman@"),
-            "release tag must start with 'openhuman@', got: {tag:?}"
+            tag.starts_with("eversilver@"),
+            "release tag must start with 'eversilver@', got: {tag:?}"
         );
     }
 
@@ -3269,12 +3269,12 @@ mod tests {
     #[test]
     fn sentry_release_tag_version_part_is_nonempty() {
         let tag = build_sentry_release_tag();
-        let after_prefix = tag.strip_prefix("openhuman@").unwrap_or("");
+        let after_prefix = tag.strip_prefix("eversilver@").unwrap_or("");
         assert!(!after_prefix.is_empty(), "version part must not be empty");
     }
 
-    /// When a SHA is baked in the tag takes the form `openhuman@<ver>+<sha12>`.
-    /// When it is not, the tag is simply `openhuman@<ver>` with no `+`.
+    /// When a SHA is baked in the tag takes the form `eversilver@<ver>+<sha12>`.
+    /// When it is not, the tag is simply `eversilver@<ver>` with no `+`.
     /// Either way the full tag must be non-empty.
     #[test]
     fn sentry_release_tag_is_nonempty() {
@@ -3399,8 +3399,8 @@ mod tests {
         // Real upstream failures (e.g. backend API errors surfaced via the
         // same `Failed to request …` wording elsewhere) must NOT be filtered —
         // they're the high-signal events Sentry exists for.
-        let msg = "Failed to request https://api.openhuman.ai/v1/skills: \
-                   error sending request for url (https://api.openhuman.ai/v1/skills)";
+        let msg = "Failed to request https://api.eversilver.ai/v1/skills: \
+                   error sending request for url (https://api.eversilver.ai/v1/skills)";
         assert!(
             !message_is_localhost_dev_fetch_noise(msg),
             "production API errors must NOT be filtered out"

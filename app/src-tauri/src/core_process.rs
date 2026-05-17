@@ -16,7 +16,7 @@
 //! conflict so it can be diagnosed instead of producing 401s and version
 //! drift downstream.
 //! Set `EVERSILVER_CORE_REUSE_EXISTING=1` to opt back into the legacy
-//! attach-to-whatever-is-listening behavior (e.g. a manual `openhuman-core
+//! attach-to-whatever-is-listening behavior (e.g. a manual `eversilver-core
 //! run` harness for debugging).
 
 use std::sync::Arc;
@@ -197,14 +197,14 @@ impl CoreProcessHandle {
                 // tmpdir path so the e2e test runner (a separate Node process)
                 // can authenticate against the in-process core. Release builds
                 // never write this file. The test harness reads it from
-                // ${tmpdir}/openhuman-e2e-rpc-token.
+                // ${tmpdir}/eversilver-e2e-rpc-token.
                 //
                 // Token file is owner-read-write only (mode 0600) on Unix so a
                 // shared dev box doesn't leak the bearer to other local users.
                 #[cfg(debug_assertions)]
                 {
                     use std::io::Write as _;
-                    let token_path = std::env::temp_dir().join("openhuman-e2e-rpc-token");
+                    let token_path = std::env::temp_dir().join("eversilver-e2e-rpc-token");
                     let write_result = (|| -> std::io::Result<()> {
                         let mut options = std::fs::OpenOptions::new();
                         options.create(true).write(true).truncate(true);
@@ -311,7 +311,7 @@ impl CoreProcessHandle {
             self.port
         );
         if let Err(e) = kill_pid_term(pid) {
-            return Err(format!("failed to signal stale openhuman pid {pid}: {e}"));
+            return Err(format!("failed to signal stale eversilver pid {pid}: {e}"));
         }
 
         // Wait for the graceful exit, then revalidate ownership before any
@@ -332,7 +332,7 @@ impl CoreProcessHandle {
                     );
                     if let Err(e) = kill_pid_force(pid) {
                         return Err(format!(
-                            "failed to force-kill stale openhuman pid {pid}: {e}"
+                            "failed to force-kill stale eversilver pid {pid}: {e}"
                         ));
                     }
                 }
@@ -374,9 +374,9 @@ impl CoreProcessHandle {
     ///
     /// macOS caches permission state per-process; restarting forces a fresh
     /// read. If something else is bound to the port (e.g. a manual
-    /// `openhuman-core run` harness) we surface that instead of looping.
+    /// `eversilver-core run` harness) we surface that instead of looping.
     ///
-    /// Issue: <https://github.com/eversilver/openhuman/issues/133>
+    /// Issue: <https://github.com/eversilver/eversilver/issues/133>
     pub async fn restart(&self) -> Result<(), String> {
         log::info!("[core] restarting embedded core server for permission refresh");
 
@@ -389,7 +389,7 @@ impl CoreProcessHandle {
 
         if !had_managed_task && self.is_rpc_port_open().await {
             let msg = format!(
-                "Core RPC port {} is already in use by another process (Eversilver did not start it). Quit any `openhuman-core run` in a terminal or set EVERSILVER_CORE_PORT to a different port, then relaunch the app.",
+                "Core RPC port {} is already in use by another process (Eversilver did not start it). Quit any `eversilver-core run` in a terminal or set EVERSILVER_CORE_PORT to a different port, then relaunch the app.",
                 self.port
             );
             // Precondition check: by the time we hit this branch we already
@@ -530,11 +530,11 @@ async fn is_port_open(port: u16) -> bool {
 /// What is currently listening on the core RPC port.
 #[derive(Debug)]
 enum ListenerKind {
-    /// `GET /` returned a JSON body with `"name": "openhuman"` — i.e. a
+    /// `GET /` returned a JSON body with `"name": "eversilver"` — i.e. a
     /// stale Eversilver core process from a previous build/session.
     Eversilver,
     /// Either the listener didn't speak HTTP, didn't respond, or returned
-    /// a body that doesn't identify as openhuman.
+    /// a body that doesn't identify as eversilver.
     Unknown { reason: String },
 }
 
@@ -575,12 +575,12 @@ async fn identify_listener(port: u16) -> ListenerKind {
         }
     };
     if is_eversilver_root_body(&body) {
-        log::info!("[core] listener on port {port} identified as openhuman core");
+        log::info!("[core] listener on port {port} identified as eversilver core");
         ListenerKind::Eversilver
     } else {
         let preview: String = body.chars().take(80).collect();
         ListenerKind::Unknown {
-            reason: format!("probe GET / body did not identify as openhuman ({preview:?})"),
+            reason: format!("probe GET / body did not identify as eversilver ({preview:?})"),
         }
     }
 }
@@ -595,7 +595,7 @@ fn is_eversilver_root_body(body: &str) -> bool {
     value
         .get("name")
         .and_then(|v| v.as_str())
-        .map(|s| s == "openhuman")
+        .map(|s| s == "eversilver")
         .unwrap_or(false)
 }
 
@@ -607,7 +607,7 @@ fn is_expected_port_clash(reason: &str) -> bool {
         || reason.contains("connection refused")
         || reason.contains("returned status 404")
         || reason.contains("returned status 200")
-        || reason.contains("body did not identify as openhuman")
+        || reason.contains("body did not identify as eversilver")
         || reason.contains("already in use by another process")
         || reason.contains("os error 10013")
         || reason.contains("wsaeacces")

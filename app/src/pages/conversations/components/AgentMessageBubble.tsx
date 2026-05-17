@@ -1,6 +1,6 @@
 import Markdown from 'react-markdown';
 
-import { EVERSILVER_LINK_EVENT } from '../../../components/OpenhumanLinkModal';
+import { EVERSILVER_LINK_EVENT } from '../../../components/EversilverLinkModal';
 import { parseMarkdownTable } from '../../../utils/agentMessageBubbles';
 import { openUrl } from '../../../utils/openUrl';
 import {
@@ -14,9 +14,9 @@ import {
  * Pill rendered below an agent bubble for each
  * `<eversilver-link path="...">label</eversilver-link>` tag the agent
  * emits. Click dispatches an `EVERSILVER_LINK_EVENT` window event that
- * `OpenhumanLinkModal` listens for, so the chat stays in view.
+ * `EversilverLinkModal` listens for, so the chat stays in view.
  */
-function OpenhumanLinkPill({ path, label }: { path: string; label: string }) {
+function EversilverLinkPill({ path, label }: { path: string; label: string }) {
   return (
     <button
       type="button"
@@ -171,7 +171,7 @@ export function AgentMessageBubble({
       {linkSegments.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-2">
           {linkSegments.map((segment, idx) => (
-            <OpenhumanLinkPill
+            <EversilverLinkPill
               key={`pill-${idx}-${segment.path}`}
               path={segment.path}
               label={segment.label}

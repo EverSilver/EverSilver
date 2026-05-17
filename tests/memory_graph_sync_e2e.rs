@@ -14,8 +14,8 @@ use std::time::Duration;
 use serde_json::json;
 use tempfile::tempdir;
 
-use eversilver_core::openhuman::embeddings::NoopEmbedding;
-use eversilver_core::openhuman::memory::{
+use eversilver_core::eversilver::embeddings::NoopEmbedding;
+use eversilver_core::eversilver::memory::{
     MemoryClient, MemoryIngestionConfig, MemoryIngestionRequest, NamespaceDocumentInput,
     UnifiedMemory,
 };

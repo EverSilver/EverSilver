@@ -23,14 +23,14 @@ fn main() {
         #[cfg(target_os = "windows")]
         attach_parent_console();
 
-        if let Err(err) = openhuman::run_core_from_args(&args[2..]) {
+        if let Err(err) = eversilver::run_core_from_args(&args[2..]) {
             eprintln!("core process failed: {err}");
             std::process::exit(1);
         }
         return;
     }
 
-    openhuman::run()
+    eversilver::run()
 }
 
 #[cfg(target_os = "windows")]

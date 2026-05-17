@@ -7,11 +7,11 @@
 
 pub mod api;
 pub mod core;
-pub mod openhuman;
+pub mod eversilver;
 pub mod rpc;
 
-pub use openhuman::config::DaemonConfig;
-pub use openhuman::memory::{MemoryClient, MemoryState};
+pub use eversilver::config::DaemonConfig;
+pub use eversilver::memory::{MemoryClient, MemoryState};
 
 /// Runs the core logic based on the provided command-line arguments.
 ///
@@ -26,6 +26,6 @@ pub use openhuman::memory::{MemoryClient, MemoryState};
 ///
 /// Returns an error if command execution fails.
 pub fn run_core_from_args(args: &[String]) -> anyhow::Result<()> {
-    openhuman::service::apply_startup_restart_delay_from_env();
+    eversilver::service::apply_startup_restart_delay_from_env();
     core::cli::run_from_cli_args(args)
 }

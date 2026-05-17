@@ -112,7 +112,7 @@ async fn drain_and_forward(
         // listener would silently drop captions forever while the
         // page kept producing them.
         super::rpc_call(
-            "openhuman.meet_agent_push_caption",
+            "eversilver.meet_agent_push_caption",
             serde_json::json!({
                 "request_id": request_id,
                 "speaker": speaker,

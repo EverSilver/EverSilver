@@ -20,12 +20,12 @@
 //! it.
 
 use chrono::{TimeZone, Utc};
-use eversilver_core::openhuman::config::Config;
-use eversilver_core::openhuman::memory::tree::canonicalize::chat::{ChatBatch, ChatMessage};
-use eversilver_core::openhuman::memory::tree::canonicalize::email::{EmailMessage, EmailThread};
-use eversilver_core::openhuman::memory::tree::ingest::{ingest_chat, ingest_email};
-use eversilver_core::openhuman::memory::tree::jobs::drain_until_idle;
-use eversilver_core::openhuman::tools::{
+use eversilver_core::eversilver::config::Config;
+use eversilver_core::eversilver::memory::tree::canonicalize::chat::{ChatBatch, ChatMessage};
+use eversilver_core::eversilver::memory::tree::canonicalize::email::{EmailMessage, EmailThread};
+use eversilver_core::eversilver::memory::tree::ingest::{ingest_chat, ingest_email};
+use eversilver_core::eversilver::memory::tree::jobs::drain_until_idle;
+use eversilver_core::eversilver::tools::{
     MemoryTreeFetchLeavesTool, MemoryTreeQueryTopicTool, MemoryTreeSearchEntitiesTool, Tool,
 };
 use serde_json::{json, Value};
@@ -155,7 +155,7 @@ fn alice_phoenix_thread() -> EmailThread {
 /// TOML was updated accordingly.
 #[test]
 fn orchestrator_lists_memory_tree_tools() {
-    let toml = include_str!("../src/openhuman/agent/agents/orchestrator/agent.toml");
+    let toml = include_str!("../src/eversilver/agent/agents/orchestrator/agent.toml");
     // Exact entry match — substring match would also hit comments or prefixed names.
     let has_memory_tree_entry = toml
         .lines()

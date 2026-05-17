@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 
 // @ts-nocheck
 import { waitForApp } from '../helpers/app-helpers';
-import { callOpenhumanRpc } from '../helpers/core-rpc';
+import { callEversilverRpc } from '../helpers/core-rpc';
 import { resetApp } from '../helpers/reset-app';
 import { startMockServer, stopMockServer } from '../mock-server';
 
@@ -95,7 +95,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
       relative_path: TEST_RELATIVE_PATH,
       bytes: TEST_CONTENT.length,
     });
-    const writeResult = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
+    const writeResult = await callEversilverRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: TEST_RELATIVE_PATH,
       content: TEST_CONTENT,
     });
@@ -121,7 +121,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     await fs.writeFile(path.join(workspaceDir(), TEST_RELATIVE_PATH), TEST_CONTENT, 'utf8');
 
     stepLog('issuing memory_read_file', { relative_path: TEST_RELATIVE_PATH });
-    const readResult = await callOpenhumanRpc<ReadResultEnvelope>('eversilver.memory_read_file', {
+    const readResult = await callEversilverRpc<ReadResultEnvelope>('eversilver.memory_read_file', {
       relative_path: TEST_RELATIVE_PATH,
     });
     stepLog('read response', readResult);
@@ -131,7 +131,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
 
     // Cross-check with memory_list_files to prove directory listing also
     // honours the workspace boundary and surfaces the canary.
-    const listResult = await callOpenhumanRpc<ListResultEnvelope>('eversilver.memory_list_files', {
+    const listResult = await callEversilverRpc<ListResultEnvelope>('eversilver.memory_list_files', {
       relative_dir: 'memory',
     });
     stepLog('list response', listResult);
@@ -147,7 +147,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     stepLog('issuing memory_write_file with parent-traversal payload', {
       relative_path: TRAVERSAL_PATH,
     });
-    const traversal = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
+    const traversal = await callEversilverRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: TRAVERSAL_PATH,
       content: 'should never be written',
     });
@@ -159,7 +159,7 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
     // 6.1.3b — absolute paths must also be denied; this guards a different
     // branch of the validator (`is_absolute()` short-circuit).
     stepLog('issuing memory_write_file with absolute payload', { relative_path: ABSOLUTE_PATH });
-    const absolute = await callOpenhumanRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
+    const absolute = await callEversilverRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
       relative_path: ABSOLUTE_PATH,
       content: 'should never be written',
     });
