@@ -1,0 +1,29 @@
+﻿{
+    "name":  "eversilver",
+    "version":  "1.0.0",
+    "timestamp":  "2026-05-17T20:51:49.4703890Z",
+    "os":  "windows",
+    "arch":  "x86_64",
+    "artifacts":  [
+                      {
+                          "file":  "Eversilver_0.53.49_x64_en-US.msi",
+                          "bytes":  196595712,
+                          "sha256":  "a539304fc2281d565fd6467606327ad7a1dd04c8f7f2c387cfb248df300507b0"
+                      },
+                      {
+                          "file":  "Eversilver_1.0.0_x64_en-US.msi",
+                          "bytes":  196673536,
+                          "sha256":  "da88da00590cad0a26da942e927eb26074b5617ef17327f0ba66f1bc722f589f"
+                      },
+                      {
+                          "file":  "Eversilver_0.53.49_x64-setup.exe",
+                          "bytes":  144343961,
+                          "sha256":  "518e1efcd7f8a4cc01d93cfa2aeca84bcb57678ca42cf7374070c7643dc8bf9d"
+                      },
+                      {
+                          "file":  "Eversilver_1.0.0_x64-setup.exe",
+                          "bytes":  144426913,
+                          "sha256":  "5237dde741841e58467cc88fcca4410cb781cba849aa6921e528d544b65d8728"
+                      }
+                  ]
+}

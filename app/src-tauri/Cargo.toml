@@ -1,6 +1,6 @@
 [package]
 name = "Eversilver"
-version = "0.53.49"
+version = "1.0.0"
 description = "Eversilver - AI-powered Super Assistant"
 authors = ["Eversilver"]
 edition = "2021"
@@ -28,7 +28,7 @@ serde_json = "1"
 # Tauri core and plugins.
 #
 # The only supported runtime is CEF (Chromium Embedded Framework) via
-# `tauri-runtime-cef` — CI builds, release installers, and local `cargo tauri
+# `tauri-runtime-cef` â€” CI builds, release installers, and local `cargo tauri
 # dev` all run against CEF. The `[patch.crates-io]` block at the bottom of this
 # file pins every tauri crate and plugin to the `feat/cef` branch on github so
 # CEF symbols are in scope, and `cef-dll-sys`'s build script auto-downloads the
@@ -91,7 +91,7 @@ rustls = { version = "0.23", default-features = false, features = ["ring"] }
 log = "0.4"
 env_logger = "0.11"
 
-# Sentry for the Tauri shell (desktop host) process — separate Sentry project
+# Sentry for the Tauri shell (desktop host) process â€” separate Sentry project
 # from the React frontend and the Rust core sidecar. DSN is baked at compile
 # time via `option_env!("EVERSILVER_TAURI_SENTRY_DSN")` in `lib.rs::run()` and
 # can be overridden at runtime via the same env var. Feature set mirrors the
@@ -115,7 +115,7 @@ tiny-skia = "0.11"
 # `tauri-runtime-cef::notification::register` is how we hook native Web
 # Notification interception per webview, and `cef::Browser` is what we downcast
 # from the boxed handle returned by `Webview::with_webview`. tauri-runtime-cef
-# isn't published to crates.io — we vendor the whole tauri fork as a submodule
+# isn't published to crates.io â€” we vendor the whole tauri fork as a submodule
 # at `vendor/tauri-cef` and reference the crate by path.
 tauri-runtime-cef = { path = "vendor/tauri-cef/crates/tauri-runtime-cef" }
 cef = { version = "=146.4.1", default-features = false }
@@ -140,7 +140,7 @@ rusqlite = { version = "0.37", features = ["bundled"] }
 objc2-user-notifications = "0.3.2"
 block2 = "0.6.2"
 objc2-foundation = { version = "0.3.2", features = ["NSTimer", "block2"] }
-# Native WKWebView host for the floating mascot window — bypasses CEF
+# Native WKWebView host for the floating mascot window â€” bypasses CEF
 # (which can't render transparent windowed-mode browsers).
 objc2-web-kit = { version = "0.3.2", features = ["block2"] }
 
@@ -148,7 +148,7 @@ objc2-web-kit = { version = "0.3.2", features = ["block2"] }
 notify-rust = { version = "4", default-features = false, features = ["dbus"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-# AttachConsole — re-attach to the parent shell when the binary runs as a CLI
+# AttachConsole â€” re-attach to the parent shell when the binary runs as a CLI
 # (the `core` subcommand). The main binary itself is windows-subsystem so
 # launching the Tauri app from Explorer does not pop a console; the helper
 # CEF subprocess re-execs inherit that same subsystem.
@@ -160,7 +160,7 @@ windows-sys = { version = "0.59", features = [
     # cef::Window internal handle, not the visible Chrome_WidgetWin_1
     # top-level frame, so we walk the OS window list ourselves (#1607).
     "Win32_UI_WindowsAndMessaging",
-    # CreateMutexW / CloseHandle — used by the pre-CEF single-instance guard
+    # CreateMutexW / CloseHandle â€” used by the pre-CEF single-instance guard
     # (see run() in lib.rs) that detects a second launch before CefRuntime::init
     # fires (Sentry EVERSILVER-TAURI-A).
     # Win32_Security is required because CreateMutexW's SECURITY_ATTRIBUTES

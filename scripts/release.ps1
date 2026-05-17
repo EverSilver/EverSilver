@@ -74,25 +74,25 @@ function Compute-NextVersion([string]$current, [string]$bump) {
 }
 
 function Update-PackageJsonVersion([string]$path, [string]$newVersion) {
+  if (-not (Test-Path $path)) { return $false }
+  # Use a targeted regex replace instead of ConvertFrom-Json -> ConvertTo-Json
+  # round-trip, which loses formatting + comments + key order on PS 5.1.
   $raw = Get-Content $path -Raw
-  $obj = $raw | ConvertFrom-Json
-  $obj.version = $newVersion
-  # Preserve the original formatting style by writing JSON then aligning indent.
-  $json = $obj | ConvertTo-Json -Depth 64
-  # ConvertTo-Json uses 2-space indent in PowerShell -- matches our prettier config.
-  Set-Content $path -Value $json -Encoding UTF8 -NoNewline
-  Add-Content $path -Value "`n"
+  $pattern = '("version"\s*:\s*")[^"]*(")'
+  if ($raw -notmatch $pattern) { return $false }
+  $replaced = [regex]::Replace($raw, $pattern, "`${1}$newVersion`${2}", 'IgnoreCase')
+  if ($replaced -eq $raw) { return $false }
+  # PowerShell 5.1's `Set-Content -Encoding UTF8` writes a UTF-8 BOM, which
+  # breaks every JSON parser (Vite, node, jq, ...). Write bare UTF-8 via
+  # .NET to preserve the original byte-for-byte format expected by tooling.
+  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($path, $replaced, $utf8NoBom)
+  return $true
 }
 
 function Update-TauriConfVersion([string]$path, [string]$newVersion) {
-  if (-not (Test-Path $path)) { return }
-  $raw = Get-Content $path -Raw
-  $obj = $raw | ConvertFrom-Json
-  if (-not $obj.version) { return }
-  $obj.version = $newVersion
-  $json = $obj | ConvertTo-Json -Depth 64
-  Set-Content $path -Value $json -Encoding UTF8 -NoNewline
-  Add-Content $path -Value "`n"
+  # tauri.conf.json has the same structure; use the same surgical regex.
+  Update-PackageJsonVersion $path $newVersion | Out-Null
 }
 
 function Update-CargoTomlVersion([string]$path, [string]$newVersion) {
@@ -108,7 +108,11 @@ function Update-CargoTomlVersion([string]$path, [string]$newVersion) {
       $changed = $true
     }
   }
-  if ($changed) { Set-Content $path -Value $lines -Encoding UTF8 }
+  if ($changed) {
+    # Bare UTF-8 (no BOM) — see Update-PackageJsonVersion note.
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($path, ($lines -join "`r`n") + "`r`n", $utf8NoBom)
+  }
 }
 
 # 1. Clean working tree

@@ -1,6 +1,6 @@
 [package]
 name = "eversilver"
-version = "0.53.49"
+version = "1.0.0"
 edition = "2021"
 description = "Eversilver core business logic and RPC server"
 autobins = false
@@ -137,10 +137,10 @@ matrix-sdk = { version = "0.16", optional = true, default-features = false, feat
 fantoccini = { version = "0.22.0", optional = true, default-features = false, features = ["rustls-tls"] }
 serde-big-array = { version = "0.5", optional = true }
 pdf-extract = { version = "0.10", optional = true }
-# WhatsApp Web — upstream `whatsapp-rust` 0.5. Replaces the previous `wa-rs`
+# WhatsApp Web â€” upstream `whatsapp-rust` 0.5. Replaces the previous `wa-rs`
 # 0.2 fork: upstream now ships its own SqliteStore (so we no longer need the
 # 1.3K-line custom RusqliteStore) and dispatches `Event::Message` for
-# LID-addressed contacts and group sender-key (skmsg) messages — both of
+# LID-addressed contacts and group sender-key (skmsg) messages â€” both of
 # which the 0.2 fork silently dropped after decryption.
 whatsapp-rust = { version = "0.5", optional = true, default-features = false, features = ["sqlite-storage", "tokio-runtime"] }
 whatsapp-rust-tokio-transport = { version = "0.5", optional = true, default-features = false }
@@ -162,7 +162,7 @@ rppal = { version = "0.22", optional = true }
 [dev-dependencies]
 # Enable sentry's TestTransport for runtime smoke of the observability
 # before_send filter (see tests/observability_smoke.rs). `default-features
-# = false` here is load-bearing — sentry's default feature set pulls in
+# = false` here is load-bearing â€” sentry's default feature set pulls in
 # actix-web / actix-http / actix-server / sentry-actix and ~13 transitive
 # crates we never use (and that bloat the dev Cargo.lock noticeably).
 # TestTransport only needs the `test` feature.
