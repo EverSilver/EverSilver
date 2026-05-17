@@ -49,7 +49,7 @@ function Install-Winget([string]$id, [string]$friendly, [string]$override = $nul
   if ($override) { $args += @('--override', $override) }
   $proc = Start-Process winget -ArgumentList $args -Wait -PassThru -NoNewWindow
   if ($proc.ExitCode -ne 0) {
-    Write-Warn2 "$friendly install exited $($proc.ExitCode) — may need manual install"
+    Write-Warn2 "$friendly install exited $($proc.ExitCode) -- may need manual install"
   } else {
     Write-Ok "$friendly installed"
   }
@@ -60,7 +60,9 @@ function Add-UserPath([string]$dir) {
   $user = [Environment]::GetEnvironmentVariable('Path', 'User')
   $entries = @() + ($user -split ';' | Where-Object { $_ })
   if ($entries -contains $dir) { return $false }
-  [Environment]::SetEnvironmentVariable('Path', "$user;$dir".TrimStart(';'), 'User')
+  $combined = "$user;$dir"
+  $combined = $combined.TrimStart(';')
+  [Environment]::SetEnvironmentVariable('Path', $combined, 'User')
   $env:Path = "$dir;$env:Path"
   Write-Ok "added $dir to user PATH"
   return $true
@@ -89,7 +91,7 @@ if (Get-Command corepack -ErrorAction SilentlyContinue) {
   corepack prepare pnpm@10.10.0 --activate 2>&1 | Out-Null
   Write-Ok "pnpm enabled"
 } else {
-  Write-Warn2 "corepack missing — install Node first then re-run"
+  Write-Warn2 "corepack missing -- install Node first then re-run"
 }
 
 # --- PHASE 2: PATH wiring ---
@@ -137,7 +139,7 @@ try {
     if ($LASTEXITCODE -eq 0) { Write-Ok 'pnpm install complete' }
     else                     { Write-Warn2 "pnpm install exited $LASTEXITCODE" }
   } else {
-    Write-Warn2 'pnpm not yet on PATH — open a new shell and run `pnpm install` manually'
+    Write-Warn2 'pnpm not yet on PATH -- open a new shell and run `pnpm install` manually'
   }
 } finally {
   Pop-Location

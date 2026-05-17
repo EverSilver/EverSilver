@@ -122,7 +122,8 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
   }
 
   let currentExpression: MascotExpression = 'neutral';
-  let currentViseme: 'A' | 'E' | 'I' | 'O' | 'U' | null = null;
+  // Tracked for future external querying; intentionally not read inside the loader.
+  let _currentViseme: 'A' | 'E' | 'I' | 'O' | 'U' | null = null;
 
   const setExpressionWeight = (name: string, weight: number) => {
     if (!isVrm || !vrmInstance.expressionManager) return;
@@ -150,7 +151,7 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
     setExpressionWeight(expr === 'blink' ? 'blink' : expr, 1);
   };
 
-  const applyViseme = (viseme: typeof currentViseme) => {
+  const applyViseme = (viseme: typeof _currentViseme) => {
     clearVisemes();
     if (!viseme) return;
     const map: Record<NonNullable<typeof viseme>, string> = {
@@ -170,7 +171,7 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
   let blinkPhase = 0;
   let rafId = 0;
   const tick = () => {
-    rafId = requestAnimationFrame(tick);
+    rafId = window.requestAnimationFrame(tick);
     const dt = clock.getDelta();
     blinkPhase += dt;
     // Auto-blink every 3 seconds.
@@ -200,11 +201,11 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
       applyExpression(expr);
     },
     setViseme: viseme => {
-      currentViseme = viseme;
+      _currentViseme = viseme;
       applyViseme(viseme);
     },
     dispose: () => {
-      cancelAnimationFrame(rafId);
+      window.cancelAnimationFrame(rafId);
       ro.disconnect();
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {

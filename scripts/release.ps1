@@ -79,7 +79,7 @@ function Update-PackageJsonVersion([string]$path, [string]$newVersion) {
   $obj.version = $newVersion
   # Preserve the original formatting style by writing JSON then aligning indent.
   $json = $obj | ConvertTo-Json -Depth 64
-  # ConvertTo-Json uses 2-space indent in PowerShell — matches our prettier config.
+  # ConvertTo-Json uses 2-space indent in PowerShell -- matches our prettier config.
   Set-Content $path -Value $json -Encoding UTF8 -NoNewline
   Add-Content $path -Value "`n"
 }

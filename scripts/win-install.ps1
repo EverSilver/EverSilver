@@ -3,7 +3,7 @@
   Install the Eversilver Windows build.
 
 .DESCRIPTION
-  Picks up the most recently built NSIS installer (preferred — no admin
+  Picks up the most recently built NSIS installer (preferred -- no admin
   required) or MSI from `app/src-tauri/target/release/bundle/`, runs it
   silently, and reports where it landed.
 
@@ -41,7 +41,7 @@ if (-not $installer) {
 Write-Host "Installing: $($installer.FullName)" -ForegroundColor Cyan
 
 if ($Type -eq 'msi') {
-  Write-Host "  (machine-wide install — UAC prompt may appear)"
+  Write-Host "  (machine-wide install -- UAC prompt may appear)"
   $proc = Start-Process msiexec.exe -ArgumentList "/i `"$($installer.FullName)`" /qn /norestart" -Verb RunAs -Wait -PassThru
   if ($proc.ExitCode -ne 0) {
     Write-Error "MSI install failed with exit code $($proc.ExitCode)"
@@ -71,5 +71,5 @@ if ($launchPath) {
   Write-Host "  Launching..." -ForegroundColor DarkGray
   Start-Process $launchPath
 } else {
-  Write-Warning "Could not locate the installed executable automatically — try the Start Menu."
+  Write-Warning "Could not locate the installed executable automatically -- try the Start Menu."
 }
