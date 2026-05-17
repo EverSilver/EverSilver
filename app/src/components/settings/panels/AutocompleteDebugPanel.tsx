@@ -5,7 +5,6 @@ import {
   type AcceptedCompletion,
   type AutocompleteConfig,
   type AutocompleteStatus,
-  isTauri,
   eversilverAutocompleteAccept,
   eversilverAutocompleteClearHistory,
   eversilverAutocompleteCurrent,
@@ -16,6 +15,7 @@ import {
   eversilverAutocompleteStatus,
   eversilverAutocompleteStop,
   eversilverGetConfig,
+  isTauri,
 } from '../../../utils/tauriCommands';
 import SettingsHeader from '../components/SettingsHeader';
 import { useSettingsNavigation } from '../hooks/useSettingsNavigation';

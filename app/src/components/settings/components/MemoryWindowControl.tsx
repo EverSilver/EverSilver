@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import {
+  eversilverGetConfig,
+  eversilverUpdateMemorySettings,
   isTauri,
   MEMORY_CONTEXT_WINDOWS,
   type MemoryContextWindow,
-  eversilverGetConfig,
-  eversilverUpdateMemorySettings,
 } from '../../../utils/tauriCommands';
 
 interface PresetMeta {

@@ -142,7 +142,9 @@ describe('coreRpcClient', () => {
       }),
     } as Response);
 
-    await expect(callCoreRpc({ method: 'eversilver.config_get' })).rejects.toThrow('boom from core');
+    await expect(callCoreRpc({ method: 'eversilver.config_get' })).rejects.toThrow(
+      'boom from core'
+    );
   });
 
   test('throws on non-ok HTTP response', async () => {

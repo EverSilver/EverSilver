@@ -13,10 +13,10 @@ End-to-end checklist to take the paywall from local-grant stub to real UPI payme
 
 In the Razorpay dashboard → Subscriptions → Plans → Create plan:
 
-| Plan | Interval | Amount (paise) | Notes |
-|---|---|---|---|
-| Eversilver Pro | Monthly | 49900 | ₹499/month |
-| Eversilver Ultra | Monthly | 149900 | ₹1499/month |
+| Plan             | Interval | Amount (paise) | Notes       |
+| ---------------- | -------- | -------------- | ----------- |
+| Eversilver Pro   | Monthly  | 49900          | ₹499/month  |
+| Eversilver Ultra | Monthly  | 149900         | ₹1499/month |
 
 Razorpay uses paise (1 INR = 100 paise). After creation, copy each `plan_xxxxxxxxxxxxxx` ID.
 
@@ -25,6 +25,7 @@ Paste them into `app/src/features/paywall/tiers.ts` replacing `plan_REPLACE_ME_P
 ## 3. Get API keys
 
 Dashboard → Settings → API Keys → Generate Test Key. You get:
+
 - `rzp_test_xxxxxxxxxxxxxx` (Key ID — safe in frontend)
 - `xxxxxxxxxxxxxxxxxxxxxxxx` (Key Secret — backend only, never commit)
 
@@ -46,6 +47,7 @@ Creates a Razorpay subscription for the authenticated user.
 ```ts
 // pseudo
 import Razorpay from 'razorpay';
+
 const rzp = new Razorpay({ key_id: env.RAZORPAY_KEY_ID, key_secret: env.RAZORPAY_KEY_SECRET });
 
 app.post('/api/billing/subscribe', async (req, res) => {
@@ -53,7 +55,7 @@ app.post('/api/billing/subscribe', async (req, res) => {
   const planMap = { pro: env.RAZORPAY_PLAN_ID_PRO, ultra: env.RAZORPAY_PLAN_ID_ULTRA };
   const subscription = await rzp.subscriptions.create({
     plan_id: planMap[tier],
-    total_count: 12,           // 12 months
+    total_count: 12, // 12 months
     customer_notify: 1,
     notes: { userId, tier },
   });
@@ -64,6 +66,7 @@ app.post('/api/billing/subscribe', async (req, res) => {
 ### POST /api/billing/webhook
 
 Receives Razorpay's authorization/charge events. Configure in dashboard:
+
 - URL: `https://your-api.example.com/api/billing/webhook`
 - Active events: `subscription.activated`, `subscription.charged`, `subscription.halted`, `subscription.cancelled`, `payment.captured`, `payment.failed`
 - Set a webhook secret and put it in `RAZORPAY_WEBHOOK_SECRET`
@@ -96,6 +99,7 @@ app.post('/api/billing/webhook', async (req, res) => {
 ## 5. Test with UPI
 
 In Razorpay test mode, use UPI ID `success@razorpay` to simulate a successful UPI payment. Other test values:
+
 - `failure@razorpay` — payment failure
 - Test cards: 4111 1111 1111 1111 (Visa)
 

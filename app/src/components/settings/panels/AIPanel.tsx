@@ -871,8 +871,8 @@ const AIPanel = ({ embedded = false }: AIPanelProps = {}) => {
           <div className="border-b border-stone-200 pb-2">
             <h2 className="text-base font-semibold text-stone-900">LLM Providers</h2>
             <p className="text-xs text-stone-500 mt-0.5">
-              Connect the language-model backends you want Eversilver to use. Toggle a provider on to
-              add its key; toggle off to disconnect.
+              Connect the language-model backends you want Eversilver to use. Toggle a provider on
+              to add its key; toggle off to disconnect.
             </p>
           </div>
 

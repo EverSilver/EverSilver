@@ -96,7 +96,10 @@ describe('Tauri commands', () => {
   });
 
   it('round-trips an RPC through the relay (eversilver.about_app_list)', async () => {
-    const res = await callEversilverRpc<{ capabilities: unknown[] }>('eversilver.about_app_list', {});
+    const res = await callEversilverRpc<{ capabilities: unknown[] }>(
+      'eversilver.about_app_list',
+      {}
+    );
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(Array.isArray(res.result.capabilities)).toBe(true);

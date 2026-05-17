@@ -1,0 +1,43 @@
+name = "eversilver-billing-worker"
+main = "src/index.ts"
+compatibility_date = "2024-11-12"
+compatibility_flags = ["nodejs_compat"]
+
+# Workers Logs
+[observability]
+enabled = true
+
+# ---------------------------------------------------------------------------
+# KV namespace bindings
+# Create with:
+#   wrangler kv:namespace create BILLING_KV
+#   wrangler kv:namespace create BILLING_KV --preview
+# Then paste the returned ids below.
+# ---------------------------------------------------------------------------
+[[kv_namespaces]]
+binding = "BILLING_KV"
+id = "REPLACE_WITH_KV_ID"
+preview_id = "REPLACE_WITH_PREVIEW_KV_ID"
+
+# ---------------------------------------------------------------------------
+# Optional: D1 database (alternative to KV). See schema.sql.
+# Uncomment after `wrangler d1 create eversilver-billing`.
+# ---------------------------------------------------------------------------
+# [[d1_databases]]
+# binding = "BILLING_DB"
+# database_name = "eversilver-billing"
+# database_id = "REPLACE_WITH_D1_ID"
+
+# ---------------------------------------------------------------------------
+# Non-secret env vars (set secrets via `wrangler secret put NAME`)
+# ---------------------------------------------------------------------------
+[vars]
+RAZORPAY_PLAN_ID_PRO = "plan_REPLACE_PRO"
+RAZORPAY_PLAN_ID_ULTRA = "plan_REPLACE_ULTRA"
+ALLOWED_ORIGIN = "https://eversilver.app"
+
+# Secrets (DO NOT set here, use `wrangler secret put`):
+#   RAZORPAY_KEY_ID
+#   RAZORPAY_KEY_SECRET
+#   RAZORPAY_WEBHOOK_SECRET
+#   JWT_SECRET

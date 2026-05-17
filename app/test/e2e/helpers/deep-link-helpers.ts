@@ -241,10 +241,10 @@ export async function triggerDeepLink(url: string): Promise<void> {
       }
       for (let attempt = 1; attempt <= 3; attempt += 1) {
         try {
-          await browser.execute('macos: deepLink', { url, bundleId: 'com.eversilver.app' } as Record<
-            string,
-            unknown
-          >);
+          await browser.execute('macos: deepLink', {
+            url,
+            bundleId: 'com.eversilver.app',
+          } as Record<string, unknown>);
           deepLinkDebug('macos: deepLink OK', { attempt });
           await browser.pause(300);
           return;
@@ -314,7 +314,9 @@ export function triggerAuthDeepLink(token: string): Promise<void> {
   const envBypassToken = (process.env.EVERSILVER_E2E_AUTH_BYPASS_TOKEN || '').trim();
   deepLinkDebug('triggerAuthDeepLink', { token, envBypassToken: envBypassToken || '(none)' });
   if (envBypassToken) {
-    return triggerDeepLink(`eversilver://auth?token=${encodeURIComponent(envBypassToken)}&key=auth`);
+    return triggerDeepLink(
+      `eversilver://auth?token=${encodeURIComponent(envBypassToken)}&key=auth`
+    );
   }
 
   const authBypassEnabled = (process.env.EVERSILVER_E2E_AUTH_BYPASS || '').trim() === '1';

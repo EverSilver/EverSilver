@@ -49,7 +49,9 @@ export async function eversilverServiceStart(): Promise<CommandResponse<ServiceS
     throw new Error('Not running in Tauri');
   }
   try {
-    return await callCoreRpc<CommandResponse<ServiceStatus>>({ method: 'eversilver.service_start' });
+    return await callCoreRpc<CommandResponse<ServiceStatus>>({
+      method: 'eversilver.service_start',
+    });
   } catch {
     const raw = await invoke<string>('service_start_direct');
     return parseServiceCliOutput<ServiceStatus>(raw);

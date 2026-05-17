@@ -60,13 +60,13 @@ import { splitAgentMessageIntoBubbles } from '../utils/agentMessageBubbles';
 import { BILLING_DASHBOARD_URL } from '../utils/links';
 import { openUrl } from '../utils/openUrl';
 import {
-  isTauri,
-  notifyOverlaySttState,
   eversilverAutocompleteAccept,
   eversilverAutocompleteCurrent,
   eversilverVoiceStatus,
   eversilverVoiceTranscribeBytes,
   eversilverVoiceTts,
+  isTauri,
+  notifyOverlaySttState,
 } from '../utils/tauriCommands';
 import { formatTimelineEntry } from '../utils/toolTimelineFormatting';
 import { AgentMessageBubble, BubbleMarkdown } from './conversations/components/AgentMessageBubble';

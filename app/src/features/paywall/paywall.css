@@ -53,7 +53,9 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    opacity 150ms;
 }
 
 .eversilver-paywall-cta:hover {
@@ -152,7 +154,9 @@
   border-radius: 16px;
   display: flex;
   flex-direction: column;
-  transition: transform 200ms, border-color 200ms;
+  transition:
+    transform 200ms,
+    border-color 200ms;
 }
 
 .eversilver-pricing-card:hover {
@@ -233,7 +237,9 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 150ms, opacity 150ms;
+  transition:
+    transform 150ms,
+    opacity 150ms;
 }
 
 .eversilver-pricing-cta:hover:not(:disabled) {

@@ -4,10 +4,10 @@
  * In preview mode (BILLING_ENABLED=false) this screen shows a single
  * "free during preview — everything unlocked" panel instead of tier cards.
  */
-import { usePaywall } from './PaywallProvider';
-import { TIERS, formatInr } from './tiers';
-import { BILLING_ENABLED } from './config';
 import type { SubscriptionTier } from '../auth';
+import { BILLING_ENABLED } from './config';
+import { usePaywall } from './PaywallProvider';
+import { formatInr, TIERS } from './tiers';
 
 const TIER_ORDER: SubscriptionTier[] = ['free', 'pro', 'ultra'];
 
@@ -47,8 +47,7 @@ export function PricingScreen() {
             <div
               key={tierId}
               className={`eversilver-pricing-card ${isCurrent ? 'is-current' : ''}`}
-              data-tier={tierId}
-            >
+              data-tier={tierId}>
               <h2>{def.name}</h2>
               <div className="eversilver-pricing-price">
                 <span className="amount">{formatInr(def.priceMonthlyInr)}</span>
@@ -71,10 +70,7 @@ export function PricingScreen() {
                   Downgrade unavailable
                 </button>
               ) : (
-                <button
-                  onClick={() => checkout(tierId)}
-                  className="eversilver-pricing-cta"
-                >
+                <button onClick={() => checkout(tierId)} className="eversilver-pricing-cta">
                   {tierId === 'free' ? 'Start free' : 'Pay with UPI'}
                 </button>
               )}
@@ -85,8 +81,8 @@ export function PricingScreen() {
 
       <footer className="eversilver-pricing-footer">
         <p>
-          Subscriptions auto-renew monthly via UPI mandate or card.
-          Cancel anytime from your account settings. Prices include GST where applicable.
+          Subscriptions auto-renew monthly via UPI mandate or card. Cancel anytime from your account
+          settings. Prices include GST where applicable.
         </p>
       </footer>
     </div>

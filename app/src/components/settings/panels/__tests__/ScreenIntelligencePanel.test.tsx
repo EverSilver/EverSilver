@@ -8,8 +8,8 @@ import {
 } from '../../../../features/screen-intelligence/useScreenIntelligenceState';
 import {
   type ConfigSnapshot,
-  isTauri,
   eversilverUpdateScreenIntelligenceSettings,
+  isTauri,
 } from '../../../../utils/tauriCommands';
 import ScreenIntelligencePanel from '../ScreenIntelligencePanel';
 

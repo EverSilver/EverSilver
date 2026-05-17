@@ -4,8 +4,9 @@
  * Drop-in login + signup UI for the Eversilver desktop app.
  * Mount this as a gate before the main AppRoutes when `!isAuthenticated`.
  */
-import { useState, type FormEvent } from 'react';
-import { useAuth } from './AuthProvider';
+import { type FormEvent, useState } from 'react';
+
+import { useAuth } from './useAuth';
 
 type Mode = 'signin' | 'signup';
 
@@ -84,8 +85,7 @@ export function LoginScreen() {
         <button
           type="button"
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
-          className="eversilver-login-toggle"
-        >
+          className="eversilver-login-toggle">
           {mode === 'signin'
             ? "Don't have an account? Sign up"
             : 'Already have an account? Sign in'}

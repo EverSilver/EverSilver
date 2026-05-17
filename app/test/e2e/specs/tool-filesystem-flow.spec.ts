@@ -95,10 +95,10 @@ describe('System tools — Filesystem (file_read / file_write / path restriction
       relative_path: TEST_RELATIVE_PATH,
       bytes: TEST_CONTENT.length,
     });
-    const writeResult = await callEversilverRpc<WriteResultEnvelope>('eversilver.memory_write_file', {
-      relative_path: TEST_RELATIVE_PATH,
-      content: TEST_CONTENT,
-    });
+    const writeResult = await callEversilverRpc<WriteResultEnvelope>(
+      'eversilver.memory_write_file',
+      { relative_path: TEST_RELATIVE_PATH, content: TEST_CONTENT }
+    );
     stepLog('write response', writeResult);
     expect(writeResult.ok).toBe(true);
 

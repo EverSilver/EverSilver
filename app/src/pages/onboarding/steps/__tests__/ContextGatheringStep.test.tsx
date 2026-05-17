@@ -83,7 +83,10 @@ describe('ContextGatheringStep', () => {
     await waitFor(() => expect(onNext).toHaveBeenCalled(), { timeout: 5000 });
 
     const calls = callCoreRpc.mock.calls.map((c: Array<{ method: string }>) => c[0].method);
-    expect(calls).toEqual(['eversilver.tools_composio_execute', 'eversilver.learning_save_profile']);
+    expect(calls).toEqual([
+      'eversilver.tools_composio_execute',
+      'eversilver.learning_save_profile',
+    ]);
     // Apify scrape must not be called — it is disabled during profile build.
     expect(calls).not.toContain('eversilver.tools_apify_linkedin_scrape');
 

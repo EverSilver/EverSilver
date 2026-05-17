@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from './App';
+import { AuthGate } from './features/auth';
 import './index.css';
 import { getCoreStateSnapshot } from './lib/coreState/store';
 import MascotWindowApp from './mascot/MascotWindowApp';
@@ -80,7 +81,19 @@ if (!isStandaloneWindow) {
 // namespace from the first storage call. (#900)
 function bootRender() {
   const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
-  const tree = isMascotWindow ? <MascotWindowApp /> : isOverlayWindow ? <OverlayApp /> : <App />;
+  // Only gate the main window with auth. The mascot and overlay windows are
+  // satellite views hosted in a parent process that has already authenticated
+  // — gating them again would deadlock first paint and prevent the mascot
+  // from rendering before the user can reach the login screen.
+  const tree = isMascotWindow ? (
+    <MascotWindowApp />
+  ) : isOverlayWindow ? (
+    <OverlayApp />
+  ) : (
+    <AuthGate>
+      <App />
+    </AuthGate>
+  );
   root.render(<React.StrictMode>{tree}</React.StrictMode>);
 }
 

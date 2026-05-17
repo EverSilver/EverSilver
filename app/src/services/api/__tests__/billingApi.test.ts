@@ -152,10 +152,10 @@ describe('billingApi', () => {
 
       const result = await billingApi.createCoinbaseCharge('BASIC', 'annual');
 
-      expect(mockCallCoreCommand).toHaveBeenCalledWith('eversilver.billing_create_coinbase_charge', {
-        plan: 'BASIC',
-        interval: 'annual',
-      });
+      expect(mockCallCoreCommand).toHaveBeenCalledWith(
+        'eversilver.billing_create_coinbase_charge',
+        { plan: 'BASIC', interval: 'annual' }
+      );
       expect(result).toEqual(chargeData);
     });
 
@@ -169,10 +169,10 @@ describe('billingApi', () => {
 
       await billingApi.createCoinbaseCharge('PRO');
 
-      expect(mockCallCoreCommand).toHaveBeenCalledWith('eversilver.billing_create_coinbase_charge', {
-        plan: 'PRO',
-        interval: 'annual',
-      });
+      expect(mockCallCoreCommand).toHaveBeenCalledWith(
+        'eversilver.billing_create_coinbase_charge',
+        { plan: 'PRO', interval: 'annual' }
+      );
     });
 
     it('should return hosted URL for payment redirect', async () => {

@@ -100,7 +100,10 @@ describe('memoryDocIngest', () => {
 
     const result = await memoryDocIngest(params);
 
-    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'eversilver.memory_doc_ingest', params });
+    expect(mockCallCoreRpc).toHaveBeenCalledWith({
+      method: 'eversilver.memory_doc_ingest',
+      params,
+    });
     expect(result).toEqual(ingestResult);
   });
 
@@ -111,6 +114,9 @@ describe('memoryDocIngest', () => {
     const params = { namespace: 'ns', key: 'k', title: 't', content: 'c' };
     await memoryDocIngest(params);
 
-    expect(mockCallCoreRpc).toHaveBeenCalledWith({ method: 'eversilver.memory_doc_ingest', params });
+    expect(mockCallCoreRpc).toHaveBeenCalledWith({
+      method: 'eversilver.memory_doc_ingest',
+      params,
+    });
   });
 });

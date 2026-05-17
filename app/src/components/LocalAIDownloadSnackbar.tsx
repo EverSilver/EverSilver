@@ -9,11 +9,11 @@ import {
   statusLabel,
 } from '../utils/localAiHelpers';
 import {
+  eversilverLocalAiDownloadsProgress,
+  eversilverLocalAiStatus,
   isTauri,
   type LocalAiDownloadsProgress,
   type LocalAiStatus,
-  eversilverLocalAiDownloadsProgress,
-  eversilverLocalAiStatus,
 } from '../utils/tauriCommands';
 
 const POLL_INTERVAL = 2000;

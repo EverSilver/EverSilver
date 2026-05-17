@@ -6,11 +6,12 @@
  * private/personal preview. Flip VITE_BILLING_ENABLED=true to activate
  * Razorpay checkout flow.
  */
-import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
-import { useAuth, type SubscriptionTier } from '../auth';
-import { TIERS, hasFeature, minimumTierFor, tierRank } from './tiers';
-import { openRazorpayCheckout } from './razorpay';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo } from 'react';
+
+import { type SubscriptionTier, useAuth } from '../auth';
 import { BILLING_ENABLED, PREVIEW_TIER } from './config';
+import { openRazorpayCheckout } from './razorpay';
+import { hasFeature, minimumTierFor, tierRank, TIERS } from './tiers';
 
 interface PaywallContextValue {
   currentTier: SubscriptionTier;
@@ -55,9 +56,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
     }
   }, [user, upgradeTier]);
 
-  const currentTier: SubscriptionTier = BILLING_ENABLED
-    ? user?.tier ?? 'free'
-    : PREVIEW_TIER;
+  const currentTier: SubscriptionTier = BILLING_ENABLED ? (user?.tier ?? 'free') : PREVIEW_TIER;
 
   const checkFeature = useCallback(
     (feature: string) => (BILLING_ENABLED ? hasFeature(currentTier, feature) : true),

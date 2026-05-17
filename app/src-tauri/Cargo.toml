@@ -191,6 +191,12 @@ tauri-macros = { path = "vendor/tauri-cef/crates/tauri-macros" }
 tauri-runtime = { path = "vendor/tauri-cef/crates/tauri-runtime" }
 tauri-runtime-wry = { path = "vendor/tauri-cef/crates/tauri-runtime-wry" }
 tauri-plugin = { path = "vendor/tauri-cef/crates/tauri-plugin" }
+# whisper-rs-sys upstream uses the static MSVC CRT (/MT) but the rest of
+# the Eversilver workspace links against the dynamic CRT (/MD). Without a
+# patched build that flips it back to /MD, Windows release links fail with
+# LNK2038 "RuntimeLibrary mismatch". The EverSilver fork applies the /MD
+# fix on top of upstream whisper-rs-sys main.
+whisper-rs-sys = { git = "https://github.com/EverSilver/whisper-rs-sys.git", branch = "main" }
 
 # Pinned to a specific commit on plugins-workspace@feat/cef so fresh
 # dependency resolution (without Cargo.lock) is reproducible and doesn't

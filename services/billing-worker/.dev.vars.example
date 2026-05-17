@@ -1,0 +1,8 @@
+# Copy to `.dev.vars` for local `wrangler dev`. Never commit `.dev.vars`.
+RAZORPAY_KEY_ID="rzp_test_xxxxxxxxxxxx"
+RAZORPAY_KEY_SECRET="xxxxxxxxxxxxxxxxxxxxxxxx"
+RAZORPAY_WEBHOOK_SECRET="some_long_random_string_matching_dashboard"
+JWT_SECRET="shared_secret_with_frontend_at_least_32_chars_long"
+RAZORPAY_PLAN_ID_PRO="plan_test_pro_xxx"
+RAZORPAY_PLAN_ID_ULTRA="plan_test_ultra_xxx"
+ALLOWED_ORIGIN="http://localhost:5173"

@@ -1,3 +1,26 @@
+.eversilver-auth-bootstrap {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at top, #1a1d2e 0%, #0a0b14 70%);
+  z-index: 9999;
+}
+
+.eversilver-auth-bootstrap-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8a92d8, #c0c7e0);
+  box-shadow: 0 0 24px rgba(138, 146, 216, 0.6);
+  animation: eversilver-bootstrap-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes eversilver-bootstrap-pulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.5; }
+  50%      { transform: scale(1.0); opacity: 1; }
+}
+
 .eversilver-login-screen {
   position: fixed;
   inset: 0;
@@ -61,7 +84,9 @@
   border-radius: 8px;
   color: #e8eaf2;
   font-size: 0.95rem;
-  transition: border-color 150ms, background 150ms;
+  transition:
+    border-color 150ms,
+    background 150ms;
 }
 
 .eversilver-login-field input:focus {
@@ -89,7 +114,9 @@
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 150ms, transform 150ms;
+  transition:
+    opacity 150ms,
+    transform 150ms;
 }
 
 .eversilver-login-submit:hover:not(:disabled) {

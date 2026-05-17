@@ -109,7 +109,9 @@ describe('WhatsApp account integration smoke', () => {
     const registered = await browser.waitUntil(
       async () =>
         await browser.execute(() => {
-          const winAny = window as unknown as { __EVERSILVER_STORE__?: { getState: () => unknown } };
+          const winAny = window as unknown as {
+            __EVERSILVER_STORE__?: { getState: () => unknown };
+          };
           const state = winAny.__EVERSILVER_STORE__?.getState() as
             | { accounts?: { accounts?: Record<string, { provider?: string }> } }
             | undefined;

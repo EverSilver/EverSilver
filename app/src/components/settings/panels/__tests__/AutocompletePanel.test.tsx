@@ -7,12 +7,12 @@ import {
   type AutocompleteStatus,
   type CommandResponse,
   type ConfigSnapshot,
-  isTauri,
   eversilverAutocompleteSetStyle,
   eversilverAutocompleteStart,
   eversilverAutocompleteStatus,
   eversilverAutocompleteStop,
   eversilverGetConfig,
+  isTauri,
 } from '../../../../utils/tauriCommands';
 import AutocompletePanel from '../AutocompletePanel';
 

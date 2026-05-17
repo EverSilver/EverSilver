@@ -81,7 +81,9 @@ export async function eversilverEncryptSecret(plaintext: string): Promise<Comman
   });
 }
 
-export async function eversilverDecryptSecret(ciphertext: string): Promise<CommandResponse<string>> {
+export async function eversilverDecryptSecret(
+  ciphertext: string
+): Promise<CommandResponse<string>> {
   if (!isTauri()) {
     throw new Error('Not running in Tauri');
   }

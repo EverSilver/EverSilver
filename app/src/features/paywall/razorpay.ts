@@ -93,8 +93,10 @@ export async function openRazorpayCheckout(args: OpenCheckoutArgs): Promise<Razo
       currency: 'INR',
       prefill: args.prefill,
       theme: { color: args.themeColor ?? '#5b6478' },
-      method: args.upiOnly ? { upi: true, card: false, netbanking: false, wallet: false } : undefined,
-      handler: (response) => resolve(response),
+      method: args.upiOnly
+        ? { upi: true, card: false, netbanking: false, wallet: false }
+        : undefined,
+      handler: response => resolve(response),
       modal: { ondismiss: () => reject(new Error('Checkout dismissed')) },
     });
     rzp.open();

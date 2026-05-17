@@ -133,7 +133,13 @@ describe('Cron jobs settings panel (real UI flow)', () => {
 
   it('completing onboarding lands the user on the home screen', async () => {
     const home = await waitForAnyText(
-      ['Message Eversilver', 'Good morning', 'Good afternoon', 'Good evening', 'Upgrade to Premium'],
+      [
+        'Message Eversilver',
+        'Good morning',
+        'Good afternoon',
+        'Good evening',
+        'Upgrade to Premium',
+      ],
       15_000
     );
     expect(home).toBeTruthy();

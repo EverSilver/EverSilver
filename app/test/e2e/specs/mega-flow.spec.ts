@@ -194,7 +194,9 @@ describe('Mega flow — login + Gmail OAuth + Composio in one session', () => {
     await waitForMockRequest('GET', '/auth/me', 10_000);
     clearRequestLog();
 
-    await triggerDeepLink('eversilver://oauth/success?integrationId=mock-gmail-int&provider=google');
+    await triggerDeepLink(
+      'eversilver://oauth/success?integrationId=mock-gmail-int&provider=google'
+    );
 
     // The handler navigates to /skills and dispatches CustomEvent('oauth:success').
     // Downstream listeners refresh integration state — observable as a fresh

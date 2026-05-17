@@ -7,9 +7,9 @@ Drop-in login + Razorpay/UPI subscription scaffolding.
 Edit `app/src/main.tsx` (or wherever your root provider tree lives):
 
 ```tsx
-import { AuthProvider, useAuth, LoginScreen } from './features/auth';
-import { PaywallProvider } from './features/paywall';
+import { AuthProvider, LoginScreen, useAuth } from './features/auth';
 import './features/auth/login.css';
+import { PaywallProvider } from './features/paywall';
 import './features/paywall/paywall.css';
 
 function GatedApp() {
@@ -24,7 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <PaywallProvider>
       <GatedApp />
     </PaywallProvider>
-  </AuthProvider>,
+  </AuthProvider>
 );
 ```
 
@@ -36,7 +36,7 @@ import { PaywallGate, useEntitlement } from './features/paywall';
 // Component-level gate
 <PaywallGate feature="core.voice">
   <VoiceControls />
-</PaywallGate>
+</PaywallGate>;
 
 // Inline check
 const canUseVoice = useEntitlement('core.voice');
@@ -46,15 +46,16 @@ const canUseVoice = useEntitlement('core.voice');
 
 Edit `app/src/features/paywall/tiers.ts`:
 
-| Tier | Price | Features |
-|---|---|---|
-| Free | ₹0 | chat, basic memory |
-| Pro | ₹499 / month | + voice, mascot, integrations, web fetch |
+| Tier  | Price         | Features                                        |
+| ----- | ------------- | ----------------------------------------------- |
+| Free  | ₹0            | chat, basic memory                              |
+| Pro   | ₹499 / month  | + voice, mascot, integrations, web fetch        |
 | Ultra | ₹1499 / month | + frontier models, Meet agent, priority compute |
 
 ## UPI / Razorpay setup
 
 See `app/src/features/paywall/RAZORPAY_SETUP.md` for the full step-by-step:
+
 1. Create Razorpay account + activate Subscriptions
 2. Create plans (₹499 Pro, ₹1499 Ultra)
 3. Get API keys

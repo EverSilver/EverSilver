@@ -152,7 +152,9 @@ describe('transcribeWithFactory', () => {
     const mock = callCoreRpc as ReturnType<typeof vi.fn>;
     mock.mockRejectedValueOnce(new Error('unknown method: eversilver.voice_stt_dispatch'));
     const blob = new Blob([new Uint8Array([1])], { type: 'audio/webm' });
-    await expect(transcribeWithFactory(blob)).rejects.toThrow(/Restart the Eversilver desktop app/i);
+    await expect(transcribeWithFactory(blob)).rejects.toThrow(
+      /Restart the Eversilver desktop app/i
+    );
   });
 
   it('passes through non-unknown-method errors verbatim', async () => {

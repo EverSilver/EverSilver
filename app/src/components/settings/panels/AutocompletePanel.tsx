@@ -4,12 +4,12 @@ import { useT } from '../../../lib/i18n/I18nContext';
 import {
   type AutocompleteConfig,
   type AutocompleteStatus,
-  isTauri,
   eversilverAutocompleteSetStyle,
   eversilverAutocompleteStart,
   eversilverAutocompleteStatus,
   eversilverAutocompleteStop,
   eversilverGetConfig,
+  isTauri,
 } from '../../../utils/tauriCommands';
 import SettingsHeader from '../components/SettingsHeader';
 import { useSettingsNavigation } from '../hooks/useSettingsNavigation';

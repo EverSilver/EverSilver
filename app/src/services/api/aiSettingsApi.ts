@@ -27,15 +27,12 @@ import { isTauri } from '../../utils/tauriCommands/common';
 import {
   type ClientConfig,
   type CloudProviderCreds,
-  type ModelSettingsUpdate,
   eversilverGetClientConfig,
   eversilverUpdateLocalAiSettings,
   eversilverUpdateModelSettings,
+  type ModelSettingsUpdate,
 } from '../../utils/tauriCommands/config';
 import {
-  type LocalAiDiagnostics,
-  type LocalAiStatus,
-  type ModelPresetResult,
   eversilverLocalAiApplyPreset,
   eversilverLocalAiDiagnostics,
   eversilverLocalAiDownload,
@@ -43,6 +40,9 @@ import {
   eversilverLocalAiSetOllamaPath,
   eversilverLocalAiShutdownOwned,
   eversilverLocalAiStatus,
+  type LocalAiDiagnostics,
+  type LocalAiStatus,
+  type ModelPresetResult,
   type PresetsResponse,
 } from '../../utils/tauriCommands/localAi';
 

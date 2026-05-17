@@ -8,13 +8,6 @@ import {
   progressFromStatus,
 } from '../../../utils/localAiHelpers';
 import {
-  type LocalAiAssetsStatus,
-  type LocalAiDiagnostics,
-  type LocalAiDownloadsProgress,
-  type LocalAiEmbeddingResult,
-  type LocalAiSpeechResult,
-  type LocalAiStatus,
-  type LocalAiTtsResult,
   eversilverLocalAiAssetsStatus,
   eversilverLocalAiDiagnostics,
   eversilverLocalAiDownload,
@@ -29,6 +22,13 @@ import {
   eversilverLocalAiTranscribe,
   eversilverLocalAiTts,
   eversilverLocalAiVisionPrompt,
+  type LocalAiAssetsStatus,
+  type LocalAiDiagnostics,
+  type LocalAiDownloadsProgress,
+  type LocalAiEmbeddingResult,
+  type LocalAiSpeechResult,
+  type LocalAiStatus,
+  type LocalAiTtsResult,
 } from '../../../utils/tauriCommands';
 import SettingsHeader from '../components/SettingsHeader';
 import { useSettingsNavigation } from '../hooks/useSettingsNavigation';
