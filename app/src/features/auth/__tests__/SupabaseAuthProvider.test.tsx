@@ -2,6 +2,14 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Import AFTER vi.mock so the provider picks up the fake.
+import {
+  __resetSupabaseClient,
+  mapSupabaseUser,
+  SupabaseAuthProvider,
+} from '../SupabaseAuthProvider';
+import { useAuth } from '../useAuth';
+
 // ---- Mock @supabase/supabase-js with a controllable fake client. ----
 
 type AuthChangeCallback = (event: string, session: unknown) => void;
@@ -44,10 +52,6 @@ vi.mock('@supabase/supabase-js', () => ({
     return { auth: fakeAuth };
   },
 }));
-
-// Import AFTER vi.mock so the provider picks up the fake.
-import { SupabaseAuthProvider, __resetSupabaseClient, mapSupabaseUser } from '../SupabaseAuthProvider';
-import { useAuth } from '../useAuth';
 
 function wrapper({ children }: { children: ReactNode }) {
   return <SupabaseAuthProvider>{children}</SupabaseAuthProvider>;
@@ -148,10 +152,7 @@ describe('SupabaseAuthProvider', () => {
   });
 
   it('signs in via signInWithPassword', async () => {
-    fakeAuth.signInWithPassword.mockResolvedValueOnce({
-      data: { user: supaUser() },
-      error: null,
-    });
+    fakeAuth.signInWithPassword.mockResolvedValueOnce({ data: { user: supaUser() }, error: null });
     const { result } = renderHook(() => useAuth(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
 

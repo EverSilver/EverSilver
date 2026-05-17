@@ -12,11 +12,11 @@
 import { type ReactNode } from 'react';
 
 import { PaywallProvider } from '../paywall';
+import '../paywall/paywall.css';
 import { AuthProvider } from './index';
+import './login.css';
 import { LoginScreen } from './LoginScreen';
 import { useAuth } from './useAuth';
-import './login.css';
-import '../paywall/paywall.css';
 
 function GateInner({ children }: { children: ReactNode }) {
   const { isAuthenticated, loading } = useAuth();

@@ -79,7 +79,10 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
   const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 20);
   camera.position.set(0, 1.35, cameraDistance);
 
-  const renderer = new THREE.WebGLRenderer({ alpha: background === 'transparent', antialias: true });
+  const renderer = new THREE.WebGLRenderer({
+    alpha: background === 'transparent',
+    antialias: true,
+  });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(width, height);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -196,7 +199,7 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
       currentExpression = expr;
       applyExpression(expr);
     },
-    setViseme: (viseme) => {
+    setViseme: viseme => {
       currentViseme = viseme;
       applyViseme(viseme);
     },
@@ -210,14 +213,19 @@ export async function loadVrmModel(args: LoadVrmArgs): Promise<LoadedVrm> {
       if (isVrm) {
         VRMUtils.deepDispose(vrmInstance.scene);
       } else {
-        gltf.scene.traverse((obj: { geometry?: { dispose?: () => void }; material?: { dispose?: () => void } | Array<{ dispose?: () => void }> }) => {
-          obj.geometry?.dispose?.();
-          if (Array.isArray(obj.material)) {
-            obj.material.forEach((m) => m?.dispose?.());
-          } else {
-            obj.material?.dispose?.();
+        gltf.scene.traverse(
+          (obj: {
+            geometry?: { dispose?: () => void };
+            material?: { dispose?: () => void } | Array<{ dispose?: () => void }>;
+          }) => {
+            obj.geometry?.dispose?.();
+            if (Array.isArray(obj.material)) {
+              obj.material.forEach(m => m?.dispose?.());
+            } else {
+              obj.material?.dispose?.();
+            }
           }
-        });
+        );
       }
     },
   };

@@ -70,10 +70,7 @@ export async function hashPassword(password: string): Promise<HashedPassword> {
   };
 }
 
-export async function verifyPassword(
-  password: string,
-  stored: HashedPassword
-): Promise<boolean> {
+export async function verifyPassword(password: string, stored: HashedPassword): Promise<boolean> {
   if (stored.algo !== 'pbkdf2-sha256') return false;
   const salt = fromBase64(stored.salt);
   const expected = fromBase64(stored.hash);

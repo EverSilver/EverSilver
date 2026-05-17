@@ -11,7 +11,7 @@
  *
  * Subscription tier is stored in `user_metadata.tier`.
  */
-import { type SupabaseClient, createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {

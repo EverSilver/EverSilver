@@ -5,9 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // We mock the razorpay module at the top level so every dynamic re-import of
 // PaywallProvider receives the same vi.fn instances.
 const openRazorpayCheckoutMock = vi.fn().mockResolvedValue(undefined);
-vi.mock('../razorpay', () => ({
-  openRazorpayCheckout: openRazorpayCheckoutMock,
-}));
+vi.mock('../razorpay', () => ({ openRazorpayCheckout: openRazorpayCheckoutMock }));
 
 // Fetch is touched by createSubscription() when VITE_BILLING_API_URL is set.
 // We default to no env URL so createSubscription returns null without fetching.
@@ -198,12 +196,14 @@ describe('PaywallProvider â€” BILLING_ENABLED=true', () => {
     tiersMod.TIERS.pro.razorpayPlanId = 'plan_REAL123456';
 
     // Mock fetch to return a subscription.
-    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(
-        JSON.stringify({ subscriptionId: 'sub_abc', keyId: 'rzp_live_xyz' }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      )
-    );
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(
+        new Response(JSON.stringify({ subscriptionId: 'sub_abc', keyId: 'rzp_live_xyz' }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      );
 
     const wrapper = makeWrapper(mods);
     const useCombined = makeUseCombined(mods);
@@ -301,4 +301,3 @@ describe('usePaywall outside provider', () => {
     expect(() => renderHook(() => mods.usePaywall())).toThrow(/usePaywall must be used within/i);
   });
 });
-

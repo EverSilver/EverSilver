@@ -15,9 +15,9 @@
  */
 import { Suspense, useEffect, useRef, useState } from 'react';
 
-import { YellowMascot, type YellowMascotProps } from '../YellowMascot';
 import type { MascotFace } from '../Ghosty';
-import { loadVrmModel, type LoadedVrm, mapFaceToExpression } from './vrmLoader';
+import { YellowMascot, type YellowMascotProps } from '../YellowMascot';
+import { type LoadedVrm, loadVrmModel, mapFaceToExpression } from './vrmLoader';
 
 export interface VrmMascotProps extends Pick<YellowMascotProps, 'face' | 'arm' | 'size'> {
   /** Override the model URL (default reads from VITE_MASCOT_MODEL_URL). */
@@ -123,14 +123,6 @@ function VrmCanvas({
   }
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        width: size,
-        height: size,
-        display: 'block',
-        background,
-      }}
-    />
+    <div ref={containerRef} style={{ width: size, height: size, display: 'block', background }} />
   );
 }

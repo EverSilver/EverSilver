@@ -422,7 +422,7 @@ mod tests {
             entity_tag("person", "Alice Johnson"),
             "person/Alice-Johnson"
         );
-        assert_eq!(entity_tag("ORG", "Tinyhumans AI"), "org/Tinyhumans-AI");
+        assert_eq!(entity_tag("ORG", "Eversilver Labs"), "org/Eversilver-Labs");
     }
 
     // ─── update_summary_tags tests ────────────────────────────────────────────

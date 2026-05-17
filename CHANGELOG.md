@@ -4,7 +4,11 @@ All notable changes to Eversilver are documented in this file. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the
 project adheres to [SemVer](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.53.49] — 2026-05-18
+
+First public release of Eversilver — the forked, rebranded, locally-installable
+build with PBKDF2 auth, UPI/Razorpay paywall scaffold, 3D mascot support, and
+a complete Windows build pipeline.
 
 ### Added
 

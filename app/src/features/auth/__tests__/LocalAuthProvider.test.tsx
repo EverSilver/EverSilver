@@ -87,9 +87,9 @@ describe('LocalAuthProvider (PBKDF2)', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await expect(
-        result.current.signUp('a@b.com', SHORT_PASSWORD, 'A')
-      ).rejects.toThrow(/at least 8/i);
+      await expect(result.current.signUp('a@b.com', SHORT_PASSWORD, 'A')).rejects.toThrow(
+        /at least 8/i
+      );
     });
     expect(result.current.user).toBeNull();
   });
@@ -155,9 +155,9 @@ describe('LocalAuthProvider (PBKDF2)', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await expect(
-        result.current.signIn('nobody@example.com', VALID_PASSWORD)
-      ).rejects.toThrow(/no account/i);
+      await expect(result.current.signIn('nobody@example.com', VALID_PASSWORD)).rejects.toThrow(
+        /no account/i
+      );
     });
   });
 

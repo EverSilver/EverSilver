@@ -13,7 +13,7 @@
  */
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { hashPassword, type HashedPassword, verifyPassword } from './crypto';
+import { type HashedPassword, hashPassword, verifyPassword } from './crypto';
 import {
   AuthContext,
   type AuthContextValue,
@@ -85,11 +85,7 @@ export function LocalAuthProvider({ children }: { children: ReactNode }) {
       }
       const users = loadUsers();
       const stored = Object.values(users).find(u => u.id === session.userId);
-      setState({
-        user: stored ? publicUser(stored) : null,
-        loading: false,
-        error: null,
-      });
+      setState({ user: stored ? publicUser(stored) : null, loading: false, error: null });
     };
     hydrate();
     const onStorage = (e: StorageEvent) => {
