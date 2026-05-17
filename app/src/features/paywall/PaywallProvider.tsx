@@ -1,13 +1,21 @@
 /**
- * Eversilver Paywall Provider
+ * Eversilver Paywall Provider (India / UPI / Razorpay)
  *
- * Centralized entitlement checks. Use `useEntitlement('core.voice')` in
- * any component to gate features. Use <PaywallGate feature="..."> to wrap
- * an entire UI region.
+ * Centralized entitlement checks + Razorpay checkout dispatch.
+ *
+ * Flow:
+ *  1. User taps "Upgrade" → checkout(tier)
+ *  2. Frontend calls backend POST /api/billing/subscribe { tierId, userId }
+ *  3. Backend creates Razorpay subscription, returns { subscriptionId, keyId }
+ *  4. Frontend opens Razorpay checkout (UPI-first)
+ *  5. After successful UPI authorization, Razorpay webhook hits backend
+ *  6. Backend marks user.tier server-side and pushes update to client
+ *  7. Client calls upgradeTier(tier) so the UI reflects entitlement immediately
  */
 import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import { useAuth, type SubscriptionTier } from '../auth';
 import { TIERS, hasFeature, minimumTierFor, tierRank } from './tiers';
+import { openRazorpayCheckout } from './razorpay';
 
 interface PaywallContextValue {
   currentTier: SubscriptionTier;
@@ -19,6 +27,32 @@ interface PaywallContextValue {
 
 const PaywallContext = createContext<PaywallContextValue | null>(null);
 
+interface SubscribeResponse {
+  subscriptionId: string;
+  keyId: string;
+}
+
+/**
+ * Replace this with a real backend call once your billing service is up.
+ * Until then, the function falls back to a local-only upgrade so the UI
+ * stays functional during dev.
+ */
+async function createSubscription(
+  tier: SubscriptionTier,
+  userId: string
+): Promise<SubscribeResponse | null> {
+  const endpoint = import.meta.env.VITE_BILLING_API_URL;
+  if (!endpoint) return null;
+  const res = await fetch(`${endpoint}/api/billing/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tier, userId }),
+    credentials: 'include',
+  });
+  if (!res.ok) throw new Error(`Billing API ${res.status}`);
+  return (await res.json()) as SubscribeResponse;
+}
+
 export function PaywallProvider({ children }: { children: ReactNode }) {
   const { user, upgradeTier } = useAuth();
   const currentTier: SubscriptionTier = user?.tier ?? 'free';
@@ -27,9 +61,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
     (feature: string) => hasFeature(currentTier, feature),
     [currentTier]
   );
-
   const requiredTierFor = useCallback((feature: string) => minimumTierFor(feature), []);
-
   const isAtLeast = useCallback(
     (tier: SubscriptionTier) => tierRank(currentTier) >= tierRank(tier),
     [currentTier]
@@ -38,21 +70,46 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
   const checkout = useCallback(
     async (tier: SubscriptionTier) => {
       const def = TIERS[tier];
-      if (!def.stripePriceId || def.stripePriceId.startsWith('price_REPLACE_ME')) {
-        console.warn('[Eversilver Paywall] Stripe price ID not configured; granting tier locally.');
+      if (!def.razorpayPlanId || def.razorpayPlanId.startsWith('plan_REPLACE_ME')) {
+        console.warn('[Eversilver Paywall] Razorpay plan id not set; granting tier locally.');
         await upgradeTier(tier);
         return;
       }
-      // TODO: replace with real Stripe Checkout session creation
-      // 1. POST to your backend /api/billing/checkout with { priceId, userId }
-      // 2. Backend creates Stripe Checkout Session
-      // 3. Redirect user to session.url
-      // 4. On webhook completion, backend updates user.tier
-      // 5. Client re-fetches user and calls upgradeTier(tier)
-      console.warn('[Eversilver Paywall] Stripe checkout not wired; granting locally.');
-      await upgradeTier(tier);
+      if (!user) {
+        console.warn('[Eversilver Paywall] No authenticated user.');
+        return;
+      }
+
+      let sub: SubscribeResponse | null = null;
+      try {
+        sub = await createSubscription(tier, user.id);
+      } catch (err) {
+        console.error('[Eversilver Paywall] Subscription creation failed:', err);
+      }
+
+      if (!sub) {
+        console.warn('[Eversilver Paywall] No backend wired; granting tier locally.');
+        await upgradeTier(tier);
+        return;
+      }
+
+      try {
+        await openRazorpayCheckout({
+          keyId: sub.keyId,
+          subscriptionId: sub.subscriptionId,
+          tierName: def.name,
+          appName: 'Eversilver',
+          themeColor: '#5b6478',
+          prefill: { name: user.displayName, email: user.email },
+          upiOnly: false, // set true if you want to restrict to UPI only
+        });
+        // Webhook will confirm and update server-side; reflect locally too.
+        await upgradeTier(tier);
+      } catch (err) {
+        console.error('[Eversilver Paywall] Checkout failed:', err);
+      }
     },
-    [upgradeTier]
+    [user, upgradeTier]
   );
 
   const value = useMemo<PaywallContextValue>(

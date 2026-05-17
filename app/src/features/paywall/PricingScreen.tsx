@@ -1,10 +1,8 @@
 /**
- * Eversilver Pricing Screen
- *
- * Full pricing page showing all tiers with CTAs.
+ * Eversilver Pricing Screen — INR / UPI
  */
 import { usePaywall } from './PaywallProvider';
-import { TIERS } from './tiers';
+import { TIERS, formatInr } from './tiers';
 import type { SubscriptionTier } from '../auth';
 
 const TIER_ORDER: SubscriptionTier[] = ['free', 'pro', 'ultra'];
@@ -16,7 +14,7 @@ export function PricingScreen() {
     <div className="eversilver-pricing-screen">
       <header className="eversilver-pricing-header">
         <h1>Choose your plan</h1>
-        <p>Unlock the full power of Eversilver.</p>
+        <p>Pay securely with UPI, cards, or net banking.</p>
       </header>
 
       <div className="eversilver-pricing-grid">
@@ -33,8 +31,8 @@ export function PricingScreen() {
             >
               <h2>{def.name}</h2>
               <div className="eversilver-pricing-price">
-                <span className="amount">${def.priceMonthlyUsd}</span>
-                <span className="period">/month</span>
+                <span className="amount">{formatInr(def.priceMonthlyInr)}</span>
+                <span className="period"> / month</span>
               </div>
               <p className="eversilver-pricing-description">{def.description}</p>
 
@@ -57,13 +55,20 @@ export function PricingScreen() {
                   onClick={() => checkout(tierId)}
                   className="eversilver-pricing-cta"
                 >
-                  {tierId === 'free' ? 'Start free' : `Upgrade to ${def.name}`}
+                  {tierId === 'free' ? 'Start free' : `Pay with UPI`}
                 </button>
               )}
             </div>
           );
         })}
       </div>
+
+      <footer className="eversilver-pricing-footer">
+        <p>
+          Subscriptions auto-renew monthly via UPI mandate or card.
+          Cancel anytime from your account settings. Prices include GST where applicable.
+        </p>
+      </footer>
     </div>
   );
 }

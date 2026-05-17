@@ -6,7 +6,7 @@
  */
 import type { ReactNode } from 'react';
 import { useEntitlement, usePaywall } from './PaywallProvider';
-import { TIERS } from './tiers';
+import { TIERS, formatInr } from './tiers';
 
 interface PaywallGateProps {
   feature: string;
@@ -32,11 +32,14 @@ export function PaywallGate({ feature, children, fallback }: PaywallGateProps) {
         <h3>Upgrade to {def.name}</h3>
         <p>{def.description}</p>
         <p className="eversilver-paywall-price">
-          ${def.priceMonthlyUsd}<span>/month</span>
+          {formatInr(def.priceMonthlyInr)}<span> / month</span>
         </p>
         <button onClick={() => checkout(requiredTier)} className="eversilver-paywall-cta">
-          Upgrade now
+          Pay with UPI
         </button>
+        <p className="eversilver-paywall-fineprint">
+          UPI · Cards · Net Banking · Wallets — powered by Razorpay
+        </p>
       </div>
     </div>
   );

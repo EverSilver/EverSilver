@@ -1,32 +1,35 @@
 /**
- * Eversilver Subscription Tiers
+ * Eversilver Subscription Tiers (India / UPI)
  *
- * Define your tier hierarchy and feature gates here.
- * Tiers are checked via `useEntitlement(feature)` from PaywallProvider.
+ * Pricing in INR. Payments via Razorpay (UPI, cards, netbanking, wallets).
+ * Razorpay Plan IDs are created in the Razorpay dashboard:
+ *   https://dashboard.razorpay.com/app/subscriptions/plans
+ * After creating each plan, paste its `plan_id` into `razorpayPlanId` below.
  */
 import type { SubscriptionTier } from '../auth';
 
 export interface TierDefinition {
   id: SubscriptionTier;
   name: string;
-  priceMonthlyUsd: number;
+  priceMonthlyInr: number;
   description: string;
   features: string[];
-  stripePriceId?: string;
+  /** Razorpay Plan ID (plan_xxxxxxxxxxxxxx) — required for paid tiers. */
+  razorpayPlanId?: string;
 }
 
 export const TIERS: Record<SubscriptionTier, TierDefinition> = {
   free: {
     id: 'free',
     name: 'Free',
-    priceMonthlyUsd: 0,
-    description: 'Get started with basic Eversilver features.',
+    priceMonthlyInr: 0,
+    description: 'Get started with core Eversilver features.',
     features: ['core.chat', 'core.memory.basic'],
   },
   pro: {
     id: 'pro',
     name: 'Pro',
-    priceMonthlyUsd: 19,
+    priceMonthlyInr: 499,
     description: 'Unlock the full Eversilver experience.',
     features: [
       'core.chat',
@@ -37,12 +40,12 @@ export const TIERS: Record<SubscriptionTier, TierDefinition> = {
       'core.integrations.all',
       'core.web.fetch',
     ],
-    stripePriceId: 'price_REPLACE_ME_PRO',
+    razorpayPlanId: 'plan_REPLACE_ME_PRO',
   },
   ultra: {
     id: 'ultra',
     name: 'Ultra',
-    priceMonthlyUsd: 49,
+    priceMonthlyInr: 1499,
     description: 'Everything in Pro, plus advanced models and priority compute.',
     features: [
       'core.chat',
@@ -56,7 +59,7 @@ export const TIERS: Record<SubscriptionTier, TierDefinition> = {
       'core.meet.agent',
       'core.priority.compute',
     ],
-    stripePriceId: 'price_REPLACE_ME_ULTRA',
+    razorpayPlanId: 'plan_REPLACE_ME_ULTRA',
   },
 };
 
@@ -75,4 +78,12 @@ export function minimumTierFor(feature: string): SubscriptionTier | null {
     if (TIERS[tier].features.includes(feature)) return tier;
   }
   return null;
+}
+
+export function formatInr(amount: number): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
 }
