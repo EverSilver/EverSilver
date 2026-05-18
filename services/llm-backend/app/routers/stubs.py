@@ -140,6 +140,168 @@ async def openai_v1_embeddings(request: Request) -> Any:
     return embed_fn(req)
 
 
+# ── Audio: transcription (STT) and speech (TTS) ────────────────────────
+# Eversilver's push-to-talk path POSTs to /openai/v1/audio/transcriptions
+# with multipart/form-data (file, model, response_format). We route the
+# request through LiteLLM so any provider with a transcription model
+# (OpenAI whisper-1, Groq whisper-large-v3, Deepgram, etc.) Just Works
+# when its env var is present. With no key configured, return a clear
+# 503 instead of a generic 'backend transcription request failed'.
+
+
+@router.post("/openai/v1/audio/transcriptions")
+async def openai_v1_audio_transcriptions(request: Request) -> Any:
+    from fastapi import HTTPException
+    from fastapi.responses import JSONResponse
+    import litellm
+    import os
+    import tempfile
+    from pathlib import Path
+
+    form = await request.form()
+    upload = form.get("file")
+    if upload is None:
+        raise HTTPException(status_code=400, detail="missing 'file' field")
+    requested = (form.get("model") or "whisper-1").strip()
+    response_format = (form.get("response_format") or "json").strip()
+    language = form.get("language")
+    prompt = form.get("prompt")
+    temperature = form.get("temperature")
+
+    # Pick the first transcription model whose env var is configured.
+    candidates: list[tuple[str, str]] = [
+        ("OPENAI_API_KEY", "whisper-1"),
+        ("GROQ_API_KEY", "groq/whisper-large-v3"),
+        ("DEEPGRAM_API_KEY", "deepgram/nova-3"),
+    ]
+    chosen: str | None = None
+    if requested and requested != "whisper-1":
+        chosen = requested
+    else:
+        for env_var, model in candidates:
+            if os.environ.get(env_var):
+                chosen = model
+                break
+
+    if not chosen:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": {
+                    "message": (
+                        "No speech-to-text provider configured. Set OPENAI_API_KEY, "
+                        "GROQ_API_KEY, or DEEPGRAM_API_KEY in services/llm-backend/.env "
+                        "and restart the backend."
+                    ),
+                    "type": "configuration_error",
+                    "code": 503,
+                }
+            },
+        )
+
+    raw = await upload.read()
+    suffix = Path(getattr(upload, "filename", "audio.webm")).suffix or ".webm"
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
+        f.write(raw)
+        tmp_path = f.name
+    try:
+        kwargs: dict[str, Any] = {"model": chosen, "response_format": response_format}
+        if language:
+            kwargs["language"] = language
+        if prompt:
+            kwargs["prompt"] = prompt
+        if temperature:
+            try:
+                kwargs["temperature"] = float(temperature)
+            except (TypeError, ValueError):
+                pass
+        with open(tmp_path, "rb") as fh:
+            resp = litellm.transcription(file=fh, **kwargs)
+    except Exception as e:  # pragma: no cover - upstream failure shape varies
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error": {
+                    "message": f"transcription failed: {e}",
+                    "type": "upstream_error",
+                    "code": 502,
+                }
+            },
+        )
+    finally:
+        try:
+            Path(tmp_path).unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    if hasattr(resp, "model_dump"):
+        out = resp.model_dump()
+    elif hasattr(resp, "dict"):
+        out = resp.dict()
+    elif isinstance(resp, dict):
+        out = resp
+    else:
+        out = {"text": str(resp)}
+    out.setdefault("text", "")
+    return out
+
+
+@router.post("/openai/v1/audio/speech")
+async def openai_v1_audio_speech(request: Request) -> Any:
+    """TTS — OpenAI text-to-speech via LiteLLM. Streams audio bytes back.
+
+    Returns 503 with a clear message when no TTS provider key is present
+    rather than the generic 'backend request failed' banner.
+    """
+    from fastapi.responses import JSONResponse, Response
+    import litellm
+    import os
+
+    body = await request.json()
+    text = (body.get("input") or body.get("text") or "").strip()
+    voice = body.get("voice") or "alloy"
+    model = body.get("model") or "tts-1"
+    response_format = body.get("response_format") or "mp3"
+
+    if not text:
+        return JSONResponse(
+            status_code=400,
+            content={"error": {"message": "missing 'input'", "type": "invalid_request"}},
+        )
+    if not os.environ.get("OPENAI_API_KEY"):
+        return JSONResponse(
+            status_code=503,
+            content={
+                "error": {
+                    "message": (
+                        "No text-to-speech provider configured. Set OPENAI_API_KEY "
+                        "in services/llm-backend/.env and restart the backend."
+                    ),
+                    "type": "configuration_error",
+                    "code": 503,
+                }
+            },
+        )
+    try:
+        resp = litellm.speech(
+            model=model, voice=voice, input=text, response_format=response_format
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "error": {
+                    "message": f"speech synthesis failed: {e}",
+                    "type": "upstream_error",
+                    "code": 502,
+                }
+            },
+        )
+    audio_bytes = getattr(resp, "content", None) or bytes(resp)
+    media = "audio/mpeg" if response_format == "mp3" else f"audio/{response_format}"
+    return Response(content=audio_bytes, media_type=media)
+
+
 # ── Catch-all 200 for any other GET so the desktop doesn't error ───────
 # Specific paths above take precedence (registered earlier on the
 # router). Anything we haven't modelled gets an empty 200 — safer than

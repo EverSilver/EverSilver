@@ -91,13 +91,38 @@ def _model_supports_tools(resolved_model: str) -> bool:
         return True
 
 
+def _truncate_history_for_small_models(
+    resolved_model: str, messages: list[dict]
+) -> list[dict]:
+    """Cap conversation history for small local models so they don't
+    spend 60+ seconds re-encoding a transcript that exceeds their useful
+    attention window. The system prompt is preserved verbatim; only the
+    middle of the transcript is dropped, keeping the latest turns.
+
+    Applied to models smaller than ~4B params. Cloud/large models skip
+    this and receive the full transcript.
+    """
+    small_signals = ("1b", "1.5b", "1.6b", "2b", "3b", "phi3:mini", "smol", "tinyllama")
+    lower = resolved_model.lower()
+    if not any(s in lower for s in small_signals):
+        return messages
+    # Keep all system messages + the last 6 turns (user/assistant/tool).
+    sys_msgs = [m for m in messages if m.get("role") == "system"]
+    non_sys = [m for m in messages if m.get("role") != "system"]
+    if len(non_sys) <= 6:
+        return messages
+    return sys_msgs + non_sys[-6:]
+
+
 def chat_completion(*, model: str, messages: list[dict], stream: bool = False, **kwargs: Any) -> Any:
     """Synchronous chat completion. Returns a `litellm.ModelResponse`
     when `stream=False`, or an iterator of streaming chunks when True.
 
-    Strips `tools`/`tool_choice` when the resolved model is known not to
-    accept them — otherwise providers like Ollama reject the whole
-    request rather than ignoring the unsupported field.
+    - Strips `tools`/`tool_choice` when the resolved model can't accept
+      them (Ollama returns a hard 400 otherwise).
+    - Truncates conversation history for small (<4B) local models so a
+      long thread doesn't blow past their attention budget and turn into
+      a minute-long stall.
     """
     resolved_model, extra = resolve(model)
     if not _model_supports_tools(resolved_model):
@@ -105,6 +130,7 @@ def chat_completion(*, model: str, messages: list[dict], stream: bool = False, *
         kwargs.pop("tool_choice", None)
         kwargs.pop("functions", None)
         kwargs.pop("function_call", None)
+    messages = _truncate_history_for_small_models(resolved_model, messages)
     return litellm.completion(
         model=resolved_model,
         messages=messages,
