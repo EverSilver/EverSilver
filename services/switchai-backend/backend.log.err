@@ -1,0 +1,6 @@
+C:\Users\wardh\AppData\Roaming\Python\Python314\site-packages\replicate\resource.py:5: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic import v1 as pydantic  # type: ignore
+INFO:     Started server process [8572]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8088 (Press CTRL+C to quit)

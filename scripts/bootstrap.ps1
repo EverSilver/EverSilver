@@ -145,27 +145,14 @@ try {
   Pop-Location
 }
 
-# --- PHASE 4.5: LLM backend (LiteLLM-backed, OpenAI-compatible) ---
-Write-Step "Phase 4.5: LLM backend"
-$backendDir = Join-Path $repoRoot 'services\llm-backend'
-if (Test-Path $backendDir) {
-  if ($SkipInstalls) {
-    Write-Warn2 "llm-backend install skipped (-SkipInstalls)"
-  } else {
-    if (Get-Command python -ErrorAction SilentlyContinue) {
-      & python -m pip install --quiet --user -e "$backendDir" tomli-w pytest 2>&1 | Out-Null
-      if ($LASTEXITCODE -eq 0) {
-        Write-Ok 'llm-backend installed (editable)'
-      } else {
-        Write-Warn2 "pip install llm-backend exited $LASTEXITCODE"
-      }
-    } else {
-      Write-Warn2 'python missing; run scripts\install-llm-backend.ps1 later'
-    }
-  }
-} else {
-  Write-Warn2 "llm-backend dir missing at $backendDir"
-}
+# --- PHASE 4.5: chat backend ---
+# Inference is delegated to the Athena SAGE swarm
+# (http://62.171.154.39:8100) — an OpenAI-compatible cascade across the
+# VPS Ollama mesh, Groq, Cerebras, Claude, etc. No local LLM backend
+# service needs to be installed; the desktop talks to the swarm directly
+# via `inference_url` in config.toml. Voice (STT/TTS) stays fully local
+# via whisper-cli + piper.
+Write-Step "Phase 4.5: chat backend = Athena SAGE swarm (no local install required)"
 
 # --- PHASE 5: Smart App Control check ---
 Write-Step "Phase 5: Smart App Control + WDAC check"

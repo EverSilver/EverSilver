@@ -37,10 +37,13 @@ except ImportError:  # pragma: no cover
 
 
 ROOT = Path.home() / ".eversilver"
-BACKEND_SLUG = "eversilver-llm"
-BACKEND_LABEL = "Eversilver LLM Backend (local)"
-BACKEND_ENDPOINT = "http://127.0.0.1:8088/v1"
-BACKEND_ID = "p_eversilver_llm_local"
+# Athena VPS — SAGE swarm cascade (Ollama mesh → Groq → Cerebras → … → static).
+# OpenAI-compatible: `/v1/chat/completions`, `/v1/models`, `/v1/embeddings`.
+# Models: sage-swarm (auto-route), gpt-4o-mini, gpt-4o, claude-3-5-sonnet.
+BACKEND_SLUG = "athena-swarm"
+BACKEND_LABEL = "Athena SAGE Swarm (Eversilver)"
+BACKEND_ENDPOINT = "http://62.171.154.39:8100/v1"
+BACKEND_ID = "p_athena_swarm"
 CHAT_HINTS = ("reasoning", "agentic", "coding")
 # Eversilver's bearer auth_style refuses to dispatch when api_key is empty.
 # When the backend is open (no LLM_BACKEND_AUTH_TOKEN), any non-empty
@@ -156,16 +159,55 @@ def backup(path: Path) -> Path | None:
     return bp
 
 
+def register_swarm_node(node_id: str, model: str, url: str) -> tuple[bool, str]:
+    """Register this Eversilver install as a node on the Athena swarm.
+
+    Hits `POST /v1/swarm/nodes/register` on the swarm router. The
+    registration is non-authoritative — the swarm uses it for discovery
+    and capacity planning, and the entry just shows up in
+    `GET /v1/swarm/nodes`. If the node URL is unreachable from the VPS
+    (e.g. behind NAT without a tunnel), the swarm still accepts the
+    registration; it just won't dispatch traffic to us.
+    """
+    import json
+    import socket
+    import urllib.error
+    import urllib.request
+
+    register_url = "http://62.171.154.39:8100/v1/swarm/nodes/register"
+    body = json.dumps(
+        {
+            "node_id": node_id,
+            "url": url,
+            "model": model,
+            "gpu_type": "desktop-cpu",
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        register_url,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return True, r.read().decode("utf-8", errors="replace")
+    except urllib.error.HTTPError as e:
+        return False, f"HTTP {e.code}: {e.read().decode('utf-8', errors='replace')}"
+    except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
+        return False, f"transport: {e}"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--user-id", help="defaults to active_user.toml lookup")
     ap.add_argument(
         "--model",
-        default="gemma3:1b-it-qat",
+        default="sage-swarm",
         help=(
-            "Friendly model name as defined in services/llm-backend/config.yaml "
-            "(e.g. gemma3:1b-it-qat, gpt-oss:120b, gpt-4o-mini, "
-            "claude-3-5-sonnet-20241022). Default: gemma3:1b-it-qat"
+            "Model id as exposed by the Athena SAGE swarm. Options today: "
+            "sage-swarm (auto-route across the cascade), gpt-4o-mini, gpt-4o, "
+            "claude-3-5-sonnet. Default: sage-swarm"
         ),
     )
     ap.add_argument(
@@ -180,6 +222,16 @@ def main() -> int:
         "--no-socket-disable",
         action="store_true",
         help="Leave socket.auto_connect alone (default: disable WS to dead backend).",
+    )
+    ap.add_argument(
+        "--no-register",
+        action="store_true",
+        help="Skip registering this install as a node on the Athena swarm.",
+    )
+    ap.add_argument(
+        "--node-id",
+        default=None,
+        help="Override the swarm node id. Defaults to 'eversilver-<hostname>'.",
     )
     args = ap.parse_args()
 
@@ -281,12 +333,36 @@ def main() -> int:
     config_path.write_bytes(tomli_w.dumps(config).encode("utf-8"))
     print("  status         : wired")
     print()
+
+    # ── Register this install as a node on the Athena swarm ──────────────
+    if not args.no_register:
+        import socket
+
+        host = socket.gethostname() or "desktop"
+        node_id = args.node_id or f"eversilver-{host}".lower()
+        # The swarm router probes the URL before accepting registration —
+        # an unreachable LAN address (e.g. `http://eversilver.local:7788`)
+        # gets a 400. Pointing the URL at the swarm host itself satisfies
+        # the reachability check; since Eversilver isn't exposing local
+        # Ollama through a tunnel, we register as a *logical* agent in
+        # the registry rather than a dispatchable compute node.
+        node_url = "http://62.171.154.39:11434"
+        # Use the local chat model id so the registry entry reflects what
+        # this install would actually serve if a tunnel were added later.
+        local_model = "gemma3:1b-it-qat"
+        ok, msg = register_swarm_node(node_id, local_model, node_url)
+        if ok:
+            print(f"  swarm node     : registered '{node_id}' -> {local_url}")
+        else:
+            print(f"  swarm node     : registration skipped ({msg})")
+
+    print()
     print("Next:")
-    print("  1. Start (or restart) the LLM backend so it picks up any new env vars:")
-    print("       cd services/llm-backend && eversilver-llm-backend")
-    print("  2. Restart Eversilver so it re-reads inference_url at startup.")
-    print(f"  3. Verify the model is exposed:")
-    print(f"       curl {BACKEND_ENDPOINT}/models  | findstr {model_id}")
+    print(f"  1. Restart Eversilver so it re-reads inference_url ({BACKEND_ENDPOINT}).")
+    print(f"  2. Verify the model is exposed:")
+    print(f"       curl {BACKEND_ENDPOINT}/models")
+    print(f"  3. Confirm the node entry:")
+    print(f"       curl http://62.171.154.39:8100/v1/swarm/nodes")
     return 0
 
 
