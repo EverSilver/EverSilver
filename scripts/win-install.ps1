@@ -22,6 +22,53 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# ---------------------------------------------------------------------------
+# Conflict detection
+# ---------------------------------------------------------------------------
+# Eversilver's local core binds 127.0.0.1:7788 by default. If a sibling fork
+# (OpenHuman, an old build, etc.) is still installed/running and holds that
+# port, the new install will surface "Can't Reach the Runtime" on first
+# launch. Detect and offer to clean up before we install.
+function Stop-ConflictingProcesses {
+  $names = @('OpenHuman', 'openhuman', 'openhuman-core', 'eversilver-core')
+  foreach ($n in $names) {
+    $procs = Get-Process -Name $n -ErrorAction SilentlyContinue
+    if ($procs) {
+      Write-Host "  -> stopping $($procs.Count) $n process(es)" -ForegroundColor DarkYellow
+      $procs | Stop-Process -Force -ErrorAction SilentlyContinue
+    }
+  }
+}
+function Remove-OpenHumanInstalls {
+  # Per-user NSIS install
+  $perUser = "$env:LOCALAPPDATA\OpenHuman"
+  if (Test-Path "$perUser\uninstall.exe") {
+    Write-Host "  -> uninstalling per-user OpenHuman" -ForegroundColor DarkYellow
+    Start-Process -FilePath "$perUser\uninstall.exe" -ArgumentList '/S' -Wait
+  }
+  if (Test-Path $perUser) { Remove-Item $perUser -Recurse -Force -ErrorAction SilentlyContinue }
+  # Machine-wide MSI
+  $key = Get-ChildItem 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue |
+    ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+    Where-Object { $_.DisplayName -match 'OpenHuman' } | Select-Object -First 1
+  if ($key -and $key.UninstallString) {
+    Write-Host "  -> uninstalling machine-wide OpenHuman" -ForegroundColor DarkYellow
+    cmd /c $key.UninstallString /S | Out-Null
+  }
+}
+
+$port = Get-NetTCPConnection -LocalPort 7788 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($port) {
+  $pidOnPort = $port.OwningProcess
+  $procOnPort = Get-Process -Id $pidOnPort -ErrorAction SilentlyContinue
+  if ($procOnPort -and $procOnPort.ProcessName -notmatch 'Eversilver') {
+    Write-Warning "Port 7788 is held by '$($procOnPort.ProcessName)' (PID $pidOnPort) -- this will collide with Eversilver's local core."
+    Stop-ConflictingProcesses
+    Remove-OpenHumanInstalls
+    Start-Sleep -Seconds 2
+  }
+}
+
 $bundleDir = Join-Path $PSScriptRoot '..\app\src-tauri\target\release\bundle'
 if (-not (Test-Path $bundleDir)) {
   Write-Error "No release bundle found. Run 'pnpm --filter eversilver-app win:build:release' first."
