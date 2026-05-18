@@ -175,12 +175,17 @@ def register_swarm_node(node_id: str, model: str, url: str) -> tuple[bool, str]:
     import urllib.request
 
     register_url = "http://62.171.154.39:8100/v1/swarm/nodes/register"
+    # `gpu_type` is the only free-form label field the NodeRegisterRequest
+    # schema exposes. We repurpose it as the agent-type tag so this
+    # install shows up as a "personal-assistant" in the swarm registry
+    # rather than the literal hardware string. The swarm router treats
+    # it as opaque metadata.
     body = json.dumps(
         {
             "node_id": node_id,
             "url": url,
             "model": model,
-            "gpu_type": "desktop-cpu",
+            "gpu_type": "personal-assistant",
         }
     ).encode("utf-8")
     req = urllib.request.Request(
