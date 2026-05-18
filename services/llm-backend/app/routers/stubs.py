@@ -168,19 +168,37 @@ async def openai_v1_audio_transcriptions(request: Request) -> Any:
     prompt = form.get("prompt")
     temperature = form.get("temperature")
 
-    # Pick the first transcription model whose env var is configured.
+    # Normalize the model name Eversilver/clients hand us. The desktop
+    # ships `whisper-v1` historically, OpenAI's real model id is
+    # `whisper-1`, and LiteLLM needs a provider prefix when calling
+    # Whisper-style names. Map both onto the configured provider.
+    _ALIASES = {
+        "whisper-1": "whisper-1",
+        "whisper-v1": "whisper-1",
+        "whisper": "whisper-1",
+        "openai/whisper-1": "whisper-1",
+    }
+    normalized = _ALIASES.get(requested.lower(), requested)
+
     candidates: list[tuple[str, str]] = [
         ("OPENAI_API_KEY", "whisper-1"),
         ("GROQ_API_KEY", "groq/whisper-large-v3"),
         ("DEEPGRAM_API_KEY", "deepgram/nova-3"),
     ]
     chosen: str | None = None
-    if requested and requested != "whisper-1":
-        chosen = requested
+    chosen_api_key: str | None = None
+    # If the caller asked for a specific provider-prefixed model, honour it.
+    if "/" in normalized:
+        chosen = normalized
+    elif normalized == "whisper-1" and os.environ.get("OPENAI_API_KEY"):
+        chosen = "whisper-1"
+        chosen_api_key = os.environ["OPENAI_API_KEY"]
     else:
         for env_var, model in candidates:
             if os.environ.get(env_var):
                 chosen = model
+                if env_var == "OPENAI_API_KEY":
+                    chosen_api_key = os.environ[env_var]
                 break
 
     if not chosen:
@@ -206,6 +224,8 @@ async def openai_v1_audio_transcriptions(request: Request) -> Any:
         tmp_path = f.name
     try:
         kwargs: dict[str, Any] = {"model": chosen, "response_format": response_format}
+        if chosen_api_key:
+            kwargs["api_key"] = chosen_api_key
         if language:
             kwargs["language"] = language
         if prompt:

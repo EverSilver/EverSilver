@@ -44,6 +44,34 @@ def test_transcription_calls_litellm_when_key_present(client, monkeypatch):
     assert r.json()["text"] == "hello world"
     assert captured["model"] == "whisper-1"
     assert captured["language"] == "en"
+    assert captured["api_key"] == "sk-test"
+
+
+def test_transcription_normalizes_whisper_v1_alias(client, monkeypatch):
+    """Eversilver historically sends `whisper-v1`; LiteLLM doesn't know
+    that name. The endpoint must map it to OpenAI's real `whisper-1`."""
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    captured: dict = {}
+
+    class _R:
+        def model_dump(self):
+            return {"text": "ok"}
+
+    def fake_transcription(**kw):
+        captured.update(kw)
+        return _R()
+
+    import litellm
+
+    monkeypatch.setattr(litellm, "transcription", fake_transcription)
+    r = client.post(
+        "/openai/v1/audio/transcriptions",
+        files={"file": ("clip.webm", io.BytesIO(b"data"), "audio/webm")},
+        data={"model": "whisper-v1"},
+    )
+    assert r.status_code == 200, r.text
+    assert captured["model"] == "whisper-1"  # normalized
+    assert captured["api_key"] == "sk-test"
 
 
 def test_speech_returns_503_when_no_openai_key(client, monkeypatch):
