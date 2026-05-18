@@ -60,11 +60,51 @@ def resolve(name: str) -> tuple[str, dict[str, Any]]:
     return entry.model, extra
 
 
+# Models that we know don't accept function-calling. The Ollama runtime
+# returns a hard 400 ("<model> does not support tools") instead of just
+# ignoring the field, and `litellm.drop_params=True` doesn't strip it for
+# the Ollama provider, so we have to filter here.
+_NO_TOOL_SUBSTRINGS: tuple[str, ...] = (
+    "gemma",
+    "gemma2",
+    "gemma3",
+    "phi3",
+    "phi-3",
+    "smol",
+    "tinyllama",
+    "deepseek-r1:1.5b",
+    "nomic-embed",
+    "bge-",
+)
+
+
+def _model_supports_tools(resolved_model: str) -> bool:
+    lower = resolved_model.lower()
+    if any(s in lower for s in _NO_TOOL_SUBSTRINGS):
+        return False
+    # LiteLLM ships a capability table for hosted models; trust it when present.
+    try:
+        return bool(litellm.supports_function_calling(model=resolved_model))
+    except Exception:
+        # Unknown model — assume supported and let the provider 4xx instead of
+        # silently dropping a feature the caller asked for.
+        return True
+
+
 def chat_completion(*, model: str, messages: list[dict], stream: bool = False, **kwargs: Any) -> Any:
     """Synchronous chat completion. Returns a `litellm.ModelResponse`
     when `stream=False`, or an iterator of streaming chunks when True.
+
+    Strips `tools`/`tool_choice` when the resolved model is known not to
+    accept them — otherwise providers like Ollama reject the whole
+    request rather than ignoring the unsupported field.
     """
     resolved_model, extra = resolve(model)
+    if not _model_supports_tools(resolved_model):
+        kwargs.pop("tools", None)
+        kwargs.pop("tool_choice", None)
+        kwargs.pop("functions", None)
+        kwargs.pop("function_call", None)
     return litellm.completion(
         model=resolved_model,
         messages=messages,
