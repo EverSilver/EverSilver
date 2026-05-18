@@ -88,7 +88,10 @@ def upsert_backend_provider(config: dict) -> bool:
             for field, want in (
                 ("endpoint", BACKEND_ENDPOINT),
                 ("label", BACKEND_LABEL),
-                ("auth_style", "bearer"),
+                # auth_style="none" makes the chat-factory (factory.rs) skip
+                # the auth-profiles.json key lookup — required because we
+                # never persist a token for the local backend.
+                ("auth_style", "none"),
             ):
                 if entry.get(field) != want:
                     entry[field] = want
@@ -100,7 +103,7 @@ def upsert_backend_provider(config: dict) -> bool:
             "slug": BACKEND_SLUG,
             "label": BACKEND_LABEL,
             "endpoint": BACKEND_ENDPOINT,
-            "auth_style": "bearer",
+            "auth_style": "none",
         }
     )
     return True
