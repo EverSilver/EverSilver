@@ -204,6 +204,15 @@ def main() -> int:
     changed |= set_field(config, "primary_cloud", BACKEND_ID)
     changed |= drop_legacy_switchai(config)
 
+    # ── Repoint the auxiliary API surface ─────────────────────────────────
+    # Account/billing/integrations/release-channel calls go to whatever
+    # `api_url` resolves to (defaulting to https://api.eversilver.local —
+    # dead in a local-only install). The llm-backend exposes stub routes
+    # for every path the desktop polls, so pointing here drops all the
+    # "stale status" banners and 5-min reconnect storms.
+    backend_root = BACKEND_ENDPOINT.rsplit("/v1", 1)[0]
+    changed |= set_field(config, "api_url", backend_root)
+
     # ── Per-workload selectors (Settings > AI side panel) ─────────────────
     workload_target = f"{BACKEND_SLUG}:{model_id}"
     for hint in CHAT_HINTS:

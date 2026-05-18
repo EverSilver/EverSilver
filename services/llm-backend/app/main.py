@@ -23,7 +23,7 @@ if load_dotenv is not None:
                 pass
 
 from .auth import BearerAuthMiddleware  # noqa: E402
-from .routers import chat, embeddings, health, models  # noqa: E402
+from .routers import chat, embeddings, health, models, stubs  # noqa: E402
 
 
 def create_app() -> FastAPI:
@@ -33,10 +33,14 @@ def create_app() -> FastAPI:
         version="0.1.0",
     )
     app.add_middleware(BearerAuthMiddleware)
+    # Order matters: the specific routers (health, models, chat,
+    # embeddings) are registered FIRST so their concrete paths win over
+    # `stubs`'s catch-all `/{full_path:path}` route.
     app.include_router(health.router)
     app.include_router(models.router)
     app.include_router(chat.router)
     app.include_router(embeddings.router)
+    app.include_router(stubs.router)
     return app
 
 
