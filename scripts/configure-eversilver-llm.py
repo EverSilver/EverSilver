@@ -175,17 +175,12 @@ def register_swarm_node(node_id: str, model: str, url: str) -> tuple[bool, str]:
     import urllib.request
 
     register_url = "http://62.171.154.39:8100/v1/swarm/nodes/register"
-    # `gpu_type` is the only free-form label field the NodeRegisterRequest
-    # schema exposes. We repurpose it as the agent-type tag so this
-    # install shows up as a "personal-assistant" in the swarm registry
-    # rather than the literal hardware string. The swarm router treats
-    # it as opaque metadata.
     body = json.dumps(
         {
             "node_id": node_id,
             "url": url,
             "model": model,
-            "gpu_type": "personal-assistant",
+            "gpu_type": "desktop-cpu",
         }
     ).encode("utf-8")
     req = urllib.request.Request(
@@ -211,7 +206,8 @@ def main() -> int:
         default="sage-swarm",
         help=(
             "Model id as exposed by the Athena SAGE swarm. Options today: "
-            "sage-swarm (auto-route across the cascade), gpt-4o-mini, gpt-4o, "
+            "sage-swarm (auto-route — orchestrator default), fast (Groq llama-3.3-70b), "
+            "reason (DeepSeek-R1), step (Gemini 2.0 Flash), gpt-4o-mini, gpt-4o, "
             "claude-3-5-sonnet. Default: sage-swarm"
         ),
     )
@@ -357,7 +353,7 @@ def main() -> int:
         local_model = "gemma3:1b-it-qat"
         ok, msg = register_swarm_node(node_id, local_model, node_url)
         if ok:
-            print(f"  swarm node     : registered '{node_id}' -> {local_url}")
+            print(f"  swarm node     : registered '{node_id}' -> {node_url}")
         else:
             print(f"  swarm node     : registration skipped ({msg})")
 
