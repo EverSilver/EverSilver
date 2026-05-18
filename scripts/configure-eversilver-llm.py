@@ -221,11 +221,36 @@ def main() -> int:
             config[key] = workload_target
             changed = True
 
-    # ── Disable runtime_enabled on local_ai so the chat path doesn't try ─
-    # to spin up the embedded Ollama runtime — we delegate to the backend.
+    # ── Local AI runtime: enabled, but only for voice (STT/TTS) ───────────
+    # Chat still routes through the llm-backend via inference_url +
+    # model_routes above. Voice (whisper STT + piper TTS) is local-only
+    # so it doesn't depend on the dead api.eversilver.local backend.
+    #
+    # local_ai.usage gates individual features:
+    #   - chat=false → use the remote arm (llm-backend)
+    #   - speech_to_text=true → use whisper-rs in-process
+    #   - text_to_speech=true → use piper (if installed)
     local_ai = config.setdefault("local_ai", {})
-    if local_ai.get("runtime_enabled") is not False:
-        local_ai["runtime_enabled"] = False
+    if local_ai.get("runtime_enabled") is not True:
+        local_ai["runtime_enabled"] = True
+        changed = True
+    if local_ai.get("stt_provider") != "whisper":
+        local_ai["stt_provider"] = "whisper"
+        changed = True
+    if local_ai.get("whisper_in_process") is not True:
+        local_ai["whisper_in_process"] = True
+        changed = True
+    # Smallest, fastest model — 75MB, ~real-time on CPU.
+    if local_ai.get("stt_model_id") != "tiny":
+        local_ai["stt_model_id"] = "tiny"
+        changed = True
+    # Per-feature gates: keep chat on the cloud arm, send voice local.
+    usage = local_ai.setdefault("usage", {})
+    if usage.get("chat") is not False:
+        usage["chat"] = False
+        changed = True
+    if usage.get("speech_to_text") is not True:
+        usage["speech_to_text"] = True
         changed = True
 
     if not args.no_socket_disable:
