@@ -72,6 +72,10 @@ def test_transcription_normalizes_whisper_v1_alias(client, monkeypatch):
     assert r.status_code == 200, r.text
     assert captured["model"] == "whisper-1"  # normalized
     assert captured["api_key"] == "sk-test"
+    # api_base must be forced to OpenAI's host so OPENAI_BASE_URL
+    # (set globally to e.g. a proxy) can't redirect Whisper to a host
+    # that has no /audio/transcriptions route.
+    assert captured["api_base"] == "https://api.openai.com/v1"
 
 
 def test_speech_returns_503_when_no_openai_key(client, monkeypatch):

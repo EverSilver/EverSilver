@@ -226,6 +226,14 @@ async def openai_v1_audio_transcriptions(request: Request) -> Any:
         kwargs: dict[str, Any] = {"model": chosen, "response_format": response_format}
         if chosen_api_key:
             kwargs["api_key"] = chosen_api_key
+        # Force the canonical provider endpoint so an OPENAI_BASE_URL env
+        # var (set globally e.g. for a proxy or self-hosted gateway)
+        # doesn't redirect /audio/transcriptions to a host that has no
+        # such route. Only OpenAI's whisper-1 needs this; provider-
+        # prefixed ids (groq/whisper-large-v3, deepgram/nova-3) carry
+        # their own routing inside LiteLLM.
+        if chosen == "whisper-1":
+            kwargs.setdefault("api_base", "https://api.openai.com/v1")
         if language:
             kwargs["language"] = language
         if prompt:
@@ -304,7 +312,14 @@ async def openai_v1_audio_speech(request: Request) -> Any:
         )
     try:
         resp = litellm.speech(
-            model=model, voice=voice, input=text, response_format=response_format
+            model=model,
+            voice=voice,
+            input=text,
+            response_format=response_format,
+            api_key=os.environ["OPENAI_API_KEY"],
+            # Same reasoning as transcription: override any
+            # OPENAI_BASE_URL the shell may have set for a proxy.
+            api_base="https://api.openai.com/v1",
         )
     except Exception as e:
         return JSONResponse(
