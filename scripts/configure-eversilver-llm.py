@@ -244,6 +244,20 @@ def main() -> int:
     if local_ai.get("stt_model_id") != "tiny":
         local_ai["stt_model_id"] = "tiny"
         changed = True
+    # Skip the LLM post-processing cleanup pass — it adds a whole second
+    # LLM round-trip after every transcription just to fix grammar/
+    # punctuation, which for short push-to-talk utterances roughly
+    # doubles the perceived latency. Upstream openhuman defaults this
+    # to `true`; we flip it for the local-only profile.
+    if local_ai.get("voice_llm_cleanup_enabled") is not False:
+        local_ai["voice_llm_cleanup_enabled"] = False
+        changed = True
+
+    # Same flag from the voice_server side (renderer reads this too).
+    vs = config.setdefault("voice_server", {})
+    if vs.get("skip_cleanup") is not True:
+        vs["skip_cleanup"] = True
+        changed = True
     # Per-feature gates: keep chat on the cloud arm, send voice local.
     usage = local_ai.setdefault("usage", {})
     if usage.get("chat") is not False:
