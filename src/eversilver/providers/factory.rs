@@ -276,7 +276,13 @@ fn make_cloud_provider_by_slug(
             make_eversilver_backend(config)
         }
         AuthStyle::None => {
-            let p = make_openai_compatible_provider(&entry.endpoint, "", CompatAuthStyle::Bearer)?;
+            // CompatAuthStyle::None makes credential_for_request() short-circuit
+            // and skip the "API key not set" error — required for local
+            // unauthenticated backends (e.g. the eversilver-llm shim on :8088
+            // running without LLM_BACKEND_AUTH_TOKEN). Previously this passed
+            // `CompatAuthStyle::Bearer`, which forced a credential check that
+            // immediately failed because no key was stored in auth-profiles.json.
+            let p = make_openai_compatible_provider(&entry.endpoint, "", CompatAuthStyle::None)?;
             Ok((p, effective_model))
         }
         AuthStyle::Bearer => {
