@@ -1930,7 +1930,7 @@ dependencies = [
 
 [[package]]
 name = "eversilver"
-version = "0.53.49"
+version = "1.0.0"
 dependencies = [
  "aes-gcm",
  "anyhow",

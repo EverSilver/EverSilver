@@ -116,6 +116,15 @@ pub async fn decrypt_secret(
     Ok(RpcOutcome::single_log(plaintext, "secret decrypted"))
 }
 
+/// Prefix marker that opts the session out of remote backend validation.
+///
+/// Tokens minted by the in-app "Continue without account" flow (see
+/// `app/src/pages/Welcome.tsx`) start with this prefix. When `store_session`
+/// sees the prefix it skips the `GET /auth/me` round-trip and treats the
+/// caller-supplied `user` payload as authoritative — which is what the user
+/// actually wants for a fully-local install with no cloud backend.
+pub const LOCAL_SESSION_TOKEN_PREFIX: &str = "eversilver-local-";
+
 pub async fn store_session(
     config: &Config,
     token: &str,
@@ -127,13 +136,44 @@ pub async fn store_session(
         return Err("token is required".to_string());
     }
 
+    let is_local_session = trimmed_token.starts_with(LOCAL_SESSION_TOKEN_PREFIX);
     let api_url = effective_backend_api_url(&config.api_url);
 
-    let client = BackendOAuthClient::new(&api_url).map_err(|e| e.to_string())?;
-    let settings = client
-        .fetch_current_user(trimmed_token)
-        .await
-        .map_err(|e| format!("Session validation failed (GET /auth/me): {e:#}"))?;
+    let (settings, validation_log) = if is_local_session {
+        // Local-only session: no remote validation. Build a deterministic user
+        // payload from the caller's hint, with a stable id derived from the
+        // token so subsequent sign-ins on the same machine resolve to the
+        // same user-scoped workspace dir.
+        let suffix = trimmed_token
+            .trim_start_matches(LOCAL_SESSION_TOKEN_PREFIX)
+            .to_string();
+        let derived_uid = format!("local-{}", suffix);
+        let supplied = user.clone().unwrap_or(serde_json::Value::Null);
+        let mut obj = supplied.as_object().cloned().unwrap_or_default();
+        obj.entry("id".to_string())
+            .or_insert_with(|| serde_json::Value::String(derived_uid.clone()));
+        obj.entry("email".to_string())
+            .or_insert_with(|| serde_json::Value::String(format!("{derived_uid}@local")));
+        obj.entry("display_name".to_string())
+            .or_insert_with(|| serde_json::Value::String("Local User".to_string()));
+        obj.entry("local".to_string())
+            .or_insert(serde_json::Value::Bool(true));
+        (
+            serde_json::Value::Object(obj),
+            "local session stored without remote validation".to_string(),
+        )
+    } else {
+        let client = BackendOAuthClient::new(&api_url).map_err(|e| e.to_string())?;
+        let resolved = client
+            .fetch_current_user(trimmed_token)
+            .await
+            .map_err(|e| format!("Session validation failed (GET /auth/me): {e:#}"))?;
+        let log = format!(
+            "session JWT verified via GET /auth/me on {}",
+            api_url.trim_end_matches('/')
+        );
+        (resolved, log)
+    };
 
     let mut metadata = std::collections::HashMap::new();
     if let Some(uid) = user_id
@@ -153,10 +193,7 @@ pub async fn store_session(
 
     // If we know the user_id, activate the user-scoped directory BEFORE storing
     // the auth profile so that credentials land in the correct place.
-    let mut logs = vec![format!(
-        "session JWT verified via GET /auth/me on {}",
-        api_url.trim_end_matches('/')
-    )];
+    let mut logs = vec![validation_log];
 
     if let Some(ref uid) = resolved_user_id {
         if let Ok(root_dir) = default_root_eversilver_dir() {

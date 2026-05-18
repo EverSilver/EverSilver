@@ -6,6 +6,7 @@ import { oauthProviderConfigs } from '../components/oauth/providerConfigs';
 import RotatingTetrahedronCanvas from '../components/RotatingTetrahedronCanvas';
 import Button from '../components/ui/Button';
 import { useT } from '../lib/i18n/I18nContext';
+import { useCoreState } from '../providers/CoreStateProvider';
 import { clearBackendUrlCache } from '../services/backendUrl';
 import { clearCoreRpcTokenCache, clearCoreRpcUrlCache } from '../services/coreRpcClient';
 import { resetCoreMode } from '../store/coreModeSlice';
@@ -16,13 +17,51 @@ import { clearStoredCoreMode, clearStoredCoreToken, storeRpcUrl } from '../utils
 
 const log = createDebug('app:welcome');
 
+/**
+ * Synthesizes a local-only session token. Recognized by the Rust core's
+ * `auth::ops::store_session` short-circuit (`LOCAL_SESSION_TOKEN_PREFIX`),
+ * which skips the backend `/auth/me` validation and treats the supplied
+ * user payload as authoritative.
+ */
+function mintLocalSessionToken(): string {
+  const rand =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID().replace(/-/g, '')
+      : Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return `eversilver-local-${rand}`;
+}
+
 const Welcome = () => {
   const { t } = useT();
   const dispatch = useAppDispatch();
+  const { storeSessionToken } = useCoreState();
   const { isProcessing, errorMessage, requiresAppDataReset } = useDeepLinkAuthState();
 
   const [isClearingAppData, setIsClearingAppData] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [isContinuingLocally, setIsContinuingLocally] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleContinueLocally = async () => {
+    setIsContinuingLocally(true);
+    setLocalError(null);
+    try {
+      const token = mintLocalSessionToken();
+      const localId = token.replace(/^eversilver-local-/, '');
+      await storeSessionToken(token, {
+        id: `local-${localId}`,
+        email: `local-${localId}@local`,
+        display_name: 'Local User',
+        local: true,
+      });
+      log('[welcome] local session minted; CoreStateProvider will redirect via DefaultRedirect');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      log('[welcome] local session failed: %s', message);
+      setLocalError(message || 'Could not start a local session.');
+      setIsContinuingLocally(false);
+    }
+  };
 
   const handleClearAppData = async () => {
     setIsClearingAppData(true);
@@ -126,6 +165,37 @@ const Welcome = () => {
                     />
                   ))}
               </div>
+
+              {/* Local-mode escape hatch: synthesize a local session so the
+                  user can use Eversilver fully offline with no cloud account.
+                  Backed by `LOCAL_SESSION_TOKEN_PREFIX` in the Rust core. */}
+              <div className="mt-5 flex items-center gap-3">
+                <span className="h-px flex-1 bg-stone-200" aria-hidden="true" />
+                <span className="text-[11px] uppercase tracking-wider text-stone-400">or</span>
+                <span className="h-px flex-1 bg-stone-200" aria-hidden="true" />
+              </div>
+              <button
+                type="button"
+                onClick={handleContinueLocally}
+                disabled={isContinuingLocally}
+                className="mt-3 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-800 transition-colors hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60">
+                {isContinuingLocally ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="h-3 w-3 animate-spin rounded-full border border-stone-400 border-t-transparent" />
+                    Starting local session...
+                  </span>
+                ) : (
+                  'Continue without an account'
+                )}
+              </button>
+              <p className="mt-1 text-[11px] leading-4 text-stone-400 text-center">
+                Use Eversilver fully offline. Nothing leaves your machine.
+              </p>
+              {localError ? (
+                <p className="mt-2 text-[11px] leading-4 font-medium text-red-700 text-center">
+                  {localError}
+                </p>
+              ) : null}
             </>
           )}
         </div>

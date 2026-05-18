@@ -60,6 +60,50 @@ async fn store_session_rejects_empty_or_whitespace_token() {
     assert!(err.contains("token is required"));
 }
 
+#[tokio::test]
+async fn store_session_with_local_prefix_skips_remote_validation() {
+    // Tokens prefixed with `eversilver-local-` must never reach the
+    // backend `/auth/me` round-trip. This test exercises that path: if
+    // remote validation were attempted against the placeholder
+    // `api.eversilver.local` host, the DNS lookup would fail and the
+    // call would return Err. A success here proves the short-circuit
+    // is wired and the synthesized user lands in storage.
+    let tmp = TempDir::new().unwrap();
+    let config = test_config(&tmp);
+    let token = "eversilver-local-abc123";
+    let user = Some(serde_json::json!({
+        "id": "local-abc123",
+        "email": "alice@local",
+        "display_name": "Alice",
+    }));
+
+    let result = store_session(&config, token, None, user).await;
+    assert!(
+        result.is_ok(),
+        "local-mode store_session should not hit the network: {result:?}"
+    );
+
+    let outcome = result.unwrap();
+    assert!(outcome
+        .logs
+        .iter()
+        .any(|l| l.contains("local session stored without remote validation")));
+}
+
+#[tokio::test]
+async fn store_session_with_local_prefix_synthesizes_user_when_omitted() {
+    // Even when the caller does not supply a user payload, store_session
+    // must build a deterministic one keyed off the token suffix so we
+    // can resolve to the same per-user workspace dir on subsequent
+    // launches.
+    let tmp = TempDir::new().unwrap();
+    let config = test_config(&tmp);
+    let token = "eversilver-local-deadbeef";
+
+    let result = store_session(&config, token, None, None).await;
+    assert!(result.is_ok(), "synthesis path: {result:?}");
+}
+
 #[test]
 fn sanitize_stored_session_user_discards_empty_objects() {
     assert_eq!(sanitize_stored_session_user(Some(json!({}))), None);
