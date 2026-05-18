@@ -577,12 +577,31 @@ fn handle_voice_stt_dispatch(params: Map<String, Value>) -> ControllerFuture {
             .filter(|s| !s.is_empty())
             .map(str::to_string)
             .unwrap_or_else(|| effective_stt_provider(&config));
+        // Resolution order for the STT model id:
+        //   1. Explicit RPC param (renderer override)
+        //   2. config.local_ai.stt_model_id (user's installed model)
+        //   3. DEFAULT_WHISPER_MODEL (ship default — only reached when
+        //      neither the renderer nor the config supplied a value)
+        //
+        // Without step 2 the dispatcher silently ignores the model the
+        // user actually installed and asks the path resolver for the
+        // ship default, which yields "STT model not found. Expected
+        // 'whisper-large-v3-turbo'..." even when ggml-tiny.bin (or any
+        // other size) is sitting in ~/.eversilver/bin/whisper/.
         let model = p
             .model
             .as_deref()
             .map(str::trim)
             .filter(|s| !s.is_empty())
             .map(str::to_string)
+            .or_else(|| {
+                let configured = config.local_ai.stt_model_id.trim();
+                if configured.is_empty() {
+                    None
+                } else {
+                    Some(configured.to_string())
+                }
+            })
             .unwrap_or_else(|| crate::eversilver::voice::DEFAULT_WHISPER_MODEL.to_string());
 
         log::debug!(
