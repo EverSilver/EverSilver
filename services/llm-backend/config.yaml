@@ -1,0 +1,122 @@
+# Eversilver LLM Backend — model registry
+#
+# Each entry maps a friendly `name` (what Eversilver sends in the OpenAI
+# `model` field) to a LiteLLM provider/model spec. LiteLLM resolves the
+# spec to the right upstream SDK at request time. Comment out anything
+# you don't have credentials for — the /v1/models endpoint only lists
+# entries whose required env vars are present.
+
+models:
+  # ── Local Ollama — zero-config; just `ollama pull <name>` ────────────
+  - name: gemma3:1b-it-qat
+    model: ollama_chat/gemma3:1b-it-qat
+    api_base: http://localhost:11434
+    requires_env: []
+
+  - name: phi3:mini
+    model: ollama_chat/phi3:mini
+    api_base: http://localhost:11434
+    requires_env: []
+
+  - name: mistral:7b
+    model: ollama_chat/mistral:7b-instruct-q4_K_M
+    api_base: http://localhost:11434
+    requires_env: []
+
+  - name: llama3.2
+    model: ollama_chat/llama3.2
+    api_base: http://localhost:11434
+    requires_env: []
+
+  # ── Ollama Cloud — `ollama signin` (sets OLLAMA_API_KEY locally) ─────
+  # Free tier. Fast frontier-class models hosted by Ollama.
+  - name: gpt-oss:20b
+    model: ollama_chat/gpt-oss:20b
+    api_base: https://ollama.com
+    requires_env: [OLLAMA_API_KEY]
+
+  - name: gpt-oss:120b
+    model: ollama_chat/gpt-oss:120b
+    api_base: https://ollama.com
+    requires_env: [OLLAMA_API_KEY]
+
+  - name: qwen3-coder:480b
+    model: ollama_chat/qwen3-coder:480b
+    api_base: https://ollama.com
+    requires_env: [OLLAMA_API_KEY]
+
+  - name: llama3.3:70b
+    model: ollama_chat/llama3.3:70b
+    api_base: https://ollama.com
+    requires_env: [OLLAMA_API_KEY]
+
+  # ── OpenAI ─────────────────────────────────────────────────────────
+  - name: gpt-4o-mini
+    model: openai/gpt-4o-mini
+    requires_env: [OPENAI_API_KEY]
+  - name: gpt-4o
+    model: openai/gpt-4o
+    requires_env: [OPENAI_API_KEY]
+  - name: o1-mini
+    model: openai/o1-mini
+    requires_env: [OPENAI_API_KEY]
+
+  # ── Anthropic ──────────────────────────────────────────────────────
+  - name: claude-3-5-sonnet
+    model: anthropic/claude-3-5-sonnet-20241022
+    requires_env: [ANTHROPIC_API_KEY]
+  - name: claude-3-5-haiku
+    model: anthropic/claude-3-5-haiku-20241022
+    requires_env: [ANTHROPIC_API_KEY]
+
+  # ── Mistral ────────────────────────────────────────────────────────
+  - name: mistral-small
+    model: mistral/mistral-small-latest
+    requires_env: [MISTRAL_API_KEY]
+  - name: mistral-large
+    model: mistral/mistral-large-latest
+    requires_env: [MISTRAL_API_KEY]
+
+  # ── DeepSeek ───────────────────────────────────────────────────────
+  - name: deepseek-chat
+    model: deepseek/deepseek-chat
+    requires_env: [DEEPSEEK_API_KEY]
+  - name: deepseek-reasoner
+    model: deepseek/deepseek-reasoner
+    requires_env: [DEEPSEEK_API_KEY]
+
+  # ── Google Gemini ──────────────────────────────────────────────────
+  - name: gemini-2.0-flash
+    model: gemini/gemini-2.0-flash
+    requires_env: [GEMINI_API_KEY]
+  - name: gemini-1.5-pro
+    model: gemini/gemini-1.5-pro
+    requires_env: [GEMINI_API_KEY]
+
+  # ── Groq (very fast inference) ─────────────────────────────────────
+  - name: groq-llama-3.3-70b
+    model: groq/llama-3.3-70b-versatile
+    requires_env: [GROQ_API_KEY]
+
+  # ── xAI ────────────────────────────────────────────────────────────
+  - name: grok-2
+    model: xai/grok-2-latest
+    requires_env: [XAI_API_KEY]
+
+embedding_models:
+  # Local Ollama embeddings — free, fast, no key
+  - name: nomic-embed-text
+    model: ollama/nomic-embed-text
+    api_base: http://localhost:11434
+    requires_env: []
+  - name: bge-m3
+    model: ollama/bge-m3
+    api_base: http://localhost:11434
+    requires_env: []
+  # OpenAI embeddings
+  - name: text-embedding-3-small
+    model: openai/text-embedding-3-small
+    requires_env: [OPENAI_API_KEY]
+  - name: text-embedding-3-large
+    model: openai/text-embedding-3-large
+    requires_env: [OPENAI_API_KEY]

@@ -1,0 +1,81 @@
+"""Thin wrapper around `litellm.completion` / `litellm.embedding`.
+
+Resolves the OpenAI-style ``model`` field against the YAML registry
+(`config.yaml`) so callers can use friendly names like
+`gemma3:1b-it-qat`, `gpt-4o-mini`, or `claude-3-5-sonnet` and get the
+right LiteLLM provider spec + api_base + api_key wired automatically.
+
+Falls through to passing the raw model string to LiteLLM when no registry
+entry matches — so callers can also send raw `<provider>/<model>` specs.
+"""
+from __future__ import annotations
+import os
+from typing import Any, Iterator, Optional
+
+import litellm  # type: ignore[import-not-found]
+
+from .config import ModelEntry, load_models
+
+
+# `drop_params=True` silently strips parameters individual providers don't
+# accept (e.g. `seed` on Anthropic, `tools` on Ollama). Keeps the surface
+# OpenAI-compatible for callers without us hand-coding provider quirks.
+litellm.drop_params = True
+# Same idea for unsupported response_format etc.
+litellm.set_verbose = False
+
+
+def _registry() -> dict[str, ModelEntry]:
+    chat, embed = load_models()
+    out: dict[str, ModelEntry] = {}
+    for m in chat + embed:
+        out[m.name] = m
+    return out
+
+
+def resolve(name: str) -> tuple[str, dict[str, Any]]:
+    """Map a friendly name (or raw spec) to (litellm_model, extra_kwargs).
+
+    >>> resolve("gemma3:1b-it-qat")
+    ("ollama_chat/gemma3:1b-it-qat", {"api_base": "http://localhost:11434"})
+    >>> resolve("openai/gpt-4o")  # raw passthrough
+    ("openai/gpt-4o", {})
+    """
+    reg = _registry()
+    entry = reg.get(name)
+    if entry is None:
+        return name, {}
+    extra: dict[str, Any] = {}
+    if entry.api_base:
+        extra["api_base"] = entry.api_base
+    if entry.api_key:
+        # Allow YAML to use the LiteLLM `os.environ/X` syntax.
+        if entry.api_key.startswith("os.environ/"):
+            env_name = entry.api_key.split("/", 1)[1]
+            v = os.environ.get(env_name)
+            if v:
+                extra["api_key"] = v
+        else:
+            extra["api_key"] = entry.api_key
+    return entry.model, extra
+
+
+def chat_completion(*, model: str, messages: list[dict], stream: bool = False, **kwargs: Any) -> Any:
+    """Synchronous chat completion. Returns a `litellm.ModelResponse`
+    when `stream=False`, or an iterator of streaming chunks when True.
+    """
+    resolved_model, extra = resolve(model)
+    return litellm.completion(
+        model=resolved_model,
+        messages=messages,
+        stream=stream,
+        **{**extra, **kwargs},
+    )
+
+
+def embeddings(*, model: str, input: list[str] | str, **kwargs: Any) -> Any:
+    resolved_model, extra = resolve(model)
+    return litellm.embedding(model=resolved_model, input=input, **{**extra, **kwargs})
+
+
+__all__ = ["chat_completion", "embeddings", "resolve"]

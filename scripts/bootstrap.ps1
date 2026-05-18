@@ -145,26 +145,26 @@ try {
   Pop-Location
 }
 
-# --- PHASE 4.5: SwitchAI backend ---
-Write-Step "Phase 4.5: SwitchAI backend"
-$backendDir = Join-Path $repoRoot 'services\switchai-backend'
+# --- PHASE 4.5: LLM backend (LiteLLM-backed, OpenAI-compatible) ---
+Write-Step "Phase 4.5: LLM backend"
+$backendDir = Join-Path $repoRoot 'services\llm-backend'
 if (Test-Path $backendDir) {
   if ($SkipInstalls) {
-    Write-Warn2 "switchai-backend install skipped (-SkipInstalls)"
+    Write-Warn2 "llm-backend install skipped (-SkipInstalls)"
   } else {
     if (Get-Command python -ErrorAction SilentlyContinue) {
-      & python -m pip install --quiet --user -e "$backendDir[dev]" tomli-w 2>&1 | Out-Null
+      & python -m pip install --quiet --user -e "$backendDir" tomli-w pytest 2>&1 | Out-Null
       if ($LASTEXITCODE -eq 0) {
-        Write-Ok 'switchai-backend installed (editable)'
+        Write-Ok 'llm-backend installed (editable)'
       } else {
-        Write-Warn2 "pip install switchai-backend exited $LASTEXITCODE"
+        Write-Warn2 "pip install llm-backend exited $LASTEXITCODE"
       }
     } else {
-      Write-Warn2 'python missing; run scripts\install-switchai-backend.ps1 later'
+      Write-Warn2 'python missing; run scripts\install-llm-backend.ps1 later'
     }
   }
 } else {
-  Write-Warn2 "switchai-backend dir missing at $backendDir"
+  Write-Warn2 "llm-backend dir missing at $backendDir"
 }
 
 # --- PHASE 5: Smart App Control check ---
