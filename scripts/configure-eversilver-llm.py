@@ -321,7 +321,12 @@ def main() -> int:
     if vs.get("skip_cleanup") is not True:
         vs["skip_cleanup"] = True
         changed = True
-    # Per-feature gates: keep chat on the cloud arm, send voice local.
+    # Per-feature gates:
+    #   chat          → cloud (OpenFang Athena)
+    #   speech_to_text → local whisper
+    #   embeddings    → local Ollama (bge-m3, 1024 dims — matches the
+    #                   on-disk format the memory tree expects)
+    #   text_to_speech → local piper if installed; otherwise disabled
     usage = local_ai.setdefault("usage", {})
     if usage.get("chat") is not False:
         usage["chat"] = False
@@ -329,6 +334,41 @@ def main() -> int:
     if usage.get("speech_to_text") is not True:
         usage["speech_to_text"] = True
         changed = True
+    if usage.get("embeddings") is not True:
+        usage["embeddings"] = True
+        changed = True
+    # Pin the embedding model so the memory tree's dim validator
+    # accepts the output (it requires EMBEDDING_DIM=1024).
+    if local_ai.get("embedding_model_id") != "bge-m3":
+        local_ai["embedding_model_id"] = "bge-m3"
+        changed = True
+    # Local Ollama base — explicit so the embedder doesn't try the
+    # remote arm when the runtime is enabled.
+    if not local_ai.get("base_url"):
+        local_ai["base_url"] = "http://localhost:11434"
+        changed = True
+
+    # ── Re-route the canonical 'summarization-v1' tier to OpenFang ───────
+    # Eversilver's memory tree autosummariser dispatches with model
+    # 'summarization-v1' against the cloud arm. Without a mapping, the
+    # OpenAiCompatibleProvider sends that literal string to OpenFang
+    # which has no such agent and 404s. Map it through model_routes to
+    # OpenFang's `researcher` agent (smart provider, good at digesting).
+    routes = config.get("model_routes", [])
+    if isinstance(routes, list):
+        wanted_hint = "summarization"
+        wanted_model = "researcher"
+        existing = next(
+            (r for r in routes if isinstance(r, dict) and r.get("hint") == wanted_hint),
+            None,
+        )
+        if existing is None:
+            routes.append({"hint": wanted_hint, "model": wanted_model})
+            config["model_routes"] = routes
+            changed = True
+        elif existing.get("model") != wanted_model:
+            existing["model"] = wanted_model
+            changed = True
 
     if not args.no_socket_disable:
         changed |= disable_remote_socket(config)
