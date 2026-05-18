@@ -1,25 +1,42 @@
 """
-Wire the local LiteLLM-backed `llm-backend` into Eversilver's user config.
+Wire Eversilver's chat panel into OpenFang (RightNow-AI/openfang) on
+the Athena VPS.
 
-The chat dispatcher in `src/eversilver/agent/triage/routing.rs ::
-build_remote_provider` hits whatever `config.inference_url` points at,
-using `default_model` as the fallback model and `model_routes` for the
-per-hint overrides. This script sets all three so chat goes to
-http://127.0.0.1:8088/v1 (the new LiteLLM-backed service).
+OpenFang exposes a fully OpenAI-compatible `/v1/chat/completions` at
+http://62.171.154.39:4200/v1, with the `model` field naming a
+registered OpenFang agent (Athena, planner, coder, researcher,
+browser-hand, orchestrator, …). Auth is a single Bearer token
+(`OPENFANG_API_KEY`).
 
-Friendly model names from `services/llm-backend/config.yaml` are used
-directly — the backend resolves them to LiteLLM provider specs
-internally — so `default_model = "gemma3:1b-it-qat"`, not
-`"ollama/gemma3:1b-it-qat"`.
+What this script does to the active user's config.toml:
+
+  * inference_url  = http://62.171.154.39:4200/v1
+  * default_model  = Athena    (or whatever --model was passed)
+  * api_key         = <OPENFANG_API_KEY>  (Bearer token, kept local)
+  * cloud_providers contains an `openfang` entry with auth_style=bearer
+  * model_routes route reasoning/agentic/coding to the same agent
+  * local_ai.stt_provider = whisper      (voice stays local — no key needed)
+  * local_ai.whisper_in_process = true
+  * voice_server.skip_cleanup = true     (skip the extra LLM cleanup pass)
+  * socket.auto_connect = false          (silence the dead api.eversilver.local)
 
 Idempotent. Always writes a timestamped `.bak` of the prior config.
+The token is read from `--auth-token` or `$OPENFANG_API_KEY`; it is
+NEVER echoed in full to the console or written anywhere other than
+the local config.toml (which is per-user, under ~/.eversilver/users/).
 
 Usage:
-    python scripts/configure-eversilver-llm.py
-    python scripts/configure-eversilver-llm.py --model gpt-oss:120b
-    python scripts/configure-eversilver-llm.py --model gpt-4o-mini
+    # First time — pass the key once, it sticks in config.toml.
+    OPENFANG_API_KEY=... python scripts/configure-eversilver-llm.py
+
+    # Same effect with explicit flag:
+    python scripts/configure-eversilver-llm.py --auth-token <key>
+
+    # Use a different agent than Athena:
+    python scripts/configure-eversilver-llm.py --model researcher
+
+    # Target a specific user dir (rather than active_user.toml):
     python scripts/configure-eversilver-llm.py --user-id local-abc123
-    python scripts/configure-eversilver-llm.py --auth-token <bearer>
 """
 from __future__ import annotations
 import argparse
@@ -37,18 +54,18 @@ except ImportError:  # pragma: no cover
 
 
 ROOT = Path.home() / ".eversilver"
-# Athena VPS — SAGE swarm cascade (Ollama mesh → Groq → Cerebras → … → static).
-# OpenAI-compatible: `/v1/chat/completions`, `/v1/models`, `/v1/embeddings`.
-# Models: sage-swarm (auto-route), gpt-4o-mini, gpt-4o, claude-3-5-sonnet.
-BACKEND_SLUG = "athena-swarm"
-BACKEND_LABEL = "Athena SAGE Swarm (Eversilver)"
-BACKEND_ENDPOINT = "http://62.171.154.39:8100/v1"
-BACKEND_ID = "p_athena_swarm"
+# OpenFang on the Athena VPS — open-source agent OS, OpenAI-compatible.
+# (RightNow-AI/openfang on GitHub; dashboard at :4200.) Each registered
+# agent (Athena, planner, coder, researcher, …) is addressable by its
+# name in the `model` field of /v1/chat/completions. Authentication is
+# a single Bearer token (OPENFANG_API_KEY) configured on the server.
+BACKEND_SLUG = "openfang"
+BACKEND_LABEL = "OpenFang (Athena VPS)"
+BACKEND_ENDPOINT = "http://62.171.154.39:4200/v1"
+BACKEND_ID = "p_openfang"
 CHAT_HINTS = ("reasoning", "agentic", "coding")
-# Eversilver's bearer auth_style refuses to dispatch when api_key is empty.
-# When the backend is open (no LLM_BACKEND_AUTH_TOKEN), any non-empty
-# placeholder satisfies the precondition — the backend ignores it.
-DEFAULT_PLACEHOLDER_KEY = "local-no-auth"
+# Token is read from $OPENFANG_API_KEY (env) or --auth-token CLI flag.
+# Never hard-coded; never committed.
 
 
 def find_active_user_dir(explicit: str | None) -> Path:
@@ -91,10 +108,12 @@ def upsert_backend_provider(config: dict) -> bool:
             for field, want in (
                 ("endpoint", BACKEND_ENDPOINT),
                 ("label", BACKEND_LABEL),
-                # auth_style="none" makes the chat-factory (factory.rs) skip
-                # the auth-profiles.json key lookup — required because we
-                # never persist a token for the local backend.
-                ("auth_style", "none"),
+                # OpenFang requires Bearer auth for non-loopback callers.
+                # The chat-factory (factory.rs) reads the token from
+                # config.api_key (set in main()) — Eversilver's
+                # OpenAiCompatibleProvider then sends it as
+                # `Authorization: Bearer <token>` to OpenFang.
+                ("auth_style", "bearer"),
             ):
                 if entry.get(field) != want:
                     entry[field] = want
@@ -106,27 +125,38 @@ def upsert_backend_provider(config: dict) -> bool:
             "slug": BACKEND_SLUG,
             "label": BACKEND_LABEL,
             "endpoint": BACKEND_ENDPOINT,
-            "auth_style": "none",
+            "auth_style": "bearer",
         }
     )
     return True
 
 
 def drop_legacy_switchai(config: dict) -> bool:
-    """Remove stale switchai cloud_providers entries from earlier installs."""
+    """Remove stale cloud_providers entries from earlier installs.
+
+    Spans every backend the configure script has ever pointed Eversilver
+    at — switchai (Python LiteLLM shim, removed), eversilver-llm (the
+    local LLM-backend service, removed), athena-swarm (direct SAGE
+    swarm router on :8100, superseded by OpenFang on :4200).
+    """
+    LEGACY_SLUGS = {"switchai", "eversilver-llm", "athena-swarm"}
+    LEGACY_IDS = {"p_switchai_local", "p_eversilver_llm_local", "p_athena_swarm"}
     providers = config.get("cloud_providers")
     if not isinstance(providers, list):
         return False
     kept = [
         p
         for p in providers
-        if not (isinstance(p, dict) and (p.get("slug") == "switchai" or p.get("id") == "p_switchai_local"))
+        if not (
+            isinstance(p, dict)
+            and (p.get("slug") in LEGACY_SLUGS or p.get("id") in LEGACY_IDS)
+        )
     ]
     if kept == providers:
         return False
     config["cloud_providers"] = kept
-    # Reset primary_cloud if it pointed at the old switchai provider.
-    if config.get("primary_cloud") == "p_switchai_local":
+    # Reset primary_cloud if it pointed at any of the legacy providers.
+    if config.get("primary_cloud") in LEGACY_IDS:
         config["primary_cloud"] = BACKEND_ID
     return True
 
@@ -159,64 +189,27 @@ def backup(path: Path) -> Path | None:
     return bp
 
 
-def register_swarm_node(node_id: str, model: str, url: str) -> tuple[bool, str]:
-    """Register this Eversilver install as a node on the Athena swarm.
-
-    Hits `POST /v1/swarm/nodes/register` on the swarm router. The
-    registration is non-authoritative — the swarm uses it for discovery
-    and capacity planning, and the entry just shows up in
-    `GET /v1/swarm/nodes`. If the node URL is unreachable from the VPS
-    (e.g. behind NAT without a tunnel), the swarm still accepts the
-    registration; it just won't dispatch traffic to us.
-    """
-    import json
-    import socket
-    import urllib.error
-    import urllib.request
-
-    register_url = "http://62.171.154.39:8100/v1/swarm/nodes/register"
-    body = json.dumps(
-        {
-            "node_id": node_id,
-            "url": url,
-            "model": model,
-            "gpu_type": "desktop-cpu",
-        }
-    ).encode("utf-8")
-    req = urllib.request.Request(
-        register_url,
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=10) as r:
-            return True, r.read().decode("utf-8", errors="replace")
-    except urllib.error.HTTPError as e:
-        return False, f"HTTP {e.code}: {e.read().decode('utf-8', errors='replace')}"
-    except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
-        return False, f"transport: {e}"
-
-
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--user-id", help="defaults to active_user.toml lookup")
     ap.add_argument(
         "--model",
-        default="sage-swarm",
+        default="Athena",
         help=(
-            "Model id as exposed by the Athena SAGE swarm. Options today: "
-            "sage-swarm (auto-route — orchestrator default), fast (Groq llama-3.3-70b), "
-            "reason (DeepSeek-R1), step (Gemini 2.0 Flash), gpt-4o-mini, gpt-4o, "
-            "claude-3-5-sonnet. Default: sage-swarm"
+            "OpenFang agent name to use as the default for chat — must be a "
+            "RUNNING agent in the dashboard at :4200. Common: Athena (personal "
+            "assistant), planner, coder, researcher, browser-hand, orchestrator. "
+            "Default: Athena"
         ),
     )
     ap.add_argument(
         "--auth-token",
         default=None,
         help=(
-            "Bearer token to send to the backend. Only needed if the backend "
-            "was started with LLM_BACKEND_AUTH_TOKEN set. Default: placeholder."
+            "OpenFang Bearer token. Falls back to $OPENFANG_API_KEY env var. "
+            "Required — OpenFang rejects non-loopback requests without it. "
+            "Stored in the user's local config.toml only, never logged or "
+            "committed."
         ),
     )
     ap.add_argument(
@@ -236,15 +229,32 @@ def main() -> int:
     )
     args = ap.parse_args()
 
+    import os
+
     user_dir = find_active_user_dir(args.user_id)
     config_path, config = load_or_init_config(user_dir)
     model_id = args.model
-    api_key = args.auth_token or DEFAULT_PLACEHOLDER_KEY
+    api_key = (
+        args.auth_token
+        or os.environ.get("OPENFANG_API_KEY")
+        or config.get("api_key")  # preserve existing if neither supplied
+    )
+    if not api_key:
+        sys.exit(
+            "OpenFang API key not provided. Pass --auth-token, set "
+            "$OPENFANG_API_KEY in the environment, or pre-populate "
+            "config.toml#api_key. The key is required for non-loopback "
+            "requests to OpenFang."
+        )
+
+    # Masked for the console — never print the full token.
+    masked = (api_key[:4] + "…" + api_key[-4:]) if len(api_key) > 12 else "…"
 
     print(f"  user dir       : {user_dir}")
     print(f"  config         : {config_path}")
     print(f"  inference_url  : {BACKEND_ENDPOINT}")
     print(f"  default_model  : {model_id}")
+    print(f"  auth token     : {masked}  (stored in config.toml only)")
 
     changed = False
 
@@ -335,35 +345,25 @@ def main() -> int:
     print("  status         : wired")
     print()
 
-    # ── Register this install as a node on the Athena swarm ──────────────
-    if not args.no_register:
-        import socket
-
-        host = socket.gethostname() or "desktop"
-        node_id = args.node_id or f"eversilver-{host}".lower()
-        # The swarm router probes the URL before accepting registration —
-        # an unreachable LAN address (e.g. `http://eversilver.local:7788`)
-        # gets a 400. Pointing the URL at the swarm host itself satisfies
-        # the reachability check; since Eversilver isn't exposing local
-        # Ollama through a tunnel, we register as a *logical* agent in
-        # the registry rather than a dispatchable compute node.
-        node_url = "http://62.171.154.39:11434"
-        # Use the local chat model id so the registry entry reflects what
-        # this install would actually serve if a tunnel were added later.
-        local_model = "gemma3:1b-it-qat"
-        ok, msg = register_swarm_node(node_id, local_model, node_url)
-        if ok:
-            print(f"  swarm node     : registered '{node_id}' -> {node_url}")
-        else:
-            print(f"  swarm node     : registration skipped ({msg})")
+    # Eversilver no longer registers as a SAGE-swarm node — OpenFang has
+    # its own agent registry (the dashboard at :4200) and Eversilver is a
+    # client of that registry, not a peer in it. The --no-register flag
+    # is kept for backward compatibility but is a no-op now.
+    _ = args.no_register
+    _ = args.node_id
 
     print()
     print("Next:")
-    print(f"  1. Restart Eversilver so it re-reads inference_url ({BACKEND_ENDPOINT}).")
-    print(f"  2. Verify the model is exposed:")
-    print(f"       curl {BACKEND_ENDPOINT}/models")
-    print(f"  3. Confirm the node entry:")
-    print(f"       curl http://62.171.154.39:8100/v1/swarm/nodes")
+    print(f"  1. Restart Eversilver — chat panel now talks to OpenFang.")
+    print(f"  2. Verify the agent is RUNNING in the dashboard:")
+    print(f"       http://62.171.154.39:4200/#agents")
+    print(f"  3. Smoke-test directly:")
+    print(
+        f"       curl -X POST {BACKEND_ENDPOINT}/chat/completions \\\n"
+        f"            -H 'Authorization: Bearer $OPENFANG_API_KEY' \\\n"
+        f"            -H 'Content-Type: application/json' \\\n"
+        f"            -d '{{\"model\":\"{model_id}\",\"messages\":[{{\"role\":\"user\",\"content\":\"hi\"}}]}}'"
+    )
     return 0
 
 
