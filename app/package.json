@@ -39,6 +39,8 @@
     "win:run": "node ../scripts/run-pwsh.mjs ../scripts/win-run.ps1",
     "win:bootstrap": "node ../scripts/run-pwsh.mjs ../scripts/bootstrap.ps1",
     "win:release": "node ../scripts/run-pwsh.mjs ../scripts/release.ps1",
+    "win:switchai": "node ../scripts/run-pwsh.mjs ../scripts/install-switchai-backend.ps1",
+    "win:switchai:restart": "node ../scripts/run-pwsh.mjs ../scripts/restart-switchai-backend.ps1",
     "test": "vitest run --config test/vitest.config.ts",
     "test:unit": "vitest run --config test/vitest.config.ts",
     "test:unit:watch": "vitest --config test/vitest.config.ts",

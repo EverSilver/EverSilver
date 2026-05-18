@@ -145,6 +145,28 @@ try {
   Pop-Location
 }
 
+# --- PHASE 4.5: SwitchAI backend ---
+Write-Step "Phase 4.5: SwitchAI backend"
+$backendDir = Join-Path $repoRoot 'services\switchai-backend'
+if (Test-Path $backendDir) {
+  if ($SkipInstalls) {
+    Write-Warn2 "switchai-backend install skipped (-SkipInstalls)"
+  } else {
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+      & python -m pip install --quiet --user -e "$backendDir[dev]" tomli-w 2>&1 | Out-Null
+      if ($LASTEXITCODE -eq 0) {
+        Write-Ok 'switchai-backend installed (editable)'
+      } else {
+        Write-Warn2 "pip install switchai-backend exited $LASTEXITCODE"
+      }
+    } else {
+      Write-Warn2 'python missing; run scripts\install-switchai-backend.ps1 later'
+    }
+  }
+} else {
+  Write-Warn2 "switchai-backend dir missing at $backendDir"
+}
+
 # --- PHASE 5: Smart App Control check ---
 Write-Step "Phase 5: Smart App Control + WDAC check"
 try {

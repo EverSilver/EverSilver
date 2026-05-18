@@ -4,6 +4,27 @@ All notable changes to Eversilver are documented in this file. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the
 project adheres to [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **SwitchAI backend** (`services/switchai-backend/`) — FastAPI service
+  that wraps the SwitchAI Python library and exposes OpenAI-compatible
+  endpoints (`/v1/chat/completions` w/ SSE streaming, `/v1/embeddings`,
+  `/v1/audio/transcriptions`, `/v1/images/generations`, `/v1/models`).
+  Backs Eversilver's chat / reasoning / coding workloads. 14 vitest
+  cases pass; deploy-ready.
+- **One-shot SwitchAI install**: `pnpm --filter eversilver-app win:switchai`
+  installs Python deps, registers a Windows Startup shortcut for
+  auto-launch, starts the backend, and wires the active local user's
+  `config.toml` with the provider + model_routes entries.
+- **Restart helper**: `pnpm --filter eversilver-app win:switchai:restart`
+- **`scripts/configure-eversilver-switchai.py`** — idempotent TOML
+  config rewriter (backs up the original; supports `--provider` and
+  `--model` overrides for OpenAI / Anthropic / Mistral / DeepSeek /
+  Google / Ollama / xAI / Replicate / Voyage / Deepgram)
+- `services/switchai-backend/INTEGRATION.md` walkthrough.
+
 ## [0.53.49] — 2026-05-18
 
 First public release of Eversilver — the forked, rebranded, locally-installable

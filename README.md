@@ -135,6 +135,51 @@ under preview mode. To turn it on:
 Full walkthrough: `services/billing-worker/README.md` and
 `app/src/features/paywall/RAZORPAY_SETUP.md`.
 
+## LLM backend (SwitchAI)
+
+Eversilver routes all chat / reasoning / coding workloads through a local
+SwitchAI backend (`services/switchai-backend/`), an OpenAI-compatible
+FastAPI service that wraps the [SwitchAI](https://github.com/yelboudouri/SwitchAI)
+library. SwitchAI gives a unified interface to OpenAI, Anthropic, Mistral,
+DeepSeek, Google, Ollama, xAI, Replicate, Voyage, and Deepgram — you bring
+the keys, the backend routes per request.
+
+One-shot setup:
+
+```powershell
+pnpm --filter eversilver-app win:switchai
+```
+
+This installs the Python deps, registers a Windows Startup shortcut for
+auto-launch, starts the backend on `http://127.0.0.1:8088`, and wires the
+active local user's `config.toml` with a `[[cloud_providers]]` entry +
+`model_routes` for reasoning / agentic / coding workloads.
+
+Provide one upstream API key in `services/switchai-backend/.env`:
+
+```bash
+OPENAI_API_KEY=sk-...
+# or any of: ANTHROPIC_API_KEY, MISTRAL_API_KEY, DEEPSEEK_API_KEY,
+#            GOOGLE_API_KEY, XAI_API_KEY, REPLICATE_API_KEY,
+#            VOYAGE_API_KEY, DEEPGRAM_API_KEY
+```
+
+Restart the backend and Eversilver:
+
+```powershell
+pnpm --filter eversilver-app win:switchai:restart
+```
+
+Switch upstream provider/model:
+
+```powershell
+pnpm --filter eversilver-app win:switchai -- -Provider mistral -Model mistral-small-latest
+```
+
+Full integration walkthrough: `services/switchai-backend/INTEGRATION.md`.
+Backend's own docs (endpoints, curl examples, tests):
+`services/switchai-backend/README.md`.
+
 ## 3D mascot
 
 Eversilver ships with a 2D SVG mascot ("Ghosty") in a moonlight palette

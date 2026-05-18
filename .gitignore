@@ -99,3 +99,9 @@ tmp/
 app/test/e2e/.cache/
 test-map.md
 .test-gap-analysis.md
+
+# Python build artifacts (switchai-backend dev installs)
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
