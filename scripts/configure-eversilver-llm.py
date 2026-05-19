@@ -367,6 +367,36 @@ def main() -> int:
         local_ai["base_url"] = "http://localhost:11434"
         changed = True
 
+    # ── Device control (mouse, keyboard, shell) ───────────────────────────
+    # openhuman's `tools/impl/computer/` ships MouseTool + KeyboardTool;
+    # ShellTool and ScreenshotTool are always-on. The mouse/keyboard
+    # tools are gated behind `computer_control.enabled` because they
+    # let the agent fully drive the host. We opt in here so Athena can
+    # click, type, and run shell commands locally — matching upstream
+    # openhuman's "control the device it's on" feature.
+    cc = config.setdefault("computer_control", {})
+    if cc.get("enabled") is not True:
+        cc["enabled"] = True
+        changed = True
+
+    # Node.js execution gate — enables node_exec + npm_exec tools so
+    # the agent can run JS scripts, install packages, etc. Same safety
+    # rationale as computer_control: explicit opt-in.
+    node_cfg = config.setdefault("node", {})
+    if node_cfg.get("enabled") is not True:
+        node_cfg["enabled"] = True
+        changed = True
+
+    # Learning + tool-effectiveness tracking — turns on ToolStatsTool
+    # so Eversilver learns which tools work for which tasks over time.
+    learning_cfg = config.setdefault("learning", {})
+    if learning_cfg.get("enabled") is not True:
+        learning_cfg["enabled"] = True
+        changed = True
+    if learning_cfg.get("tool_tracking_enabled") is not True:
+        learning_cfg["tool_tracking_enabled"] = True
+        changed = True
+
     # ── Obsidian vault integration ────────────────────────────────────────
     # Eversilver's memory tree writes one .md per chunk under
     # <content_root> with full Obsidian-compatible front-matter (tags,
