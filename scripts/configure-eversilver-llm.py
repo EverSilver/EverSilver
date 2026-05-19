@@ -194,12 +194,16 @@ def main() -> int:
     ap.add_argument("--user-id", help="defaults to active_user.toml lookup")
     ap.add_argument(
         "--model",
-        default="Athena",
+        default="assistant",
         help=(
             "OpenFang agent name to use as the default for chat — must be a "
-            "RUNNING agent in the dashboard at :4200. Common: Athena (personal "
-            "assistant), planner, coder, researcher, browser-hand, orchestrator. "
-            "Default: Athena"
+            "RUNNING agent in the dashboard at :4200. Latency-ordered:\n"
+            "  leon (~1.6s, pollinations free model)\n"
+            "  analytics-orchestrator (~1.6s, smart-fast)\n"
+            "  Hermes (~3s, smart)\n"
+            "  assistant (~3.5s, smart, personal assistant — DEFAULT)\n"
+            "  Athena (~13s, smart, the heavyweight personal assistant)\n"
+            "  Others: planner, coder, researcher, browser-hand, orchestrator, ..."
         ),
     )
     ap.add_argument(

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { useCoreState } from '../providers/CoreStateProvider';
+
 import ChannelSetupModal from '../components/channels/ChannelSetupModal';
 import ComposioConnectModal from '../components/composio/ComposioConnectModal';
 import {
@@ -280,6 +282,7 @@ export default function Skills() {
   const { t } = useT();
   const location = useLocation();
   const navigate = useNavigate();
+  const { snapshot } = useCoreState();
   const { definitions: channelDefs } = useChannelDefinitions();
   const channelConnections = useAppSelector(state => state.channelConnections);
 
@@ -770,7 +773,16 @@ export default function Skills() {
               </div>
             </div> */}
 
-            {composioError && (
+            {/*
+              Hide the composio "stale connections" banner when running in
+              local-only mode. Composio integrations live on the hosted
+              api.eversilver.local backend, which is dead in this install
+              by design — the dns-error toolkit fetch IS the expected
+              steady state, not a degradation worth alerting the user
+              about. Surface it only if a real session JWT exists (i.e.
+              the user is signed into a hosted backend).
+             */}
+            {composioError && !/local-/.test(String(snapshot?.sessionToken ?? '')) && (
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 shadow-soft">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
