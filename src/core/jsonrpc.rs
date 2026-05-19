@@ -177,7 +177,7 @@ pub async fn invoke_method(state: AppState, method: &str, params: Value) -> Resu
     // Centralising via the event bus means 401 detection from any path
     // (this one, `llm_provider.api_error`, …) gets the same teardown.
     if let Err(ref msg) = result {
-        if is_session_expired_error(msg) {
+        if is_session_expired_error(msg) && !is_local_session_active() {
             log::warn!(
                 "[jsonrpc] backend returned 401 for method '{}' — publishing SessionExpired",
                 method
@@ -192,10 +192,47 @@ pub async fn invoke_method(state: AppState, method: &str, params: Value) -> Resu
                     reason: crate::eversilver::providers::ops::sanitize_api_error(msg),
                 },
             );
+        } else if is_session_expired_error(msg) {
+            // Local-only install: the active session is a synthetic
+            // `eversilver-local-…` token and there's no backend JWT by
+            // design. Calls that need a backend JWT (team_get_usage,
+            // billing_get_current_plan, composio_list_connections, …)
+            // will fail with "no backend session token", but that is NOT
+            // a real session-expiry signal and dispatching SessionExpired
+            // here would wipe the local session and bounce the user back
+            // to the Welcome screen — exactly the loop reported when
+            // users click "Continue without an account".
+            log::debug!(
+                "[jsonrpc] suppressed SessionExpired for method '{}' — active session is local-only",
+                method
+            );
         }
     }
 
     result
+}
+
+/// True when the active session token starts with the local-session
+/// prefix (set by `Welcome.tsx::mintLocalSessionToken` and recognised
+/// by `credentials::ops::store_session`). When this is the case, the
+/// user is running fully offline and there is no hosted-backend JWT;
+/// hosted-backend 401-equivalent errors are expected and must NOT
+/// trigger the SessionExpired teardown.
+fn is_local_session_active() -> bool {
+    // Best-effort: any failure to read the active session is treated as
+    // "not local" so the legacy SessionExpired path remains the default.
+    let config = match futures::executor::block_on(
+        crate::eversilver::config::load_config_with_timeout(),
+    ) {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    match crate::eversilver::credentials::session_support::get_session_token(&config) {
+        Ok(Some(token)) => token.trim().starts_with(
+            crate::eversilver::credentials::ops::LOCAL_SESSION_TOKEN_PREFIX,
+        ),
+        _ => false,
+    }
 }
 
 /// Helper to determine if an error message indicates an expired or invalid session.

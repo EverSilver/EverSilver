@@ -267,14 +267,23 @@ def main() -> int:
     changed |= set_field(config, "primary_cloud", BACKEND_ID)
     changed |= drop_legacy_switchai(config)
 
-    # ── Repoint the auxiliary API surface ─────────────────────────────────
-    # Account/billing/integrations/release-channel calls go to whatever
-    # `api_url` resolves to (defaulting to https://api.eversilver.local —
-    # dead in a local-only install). The llm-backend exposes stub routes
-    # for every path the desktop polls, so pointing here drops all the
-    # "stale status" banners and 5-min reconnect storms.
-    backend_root = BACKEND_ENDPOINT.rsplit("/v1", 1)[0]
-    changed |= set_field(config, "api_url", backend_root)
+    # ── DO NOT repoint api_url ────────────────────────────────────────────
+    # Auxiliary calls (team_get_usage, billing_get_current_plan,
+    # composio_*, auth/me) ride config.api_url. If we point those at
+    # OpenFang, they return 401 — and Eversilver's jsonrpc.invoke_method
+    # interprets 401 on any backend RPC as `SessionExpired` → fires a
+    # bus event that triggers clearSession → wipes the local session
+    # the user just created via "Continue without an account" → bounces
+    # them back to the Welcome screen → infinite loop.
+    #
+    # Leaving api_url unset means those calls hit the default
+    # api.eversilver.local which DNS-fails (NotFound), and Eversilver
+    # silences DNS failures as "transient downstream failure" without
+    # clearing the session. Chat goes through inference_url (OpenFang)
+    # which is unaffected.
+    if "api_url" in config:
+        del config["api_url"]
+        changed = True
 
     # ── Per-workload selectors (Settings > AI side panel) ─────────────────
     workload_target = f"{BACKEND_SLUG}:{model_id}"
