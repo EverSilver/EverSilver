@@ -218,6 +218,16 @@ def main() -> int:
         help="Leave socket.auto_connect alone (default: disable WS to dead backend).",
     )
     ap.add_argument(
+        "--obsidian-vault",
+        default=None,
+        help=(
+            "Absolute path to the Obsidian vault Eversilver should write "
+            "memory-tree chunks into. Defaults to "
+            "~/OneDrive/Documents/Obsidian Vault/Eversilver. Pass 'off' "
+            "to keep chunks under <workspace>/memory_tree/content/."
+        ),
+    )
+    ap.add_argument(
         "--no-register",
         action="store_true",
         help="Skip registering this install as a node on the Athena swarm.",
@@ -356,6 +366,32 @@ def main() -> int:
     if not local_ai.get("base_url"):
         local_ai["base_url"] = "http://localhost:11434"
         changed = True
+
+    # ── Obsidian vault integration ────────────────────────────────────────
+    # Eversilver's memory tree writes one .md per chunk under
+    # <content_root> with full Obsidian-compatible front-matter (tags,
+    # wikilinks, aliases). Pointing content_root at the user's existing
+    # vault means every email/document/chat summary lands there and is
+    # immediately graphable in Obsidian.
+    #
+    # `--obsidian-vault` overrides; default is the canonical vault from
+    # the global CLAUDE.md so the user doesn't have to pass it every run.
+    import os.path
+
+    DEFAULT_OBSIDIAN_VAULT = os.path.join(
+        os.path.expanduser("~"),
+        "OneDrive",
+        "Documents",
+        "Obsidian Vault",
+        "Eversilver",
+    )
+    vault = getattr(args, "obsidian_vault", None) or DEFAULT_OBSIDIAN_VAULT
+    if vault and vault.strip().lower() not in ("", "none", "off", "disable"):
+        os.makedirs(vault, exist_ok=True)
+        memory_tree = config.setdefault("memory_tree", {})
+        if memory_tree.get("content_dir") != vault:
+            memory_tree["content_dir"] = vault
+            changed = True
 
     # ── Re-route the canonical 'summarization-v1' tier to OpenFang ───────
     # Eversilver's memory tree autosummariser dispatches with model
