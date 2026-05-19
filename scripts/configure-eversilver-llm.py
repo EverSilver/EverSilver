@@ -54,15 +54,25 @@ except ImportError:  # pragma: no cover
 
 
 ROOT = Path.home() / ".eversilver"
-# OpenFang on the Athena VPS — open-source agent OS, OpenAI-compatible.
-# (RightNow-AI/openfang on GitHub; dashboard at :4200.) Each registered
-# agent (Athena, planner, coder, researcher, …) is addressable by its
-# name in the `model` field of /v1/chat/completions. Authentication is
-# a single Bearer token (OPENFANG_API_KEY) configured on the server.
+# Two endpoint choices on the Athena VPS, picked by --swarm-direct:
+#
+#   Default — OpenFang :4200 (agent framework with memory, tools, hands).
+#   Replies ~1.5-12s depending on agent tier. Use analytics-orchestrator
+#   for the only reliably-sub-2s OpenFang agent today.
+#
+#   --swarm-direct — SAGE swarm :8100 (raw LLM cascade, speculative
+#   parallel race across Groq/Cerebras/etc.). Replies 0.8-1.2s but
+#   without OpenFang's agent loop (no Athena-style memory or tool
+#   dispatch via the agent — Eversilver's own local tool catalog still
+#   works fine). Use this when latency > agent features.
 BACKEND_SLUG = "openfang"
 BACKEND_LABEL = "OpenFang (Athena VPS)"
 BACKEND_ENDPOINT = "http://62.171.154.39:4200/v1"
 BACKEND_ID = "p_openfang"
+SWARM_SLUG = "athena-swarm"
+SWARM_LABEL = "SAGE swarm (direct LLM)"
+SWARM_ENDPOINT = "http://62.171.154.39:8100/v1"
+SWARM_ID = "p_athena_swarm"
 CHAT_HINTS = ("reasoning", "agentic", "coding")
 # Token is read from $OPENFANG_API_KEY (env) or --auth-token CLI flag.
 # Never hard-coded; never committed.
@@ -99,21 +109,23 @@ def set_field(config: dict, key: str, value: object) -> bool:
     return True
 
 
-def upsert_backend_provider(config: dict) -> bool:
-    """Insert/refresh the llm-backend entry in `cloud_providers`."""
+def upsert_backend_provider(
+    config: dict,
+    slug: str,
+    label: str,
+    endpoint: str,
+    backend_id: str,
+    auth_style: str,
+) -> bool:
+    """Insert/refresh the cloud_providers entry for the active backend."""
     providers = config.setdefault("cloud_providers", [])
     for entry in providers:
-        if entry.get("slug") == BACKEND_SLUG or entry.get("id") == BACKEND_ID:
+        if entry.get("slug") == slug or entry.get("id") == backend_id:
             changed = False
             for field, want in (
-                ("endpoint", BACKEND_ENDPOINT),
-                ("label", BACKEND_LABEL),
-                # OpenFang requires Bearer auth for non-loopback callers.
-                # The chat-factory (factory.rs) reads the token from
-                # config.api_key (set in main()) — Eversilver's
-                # OpenAiCompatibleProvider then sends it as
-                # `Authorization: Bearer <token>` to OpenFang.
-                ("auth_style", "bearer"),
+                ("endpoint", endpoint),
+                ("label", label),
+                ("auth_style", auth_style),
             ):
                 if entry.get(field) != want:
                     entry[field] = want
@@ -121,11 +133,11 @@ def upsert_backend_provider(config: dict) -> bool:
             return changed
     providers.append(
         {
-            "id": BACKEND_ID,
-            "slug": BACKEND_SLUG,
-            "label": BACKEND_LABEL,
-            "endpoint": BACKEND_ENDPOINT,
-            "auth_style": "bearer",
+            "id": backend_id,
+            "slug": slug,
+            "label": label,
+            "endpoint": endpoint,
+            "auth_style": auth_style,
         }
     )
     return True
@@ -194,16 +206,27 @@ def main() -> int:
     ap.add_argument("--user-id", help="defaults to active_user.toml lookup")
     ap.add_argument(
         "--model",
-        default="assistant",
+        default="analytics-orchestrator",
         help=(
-            "OpenFang agent name to use as the default for chat — must be a "
-            "RUNNING agent in the dashboard at :4200. Latency-ordered:\n"
-            "  leon (~1.6s, pollinations free model)\n"
-            "  analytics-orchestrator (~1.6s, smart-fast)\n"
-            "  Hermes (~3s, smart)\n"
-            "  assistant (~3.5s, smart, personal assistant — DEFAULT)\n"
-            "  Athena (~13s, smart, the heavyweight personal assistant)\n"
-            "  Others: planner, coder, researcher, browser-hand, orchestrator, ..."
+            "Default model. With --swarm-direct: use 'auto' (~0.8s race), "
+            "'fast' (~1.2s Groq), 'reason' (~0.9s DeepSeek-R1), or "
+            "'step' (~0.8s Gemini long-context). Without it (OpenFang): "
+            "use 'analytics-orchestrator' (~1.5s smart-fast — DEFAULT, "
+            "only reliably-sub-2s agent), 'Hermes' (~3-12s smart), "
+            "'assistant' (~3-7s smart), 'Athena' (~13s+ smart). "
+            "Other OpenFang agents addressable: planner, coder, researcher, "
+            "browser-hand, orchestrator, codex, ..."
+        ),
+    )
+    ap.add_argument(
+        "--swarm-direct",
+        action="store_true",
+        help=(
+            "Route chat through the SAGE swarm at :8100 instead of OpenFang "
+            "at :4200. Bypasses OpenFang's agent framework — you lose "
+            "Athena-style memory/hand integration but gain consistent "
+            "sub-2-second replies. Eversilver's own local tool catalog "
+            "(mouse, keyboard, shell, fs, …) still works fine."
         ),
     )
     ap.add_argument(
@@ -248,11 +271,34 @@ def main() -> int:
     user_dir = find_active_user_dir(args.user_id)
     config_path, config = load_or_init_config(user_dir)
     model_id = args.model
+
+    # Pick endpoint based on --swarm-direct. Swarm doesn't require auth
+    # (it's a public-ish race router), so the api_key is OpenFang-only.
+    if args.swarm_direct:
+        active_endpoint = SWARM_ENDPOINT
+        active_slug     = SWARM_SLUG
+        active_label    = SWARM_LABEL
+        active_id       = SWARM_ID
+        active_auth_style = "none"
+        # Sane default for the swarm if the user kept the OpenFang default
+        if model_id == "analytics-orchestrator":
+            model_id = "auto"
+    else:
+        active_endpoint = BACKEND_ENDPOINT
+        active_slug     = BACKEND_SLUG
+        active_label    = BACKEND_LABEL
+        active_id       = BACKEND_ID
+        active_auth_style = "bearer"
+
     api_key = (
         args.auth_token
         or os.environ.get("OPENFANG_API_KEY")
         or config.get("api_key")  # preserve existing if neither supplied
     )
+    # Swarm path doesn't need a real token; use a placeholder so the
+    # bearer-style provider has something non-empty.
+    if args.swarm_direct and not api_key:
+        api_key = "swarm-direct-no-auth"
     if not api_key:
         sys.exit(
             "OpenFang API key not provided. Pass --auth-token, set "
@@ -266,19 +312,22 @@ def main() -> int:
 
     print(f"  user dir       : {user_dir}")
     print(f"  config         : {config_path}")
-    print(f"  inference_url  : {BACKEND_ENDPOINT}")
+    print(f"  backend        : {active_label}")
+    print(f"  inference_url  : {active_endpoint}")
     print(f"  default_model  : {model_id}")
     print(f"  auth token     : {masked}  (stored in config.toml only)")
 
     changed = False
 
     # ── Remote arm (the chat dispatcher's primary path) ────────────────────
-    changed |= set_field(config, "inference_url", BACKEND_ENDPOINT)
+    changed |= set_field(config, "inference_url", active_endpoint)
     changed |= set_field(config, "default_model", model_id)
     changed |= set_field(config, "api_key", api_key)
     changed |= set_model_routes(config, model_id)
-    changed |= upsert_backend_provider(config)
-    changed |= set_field(config, "primary_cloud", BACKEND_ID)
+    changed |= upsert_backend_provider(
+        config, active_slug, active_label, active_endpoint, active_id, active_auth_style
+    )
+    changed |= set_field(config, "primary_cloud", active_id)
     changed |= drop_legacy_switchai(config)
 
     # ── DO NOT repoint api_url ────────────────────────────────────────────
@@ -300,7 +349,7 @@ def main() -> int:
         changed = True
 
     # ── Per-workload selectors (Settings > AI side panel) ─────────────────
-    workload_target = f"{BACKEND_SLUG}:{model_id}"
+    workload_target = f"{active_slug}:{model_id}"
     for hint in CHAT_HINTS:
         key = f"{hint}_provider"
         if config.get(key) != workload_target:
@@ -473,16 +522,21 @@ def main() -> int:
 
     print()
     print("Next:")
-    print(f"  1. Restart Eversilver — chat panel now talks to OpenFang.")
-    print(f"  2. Verify the agent is RUNNING in the dashboard:")
-    print(f"       http://62.171.154.39:4200/#agents")
-    print(f"  3. Smoke-test directly:")
-    print(
-        f"       curl -X POST {BACKEND_ENDPOINT}/chat/completions \\\n"
-        f"            -H 'Authorization: Bearer $OPENFANG_API_KEY' \\\n"
-        f"            -H 'Content-Type: application/json' \\\n"
-        f"            -d '{{\"model\":\"{model_id}\",\"messages\":[{{\"role\":\"user\",\"content\":\"hi\"}}]}}'"
-    )
+    print(f"  1. Restart Eversilver — chat goes to {active_label}.")
+    print(f"  2. Smoke-test directly:")
+    if args.swarm_direct:
+        print(
+            f"       curl -X POST {active_endpoint}/chat/completions \\\n"
+            f"            -H 'Content-Type: application/json' \\\n"
+            f"            -d '{{\"model\":\"{model_id}\",\"messages\":[{{\"role\":\"user\",\"content\":\"hi\"}}]}}'"
+        )
+    else:
+        print(
+            f"       curl -X POST {active_endpoint}/chat/completions \\\n"
+            f"            -H 'Authorization: Bearer $OPENFANG_API_KEY' \\\n"
+            f"            -H 'Content-Type: application/json' \\\n"
+            f"            -d '{{\"model\":\"{model_id}\",\"messages\":[{{\"role\":\"user\",\"content\":\"hi\"}}]}}'"
+        )
     return 0
 
 
