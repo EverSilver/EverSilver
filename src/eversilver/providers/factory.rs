@@ -258,7 +258,30 @@ fn make_cloud_provider_by_slug(
         redact_endpoint(&entry.endpoint)
     );
 
-    let key = lookup_key_for_slug(slug, config)?;
+    // Resolution order for the bearer credential:
+    //   1. auth-profiles.json under `provider:<slug>` (the canonical path,
+    //      populated by `auth_store_provider_credentials` and the Settings
+    //      UI's "Add provider key" flow)
+    //   2. config.api_key (top-level field) when auth-profiles.json is
+    //      empty — lets the configure script wire a slug-keyed provider
+    //      (e.g. openfang) without round-tripping through the RPC encrypt
+    //      step. This is opt-in via auth_style=Bearer; the user explicitly
+    //      asked for bearer auth and has nothing else stored, so use the
+    //      one place a token IS available.
+    let key = {
+        let primary = lookup_key_for_slug(slug, config)?;
+        if primary.trim().is_empty() {
+            config
+                .api_key
+                .as_deref()
+                .map(str::trim)
+                .filter(|k| !k.is_empty())
+                .map(str::to_string)
+                .unwrap_or(primary)
+        } else {
+            primary
+        }
+    };
 
     match entry.auth_style {
         AuthStyle::Anthropic => {
